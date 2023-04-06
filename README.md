@@ -75,3 +75,12 @@ These models can be created using `<FUNCTION>(<NAME>; pretrained = <PRETRAINED>)
 
 All the pretrained models require that the images be normalized with the parameters
 `mean = [0.485f0, 0.456f0, 0.406f0]` and `std = [0.229f0, 0.224f0, 0.225f0]`.
+
+## Changelog
+
+### Updating from v0.1 to v0.2
+
+We have moved some dependencies into weak dependencies. This means that you will have to
+manually load them for certain features to be available.
+
+* To load Flux & Metalhead models, do `using Flux, Metalhead`.

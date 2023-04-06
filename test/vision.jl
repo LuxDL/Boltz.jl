@@ -1,4 +1,7 @@
 using Boltz, Lux
+using Metalhead # Trigger Weak Dependency on Metalhead
+
+include("test_utils.jl")
 
 models_available = Dict(alexnet => [(:alexnet, true), (:alexnet, false)],
                         convmixer => [(:small, false), (:base, false), (:large, false)],
@@ -60,7 +63,9 @@ models_available = Dict(alexnet => [(:alexnet, true), (:alexnet, false)],
                             # (:gigantic, false),
                         ])
 
-@testset "$model_creator" for (model_creator, config) in pairs(models_available)
+@testset "$model_creator: $mode" for (mode, device, ongpu) in MODES,
+                                     (model_creator, config) in pairs(models_available)
+
     @time begin
         @testset "name = $name & pretrained = $pretrained" for (name, pretrained) in config
             if VERSION <= v"1.7" && pretrained
@@ -68,10 +73,13 @@ models_available = Dict(alexnet => [(:alexnet, true), (:alexnet, false)],
                 continue
             end
             model, ps, st = model_creator(name; pretrained)
-            st = Lux.testmode(st)
+            ps = ps |> device
+            st = Lux.testmode(st) |> device
 
             imsize = string(model_creator) == "vision_transformer" ? (256, 256) : (224, 224)
-            x = randn(Float32, imsize..., 3, 1)
+            x = randn(Float32, imsize..., 3, 1) |> device
+
+            @jet model(x, ps, st)
 
             @test size(first(model(x, ps, st))) == (1000, 1)
 
