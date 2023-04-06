@@ -1,3 +1,10 @@
+module BoltzFluxMetalheadExt
+
+isdefined(Base, :get_extension) ? (using Metalhead) : (using ..Metalhead)
+using Boltz, Lux
+import Boltz: alexnet, convmixer, densenet, googlenet, mobilenet, resnet, resnext
+using Boltz: _initialize_model, assert_name_present_in
+
 function alexnet(name::Symbol; pretrained=false, kwargs...)
     assert_name_present_in(name, (:alexnet,))
     model = transform(AlexNet().layers)
@@ -84,4 +91,6 @@ function convmixer(name::Symbol; kwargs...)
     assert_name_present_in(name, (:base, :large, :small))
     model = transform(ConvMixer(name).layers)
     return _initialize_model(name, model; kwargs...)
+end
+
 end
