@@ -14,7 +14,9 @@ end
 function __init__()
     @static if !isdefined(Base, :get_extension)
         # Import Flux Models
-        @require Metalhead="dbeba491-748d-5e0e-a39e-b530a07fa0cc" begin include("../ext/BoltzFluxMetalheadExt.jl") end
+        @require Metalhead="dbeba491-748d-5e0e-a39e-b530a07fa0cc" begin
+            include("../ext/BoltzFluxMetalheadExt.jl")
+        end
     end
 end
 
