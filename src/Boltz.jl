@@ -21,8 +21,15 @@ function __init__()
 end
 
 # Define functions. Methods defined in files or in extensions later
-for f in (:alexnet, :convmixer, :densenet, :googlenet, :mobilenet, :resnet, :resnext, :vgg,
-          :vision_transformer)
+for f in (:alexnet,
+    :convmixer,
+    :densenet,
+    :googlenet,
+    :mobilenet,
+    :resnet,
+    :resnext,
+    :vgg,
+    :vision_transformer)
     @eval function $(f) end
 end
 
@@ -34,7 +41,7 @@ include("vision/vit.jl")
 include("vision/vgg.jl")
 
 # Exports
-export alexnet, convmixer, densenet, googlenet, mobilenet, resnet, resnext, vgg,
-       vision_transformer
+export alexnet,
+    convmixer, densenet, googlenet, mobilenet, resnet, resnext, vgg, vision_transformer
 
 end
