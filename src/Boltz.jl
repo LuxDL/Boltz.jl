@@ -7,17 +7,9 @@ using Artifacts, JLD2, LazyArtifacts
 import ChainRulesCore as CRC
 
 # Extensions
-if !isdefined(Base, :get_extension)
-    using Requires
-end
-
+using PackageExtensionCompat
 function __init__()
-    @static if !isdefined(Base, :get_extension)
-        # Import Flux Models
-        @require Metalhead="dbeba491-748d-5e0e-a39e-b530a07fa0cc" begin
-            include("../ext/BoltzFluxMetalheadExt.jl")
-        end
-    end
+    @require_extensions
 end
 
 # Define functions. Methods defined in files or in extensions later

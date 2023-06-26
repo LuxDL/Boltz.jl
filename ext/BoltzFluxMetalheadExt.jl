@@ -1,7 +1,6 @@
 module BoltzFluxMetalheadExt
 
-isdefined(Base, :get_extension) ? (using Metalhead) : (using ..Metalhead)
-using Boltz, Lux
+using Boltz, Lux, Metalhead
 import Boltz: alexnet, convmixer, densenet, googlenet, mobilenet, resnet, resnext
 using Boltz: _initialize_model, assert_name_present_in
 
