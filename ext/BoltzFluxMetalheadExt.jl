@@ -72,8 +72,7 @@ end
 
 function mobilenet(name::Symbol; kwargs...)
     assert_name_present_in(name,
-                           (:mobilenet_v1, :mobilenet_v2, :mobilenet_v3_small,
-                            :mobilenet_v3_large))
+        (:mobilenet_v1, :mobilenet_v2, :mobilenet_v3_small, :mobilenet_v3_large))
     model = if name == :mobilenet_v1
         transform(MobileNetv1().layers)
     elseif name == :mobilenet_v2
