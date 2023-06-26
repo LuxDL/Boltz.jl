@@ -21,13 +21,8 @@ steps:
       setup:
         julia:
           - "1"
-          - "1.6"
-          - "1.9-nightly"
           - "nightly"
       adjustments:
-        - with:
-            julia: "1.6"  # GPU compilation for some of the gigantic models break
-          soft_fail: true
         - with:
             julia: "nightly"
           soft_fail: true
