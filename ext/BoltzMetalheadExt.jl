@@ -1,4 +1,4 @@
-module BoltzFluxMetalheadExt
+module BoltzMetalheadExt
 
 using Boltz, Lux, Metalhead
 import Boltz: alexnet, convmixer, densenet, googlenet, mobilenet, resnet, resnext

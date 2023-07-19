@@ -30,9 +30,15 @@ model, ps, st = resnet(:resnet18; pretrained=true)
 
 ## Changelog
 
+
+### Updating from v0.2 to v0.3
+
+CUDA is not loaded by default. To use GPUs follow
+[Lux.jl documentation](https://lux.csail.mit.edu/stable/manual/gpu_management/).
+
 ### Updating from v0.1 to v0.2
 
 We have moved some dependencies into weak dependencies. This means that you will have to
 manually load them for certain features to be available.
 
-* To load Flux & Metalhead models, do `using Flux, Metalhead`.
+* To load Flux & Metalhead models, do `using Metalhead`.

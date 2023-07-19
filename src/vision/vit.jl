@@ -20,7 +20,7 @@ function MultiHeadAttention(in_planes::Int,
     attention_dropout_rate::T=0.0f0,
     projection_dropout_rate::T=0.0f0) where {T}
     @assert in_planes % number_heads==0 "`in_planes` should be divisible by `number_heads`"
-    qkv_layer = Dense(in_planes, in_planes * 3; bias=qkv_bias)
+    qkv_layer = Dense(in_planes, in_planes * 3; use_bias=qkv_bias)
     attention_dropout = Dropout(attention_dropout_rate)
     projection = Chain(Dense(in_planes, in_planes), Dropout(projection_dropout_rate))
 

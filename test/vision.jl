@@ -60,7 +60,7 @@ models_available = Dict(alexnet => [(:alexnet, true), (:alexnet, false)],
         # (:gigantic, false),
     ])
 
-@testset "$model_creator: $mode" for (mode, device, ongpu) in MODES,
+@testset "$model_creator: $mode" for (mode, aType, device, ongpu) in MODES,
     (model_creator, config) in pairs(models_available)
 
     @time begin
@@ -74,7 +74,7 @@ models_available = Dict(alexnet => [(:alexnet, true), (:alexnet, false)],
             st = Lux.testmode(st) |> device
 
             imsize = string(model_creator) == "vision_transformer" ? (256, 256) : (224, 224)
-            x = randn(Float32, imsize..., 3, 1) |> device
+            x = randn(Float32, imsize..., 3, 1) |> aType
 
             @jet model(x, ps, st)
 

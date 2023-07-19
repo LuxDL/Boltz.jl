@@ -1,6 +1,6 @@
 module Boltz
 
-using CUDA, Lux, NNlib, Random, Statistics
+using Lux, Random, Statistics
 # Loading Pretained Weights
 using Artifacts, JLD2, LazyArtifacts
 # AD Support
