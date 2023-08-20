@@ -23,7 +23,7 @@ Pkg.add("Boltz")
 ## Getting Started
 
 ```julia
-using Boltz, Lux
+using Boltz, Lux, Metalhead
 
 model, ps, st = resnet(:resnet18; pretrained=true)
 ```
