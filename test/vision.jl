@@ -17,7 +17,10 @@ models_available = Dict(alexnet => [(:alexnet, false)],
         (:vgg13, false), (:vgg13, true), (:vgg13_bn, false), (:vgg13_bn, true),
         (:vgg16, false), (:vgg16, true), (:vgg16_bn, false), (:vgg16_bn, true),
         (:vgg19, false), (:vgg19, true), (:vgg19_bn, false), (:vgg19_bn, true)],
-    vision_transformer => [(:tiny, false), (:small, false), (:base, false),
+    vision_transformer => [
+        (:tiny, false),
+        (:small, false),
+        (:base, false),
         # CI cant handle these
         # (:large, false), (:huge, false), (:giant, false), (:gigantic, false),
     ])
