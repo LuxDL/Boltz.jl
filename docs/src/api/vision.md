@@ -58,11 +58,11 @@ Boltz._vgg_convolutional_layers
 | MODEL NAME | FUNCTION    | NAME                  | PRETRAINED | TOP 1 ACCURACY (%) | TOP 5 ACCURACY (%) |
 | ---------- | ----------- | --------------------- | :--------: | :----------------: | :----------------: |
 | AlexNet    | `alexnet`   | `:alexnet`            |     ✅      |       54.48        |       77.72        |
-| ResNet     | `resnet`    | `:resnet18`           |     ✅      |       68.08        |       88.44        |
-| ResNet     | `resnet`    | `:resnet34`           |     ✅      |       72.13        |       90.91        |
-| ResNet     | `resnet`    | `:resnet50`           |     ✅      |       74.55        |       92.36        |
-| ResNet     | `resnet`    | `:resnet101`          |     ✅      |       74.81        |       92.36        |
-| ResNet     | `resnet`    | `:resnet152`          |     ✅      |       77.63        |       93.84        |
+| ResNet     | `resnet`    | `:resnet18`           |     🚫      |       68.08        |       88.44        |
+| ResNet     | `resnet`    | `:resnet34`           |     🚫      |       72.13        |       90.91        |
+| ResNet     | `resnet`    | `:resnet50`           |     🚫      |       74.55        |       92.36        |
+| ResNet     | `resnet`    | `:resnet101`          |     🚫      |       74.81        |       92.36        |
+| ResNet     | `resnet`    | `:resnet152`          |     🚫      |       77.63        |       93.84        |
 | ConvMixer  | `convmixer` | `:small`              |     🚫      |                    |                    |
 | ConvMixer  | `convmixer` | `:base`               |     🚫      |                    |                    |
 | ConvMixer  | `convmixer` | `:large`              |     🚫      |                    |                    |

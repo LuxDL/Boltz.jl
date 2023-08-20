@@ -1,6 +1,6 @@
 module Boltz
 
-using CUDA, Lux, NNlib, Random, Statistics
+using Lux, Random, Statistics
 # Loading Pretained Weights
 using Artifacts, JLD2, LazyArtifacts
 # AD Support
@@ -13,14 +13,7 @@ function __init__()
 end
 
 # Define functions. Methods defined in files or in extensions later
-for f in (:alexnet,
-    :convmixer,
-    :densenet,
-    :googlenet,
-    :mobilenet,
-    :resnet,
-    :resnext,
-    :vgg,
+for f in (:alexnet, :convmixer, :densenet, :googlenet, :mobilenet, :resnet, :resnext, :vgg,
     :vision_transformer)
     @eval function $(f) end
 end

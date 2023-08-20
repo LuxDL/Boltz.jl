@@ -1,4 +1,4 @@
-module BoltzFluxMetalheadExt
+module BoltzMetalheadExt
 
 using Boltz, Lux, Metalhead
 import Boltz: alexnet, convmixer, densenet, googlenet, mobilenet, resnet, resnext
@@ -28,11 +28,6 @@ function resnet(name::Symbol; pretrained=false, kwargs...)
         transform(ResNet(101).layers)
     elseif name == :resnet152
         transform(ResNet(152).layers)
-    end
-
-    # Compatibility with pretrained weights
-    if pretrained
-        model = Chain(model[1], model[2])
     end
 
     return _initialize_model(name, model; pretrained, kwargs...)

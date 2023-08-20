@@ -1,35 +1,39 @@
 name = "Boltz"
 uuid = "4544d5e4-abc5-4dea-817f-29e4c205d9c8"
 authors = ["Avik Pal <avikpal@mit.edu> and contributors"]
-version = "0.2.1"
+version = "0.3.0"
 
 [deps]
 Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
-CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
 LazyArtifacts = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
 Lux = "b2108857-7c20-44ae-9111-449ecde12c47"
-NNlib = "872c559c-99b0-510c-b3b7-b6c96a88d5cd"
 PackageExtensionCompat = "65ce6f38-6b18-4e1d-a461-8949797d7930"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [weakdeps]
+LuxAMDGPU = "83120cb1-ca15-4f04-bf3b-6967d2e6b60b"
+LuxCUDA = "d0bbae9a-e099-4d5b-a835-1c6931763bda"
 Metalhead = "dbeba491-748d-5e0e-a39e-b530a07fa0cc"
 
 [extensions]
-BoltzFluxMetalheadExt = "Metalhead"
+BoltzLuxAMDGPUExt = "LuxAMDGPU"
+BoltzLuxCUDAExt = "LuxCUDA"
+BoltzMetalheadExt = "Metalhead"
 
 [compat]
-CUDA = "3, 4"
 ChainRulesCore = "1.15"
 JLD2 = "0.4"
-Lux = "0.4.26"
-Metalhead = "0.7"
-NNlib = "0.8, 0.9"
+Lux = "0.5"
+LuxAMDGPU = "0.1"
+LuxCUDA = "0.2, 0.3"
+Metalhead = "0.7, 0.8"
 PackageExtensionCompat = "1"
 julia = "1.6"
 
 [extras]
+LuxAMDGPU = "83120cb1-ca15-4f04-bf3b-6967d2e6b60b"
+LuxCUDA = "d0bbae9a-e099-4d5b-a835-1c6931763bda"
 Metalhead = "dbeba491-748d-5e0e-a39e-b530a07fa0cc"
