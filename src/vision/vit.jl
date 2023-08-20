@@ -122,7 +122,7 @@ function transformer_encoder(in_planes, depth, number_heads; mlp_ratio=4.0f0,
     hidden_planes = floor(Int, mlp_ratio * in_planes)
     layers = [Chain(SkipConnection(Chain(LayerNorm((in_planes, 1); affine=true),
                 MultiHeadAttention(in_planes, number_heads;
-                    attention_dropout_rate=droout_rate,
+                    attention_dropout_rate=dropout_rate,
                     projection_dropout_rate=dropout_rate)),
             +),
         SkipConnection(Chain(LayerNorm((in_planes, 1); affine=true),
