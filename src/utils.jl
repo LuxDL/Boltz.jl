@@ -32,8 +32,6 @@ function assert_name_present_in(name, possibilities)
     @assert name in possibilities "`name` must be one of $(possibilities)"
 end
 
-# TODO(@avik-pal): Starting v0.2 we should be storing only the parameters and some of the
-#                  states. Fields like rng don't need to be stored explicitly.
 _get_pretrained_weights_path(name::Symbol) = _get_pretrained_weights_path(string(name))
 function _get_pretrained_weights_path(name::String)
     try

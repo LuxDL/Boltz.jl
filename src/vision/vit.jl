@@ -90,9 +90,7 @@ struct ViPosEmbedding{I} <: Lux.AbstractExplicitLayer
     init::I
 end
 
-function ViPosEmbedding(embedding_size::Int,
-    number_patches::Int;
-    init=(rng, dims...) -> randn(rng, Float32, dims...))
+function ViPosEmbedding(embedding_size::Int, number_patches::Int; init=randn32)
     return ViPosEmbedding(embedding_size, number_patches, init)
 end
 
@@ -133,12 +131,9 @@ function transformer_encoder(in_planes, depth, number_heads; mlp_ratio=4.0f0,
     return Chain(layers...; disable_optimizations=true)
 end
 
-function patch_embedding(imsize::Tuple{<:Int, <:Int}=(224, 224);
-    in_channels=3,
-    patch_size::Tuple{<:Int, <:Int}=(16, 16),
-    embed_planes=768,
-    norm_layer=in_planes -> NoOpLayer(),
-    flatten=true)
+function patch_embedding(imsize::Tuple{<:Int, <:Int}=(224, 224); in_channels=3,
+    patch_size::Tuple{<:Int, <:Int}=(16, 16), embed_planes=768,
+    norm_layer=in_planes -> NoOpLayer(), flatten=true)
     im_width, im_height = imsize
     patch_width, patch_height = patch_size
 
