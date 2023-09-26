@@ -50,7 +50,9 @@ function (m::MultiHeadAttention)(x::AbstractArray{T, 3}, ps, st) where {T}
     y, st_projection = m.projection(reshape(pre_projection, size(pre_projection, 1), :),
         ps.projection, st.projection)
 
-    st_ = (qkv_layer=st_qkv, attention_dropout=st_attention_dropout, projection=st_projection)
+    st_ = (qkv_layer=st_qkv,
+        attention_dropout=st_attention_dropout,
+        projection=st_projection)
     return reshape(y, :, seq_len, batch_size), st_
 end
 
