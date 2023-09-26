@@ -40,7 +40,7 @@ function (m::MultiHeadAttention)(x::AbstractArray{T, 3}, ps, st) where {T}
         seq_len * batch_size)
 
     attention = softmax(batched_mul(query_reshaped, key_reshaped) .* scale)
-    attention, st_attention = m.attention_dropout(attention, ps.attention_dropout,
+    attention, st_attention_dropout = m.attention_dropout(attention, ps.attention_dropout,
         st.attention_dropout)
 
     value_reshaped = reshape(value, nfeatures ÷ m.number_heads, m.number_heads,
@@ -50,7 +50,9 @@ function (m::MultiHeadAttention)(x::AbstractArray{T, 3}, ps, st) where {T}
     y, st_projection = m.projection(reshape(pre_projection, size(pre_projection, 1), :),
         ps.projection, st.projection)
 
-    st_ = (qkv_layer=st_qkv, attention=st_attention, projection=st_projection)
+    st_ = (qkv_layer=st_qkv,
+        attention_dropout=st_attention_dropout,
+        projection=st_projection)
     return reshape(y, :, seq_len, batch_size), st_
 end
 
