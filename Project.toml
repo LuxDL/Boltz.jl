@@ -26,6 +26,7 @@ BoltzMetalheadExt = "Metalhead"
 [compat]
 ChainRulesCore = "1.15"
 JLD2 = "0.4"
+LazyArtifacts = "1"
 Lux = "0.5"
 LuxAMDGPU = "0.1"
 LuxCUDA = "0.2, 0.3"
