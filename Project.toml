@@ -24,6 +24,7 @@ BoltzLuxCUDAExt = "LuxCUDA"
 BoltzMetalheadExt = "Metalhead"
 
 [compat]
+Artifacts = "1"
 ChainRulesCore = "1.15"
 JLD2 = "0.4"
 Lux = "0.5"
