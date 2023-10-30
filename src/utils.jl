@@ -42,7 +42,7 @@ function _get_pretrained_weights_path(name::String)
 end
 
 function _initialize_model(name::Symbol, model; pretrained::Bool=false, rng=nothing,
-    seed=0, kwargs...)
+        seed=0, kwargs...)
     if pretrained
         path = _get_pretrained_weights_path(name)
         ps = load(joinpath(path, "$name.jld2"), "parameters")
