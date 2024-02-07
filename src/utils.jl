@@ -10,6 +10,10 @@ end
 @inline function _fast_chunk(x::AbstractArray, ::Val{N}, d::Val{D}) where {N, D}
     return _fast_chunk.((x,), size(x, D) ÷ N, 1:N, d)
 end
+@inline function _fast_chunk(x::GPUArraysCore.AnyGPUArray, h::Int, n::Int,
+        ::Val{dim}) where {dim}
+    return copy(selectdim(x, dim, _fast_chunk(h, n)))
+end
 
 """
     _flatten_spatial(x::AbstractArray{T, 4})
@@ -42,7 +46,7 @@ function _get_pretrained_weights_path(name::String)
 end
 
 function _initialize_model(name::Symbol, model; pretrained::Bool=false, rng=nothing,
-    seed=0, kwargs...)
+        seed=0, kwargs...)
     if pretrained
         path = _get_pretrained_weights_path(name)
         ps = load(joinpath(path, "$name.jld2"), "parameters")

@@ -15,7 +15,7 @@ struct MultiHeadAttention{Q, A, P} <:
 end
 
 function MultiHeadAttention(in_planes::Int, number_heads::Int; qkv_bias::Bool=false,
-    attention_dropout_rate::T=0.0f0, projection_dropout_rate::T=0.0f0) where {T}
+        attention_dropout_rate::T=0.0f0, projection_dropout_rate::T=0.0f0) where {T}
     @assert in_planes % number_heads==0 "`in_planes` should be divisible by `number_heads`"
     qkv_layer = Dense(in_planes, in_planes * 3; use_bias=qkv_bias)
     attention_dropout = Dropout(attention_dropout_rate)
@@ -118,7 +118,7 @@ Transformer as used in the base ViT architecture.
   - `dropout_rate`: dropout rate
 """
 function transformer_encoder(in_planes, depth, number_heads; mlp_ratio=4.0f0,
-    dropout_rate=0.0f0)
+        dropout_rate=0.0f0)
     hidden_planes = floor(Int, mlp_ratio * in_planes)
     layers = [Chain(SkipConnection(Chain(LayerNorm((in_planes, 1); affine=true),
                 MultiHeadAttention(in_planes, number_heads;
@@ -134,8 +134,8 @@ function transformer_encoder(in_planes, depth, number_heads; mlp_ratio=4.0f0,
 end
 
 function patch_embedding(imsize::Tuple{<:Int, <:Int}=(224, 224); in_channels=3,
-    patch_size::Tuple{<:Int, <:Int}=(16, 16), embed_planes=768,
-    norm_layer=in_planes -> NoOpLayer(), flatten=true)
+        patch_size::Tuple{<:Int, <:Int}=(16, 16), embed_planes=768,
+        norm_layer=in_planes -> NoOpLayer(), flatten=true)
     im_width, im_height = imsize
     patch_width, patch_height = patch_size
 
@@ -148,9 +148,9 @@ end
 
 # ViT Implementation
 function vision_transformer(; imsize::Tuple{<:Int, <:Int}=(256, 256), in_channels::Int=3,
-    patch_size::Tuple{<:Int, <:Int}=(16, 16), embed_planes::Int=768, depth::Int=6,
-    number_heads=16, mlp_ratio=4.0f0, dropout_rate=0.1f0, embedding_dropout_rate=0.1f0,
-    pool::Symbol=:class, num_classes::Int=1000, kwargs...)
+        patch_size::Tuple{<:Int, <:Int}=(16, 16), embed_planes::Int=768, depth::Int=6,
+        number_heads=16, mlp_ratio=4.0f0, dropout_rate=0.1f0, embedding_dropout_rate=0.1f0,
+        pool::Symbol=:class, num_classes::Int=1000, kwargs...)
     @assert pool in (:class, :mean) "Pool type must be either :class (class token) or :mean (mean pooling)"
     number_patches = prod(imsize .÷ patch_size)
 

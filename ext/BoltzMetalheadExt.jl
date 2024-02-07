@@ -9,9 +9,7 @@ function alexnet(name::Symbol; pretrained=false, kwargs...)
     model = transform(AlexNet().layers)
 
     # Compatibility with pretrained weights
-    if pretrained
-        model = Chain(model[1], model[2])
-    end
+    pretrained && (model = Chain(model[1], model[2]))
 
     return _initialize_model(name, model; pretrained, kwargs...)
 end
