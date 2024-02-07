@@ -1,5 +1,5 @@
-using Boltz, Lux
-using Metalhead # Trigger Weak Dependency on Metalhead
+using Boltz, Lux, Test
+import Metalhead # Trigger Weak Dependency on Metalhead
 
 include("test_utils.jl")
 
@@ -18,34 +18,26 @@ models_available = Dict(alexnet => [(:alexnet, false)],
         (:vgg16, false), (:vgg16, true), (:vgg16_bn, false), (:vgg16_bn, true),
         (:vgg19, false), (:vgg19, true), (:vgg19_bn, false), (:vgg19_bn, true)],
     vision_transformer => [
-        (:tiny, false),
-        (:small, false),
-        (:base, false),
+        (:tiny, false), (:small, false), (:base, false),
         # CI cant handle these
         # (:large, false), (:huge, false), (:giant, false), (:gigantic, false),
     ])
 
-@testset "$model_creator: $mode" for (mode, aType, device, ongpu) in MODES,
+@testset "$model_creator: $mode" for (mode, aType, dev, ongpu) in MODES,
     (model_creator, config) in pairs(models_available)
 
-    @time begin
-        @testset "name = $name & pretrained = $pretrained" for (name, pretrained) in config
-            if VERSION <= v"1.7" && pretrained
-                @warn "Skipping pretrained models in Julia < 1.7"
-                continue
-            end
-            model, ps, st = model_creator(name; pretrained)
-            ps = ps |> device
-            st = Lux.testmode(st) |> device
+    @testset "name = $name & pretrained = $pretrained" for (name, pretrained) in config
+        model, ps, st = model_creator(name; pretrained)
+        ps = ps |> dev
+        st = Lux.testmode(st) |> dev
 
-            imsize = string(model_creator) == "vision_transformer" ? (256, 256) : (224, 224)
-            x = randn(Float32, imsize..., 3, 1) |> aType
+        imsize = string(model_creator) == "vision_transformer" ? (256, 256) : (224, 224)
+        x = randn(Float32, imsize..., 3, 1) |> aType
 
-            @jet model(x, ps, st)
+        @jet model(x, ps, st)
 
-            @test size(first(model(x, ps, st))) == (1000, 1)
+        @test size(first(model(x, ps, st))) == (1000, 1)
 
-            GC.gc(true)
-        end
+        GC.gc(true)
     end
 end

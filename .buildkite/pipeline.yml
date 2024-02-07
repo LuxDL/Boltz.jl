@@ -21,15 +21,6 @@ steps:
       setup:
         julia:
           - "1"
-          - "1.6"
-          - "nightly"
-      adjustments:
-        - with:
-            julia: "1.6"
-          soft_fail: true
-        - with:
-            julia: "nightly"
-          soft_fail: true
 
   - label: ":julia: Julia: {{matrix.julia}} + AMD GPU"
     plugins:
@@ -57,11 +48,6 @@ steps:
       setup:
         julia:
           - "1"
-          - "nightly"
-      adjustments:
-        - with:
-            julia: "nightly"
-          soft_fail: true
 
 env:
   SECRET_CODECOV_TOKEN: "TEJEkJA4PvPGNMb6mOizb4+U1eYmEHYk7ojQxLYDQJaarX79BsNs0cmWDOWGj7HkEVYVuQENfUBLqHfv/ih2991s8HS4jHX9zcZhUYXVarWC6Zr+hB8iMReiT7zfoZq7lEocUegTzVEoOstqfFusALwUHibpWHMpaG8SzHD0ii7N53uWyh6HJeQO6mfwusdtgr5oxGgDwYwb1E+iBGGj5AP6z7m+BrXgRbiKaAgoHADYd9AJzhN52S37lkwWMH9RMujFtojyCojIo7f9I5zYoqBKG44uy/IQEoEysf8qQ3WHSBZ/2i+/ircPY4xwVjqS1XZCTbUJ2uHuR+uEETJ9rw==;U2FsdGVkX19yYNkBa1palRpYrA2OylGMaUoLA/TowOS0D2+zxpNW97mOA5vfl13VZSmkQiRElPQEukKTrsFQyA=="
