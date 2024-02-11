@@ -120,16 +120,20 @@ Transformer as used in the base ViT architecture.
 function transformer_encoder(in_planes, depth, number_heads; mlp_ratio=4.0f0,
         dropout_rate=0.0f0)
     hidden_planes = floor(Int, mlp_ratio * in_planes)
-    layers = [Chain(SkipConnection(Chain(LayerNorm((in_planes, 1); affine=true),
-                MultiHeadAttention(in_planes, number_heads;
-                    attention_dropout_rate=dropout_rate,
-                    projection_dropout_rate=dropout_rate)),
-            +),
-        SkipConnection(Chain(LayerNorm((in_planes, 1); affine=true),
-                Chain(Dense(in_planes => hidden_planes, gelu), Dropout(dropout_rate),
-                    Dense(hidden_planes => in_planes), Dropout(dropout_rate));
-                disable_optimizations=true),
-            +)) for _ in 1:depth]
+    layers = [Chain(
+                  SkipConnection(
+                      Chain(LayerNorm((in_planes, 1); affine=true),
+                          MultiHeadAttention(in_planes, number_heads;
+                              attention_dropout_rate=dropout_rate,
+                              projection_dropout_rate=dropout_rate)),
+                      +),
+                  SkipConnection(
+                      Chain(LayerNorm((in_planes, 1); affine=true),
+                          Chain(Dense(in_planes => hidden_planes, gelu),
+                              Dropout(dropout_rate),
+                              Dense(hidden_planes => in_planes), Dropout(dropout_rate));
+                          disable_optimizations=true),
+                      +)) for _ in 1:depth]
     return Chain(layers...; disable_optimizations=true)
 end
 
@@ -154,7 +158,8 @@ function vision_transformer(; imsize::Tuple{<:Int, <:Int}=(256, 256), in_channel
     @assert pool in (:class, :mean) "Pool type must be either :class (class token) or :mean (mean pooling)"
     number_patches = prod(imsize .÷ patch_size)
 
-    return Chain(Chain(patch_embedding(imsize; in_channels, patch_size, embed_planes),
+    return Chain(
+        Chain(patch_embedding(imsize; in_channels, patch_size, embed_planes),
             ClassTokens(embed_planes), ViPosEmbedding(embed_planes, number_patches + 1),
             Dropout(embedding_dropout_rate),
             transformer_encoder(embed_planes, depth, number_heads; mlp_ratio, dropout_rate),

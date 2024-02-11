@@ -36,6 +36,6 @@ end
 
 # Exports
 export alexnet,
-    convmixer, densenet, googlenet, mobilenet, resnet, resnext, vgg, vision_transformer
+       convmixer, densenet, googlenet, mobilenet, resnet, resnext, vgg, vision_transformer
 
 end
