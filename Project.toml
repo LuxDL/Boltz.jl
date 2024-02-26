@@ -1,7 +1,7 @@
 name = "Boltz"
 uuid = "4544d5e4-abc5-4dea-817f-29e4c205d9c8"
 authors = ["Avik Pal <avikpal@mit.edu> and contributors"]
-version = "0.3.2"
+version = "0.3.3"
 
 [deps]
 Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -22,13 +22,13 @@ BoltzMetalheadExt = "Metalhead"
 
 [compat]
 Artifacts = "1"
-ChainRulesCore = "1.15"
-GPUArraysCore = "0.1"
-JLD2 = "0.4"
+ChainRulesCore = "1.21"
+GPUArraysCore = "0.1.6"
+JLD2 = "0.4.28"
 LazyArtifacts = "1"
-Lux = "0.5"
-Metalhead = "0.8, 0.9"
-PrecompileTools = "1"
+Lux = "0.5.18"
+Metalhead = "0.9"
+PrecompileTools = "1.2"
 Random = "1"
 Statistics = "1"
 julia = "1.9"
