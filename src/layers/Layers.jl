@@ -16,9 +16,17 @@ end
 
 const CRC = ChainRulesCore
 
-include("conv_norm_act.jl")
+const NORM_LAYER_DOC = "Function with signature `f(i::Integer, dims::Integer, act::F; \
+                        kwargs...)`. `i` is the location of the layer in the model, \
+                        `dims` is the channel dimension of the input, and `act` is the \
+                        activation function. `kwargs` are forwarded from the `norm_kwargs` \
+                        input, The function should return a normalization layer. Defaults \
+                        to `nothing`, which means no normalization layer is used"
+
 include("attention.jl")
+include("conv_norm_act.jl")
 include("encoder.jl")
 include("embeddings.jl")
+include("mlp.jl")
 
 end
