@@ -13,7 +13,7 @@ const INITIALIZE_KWARGS = """
   * `pretrained::Bool=false`: If `true`, returns a pretrained model.
   * `rng::Union{Nothing, AbstractRNG}=nothing`: Random number generator.
   * `seed::Int=0`: Random seed.
-  * `initialize::Val{Bool}=Val(true)`: If `Val(true)`, returns
+  * `initialized::Val{Bool}=Val(true)`: If `Val(true)`, returns
     `(model, parameters, states)`, otherwise just `model`.
 """
 
@@ -33,9 +33,9 @@ function __initialize_model(
 end
 
 function __maybe_initialize_model(name::Symbol, model; pretrained=false,
-        initialize::Union{Val, Bool}=Val(true), kwargs...)
-    @argcheck !pretrained || __unwrap_val(initialize)
-    __unwrap_val(initialize) || return model
+        initialized::Union{Val, Bool}=Val(true), kwargs...)
+    @argcheck !pretrained || __unwrap_val(initialized)
+    __unwrap_val(initialized) || return model
     ps, st = __initialize_model(name, model; pretrained, kwargs...)
     return model, ps, st
 end

@@ -43,11 +43,11 @@ function resnext(name::Symbol; kwargs...)
 end
 
 function mobilenet(name::Symbol; kwargs...)
-    name = Symbol(String(name)[10:end])
+    name = Symbol(String(name)[11:end])
     Base.depwarn(
         "`mobilenet(::Symbol)` is deprecated. See `Vision.MobileNet` for more details.",
         :mobilenet)
     return Vision.MobileNet(name; kwargs...)
 end
 
-export vgg, resnet, densenet, resnext
+export vgg, resnet, densenet, resnext, mobilenet
