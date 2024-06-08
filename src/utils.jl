@@ -1,7 +1,7 @@
 """
     _fast_chunk(x::AbstractArray, ::Val{n}, ::Val{dim})
 
-Type-stable and faster version of `MLUtils.chunk`
+Type-stable and faster version of `MLUtils.chunk`.
 """
 @inline _fast_chunk(h::Int, n::Int) = (1:h) .+ h * (n - 1)
 @inline function _fast_chunk(x::AbstractArray, h::Int, n::Int, ::Val{dim}) where {dim}
@@ -10,8 +10,8 @@ end
 @inline function _fast_chunk(x::AbstractArray, ::Val{N}, d::Val{D}) where {N, D}
     return _fast_chunk.((x,), size(x, D) ÷ N, 1:N, d)
 end
-@inline function _fast_chunk(x::GPUArraysCore.AnyGPUArray, h::Int, n::Int,
-        ::Val{dim}) where {dim}
+@inline function _fast_chunk(
+        x::GPUArraysCore.AnyGPUArray, h::Int, n::Int, ::Val{dim}) where {dim}
     return copy(selectdim(x, dim, _fast_chunk(h, n)))
 end
 
@@ -30,34 +30,3 @@ end
 Computes the mean of `x` along dimension `2`
 """
 @inline _seconddimmean(x) = dropdims(mean(x; dims=2); dims=2)
-
-# Model construction utilities
-function assert_name_present_in(name, possibilities)
-    @assert name in possibilities "`name` must be one of $(possibilities)"
-end
-
-_get_pretrained_weights_path(name::Symbol) = _get_pretrained_weights_path(string(name))
-function _get_pretrained_weights_path(name::String)
-    try
-        return @artifact_str(name)
-    catch LoadError
-        throw(ArgumentError("no pretrained weights available for `$name`"))
-    end
-end
-
-function _initialize_model(name::Symbol, model; pretrained::Bool=false, rng=nothing,
-        seed=0, kwargs...)
-    if pretrained
-        path = _get_pretrained_weights_path(name)
-        ps = load(joinpath(path, "$name.jld2"), "parameters")
-        st = load(joinpath(path, "$name.jld2"), "states")
-    else
-        if rng === nothing
-            rng = Random.default_rng()
-            Random.seed!(rng, seed)
-        end
-
-        ps, st = Lux.setup(rng, model)
-    end
-    return model, ps, st
-end

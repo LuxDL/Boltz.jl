@@ -1,75 +1,28 @@
-"""
-    _vgg_block(input_filters, output_filters, depth, batchnorm)
-
-A VGG block of convolution layers ([reference](https://arxiv.org/abs/1409.1556v6)).
-
-# Arguments
-
-  - `input_filters`: number of input feature maps
-  - `output_filters`: number of output feature maps
-  - `depth`: number of convolution/convolution + batch norm layers
-  - `batchnorm`: set to `true` to include batch normalization after each convolution
-"""
-function _vgg_block(input_filters, output_filters, depth, batchnorm)
-    layers = []
-    for _ in 1:depth
-        push!(layers,
-            Conv((3, 3), input_filters => output_filters,
-                batchnorm ? identity : relu; pad=(1, 1)))
-        batchnorm && push!(layers, BatchNorm(output_filters, relu))
-        input_filters = output_filters
-    end
-    return Chain(layers...)
-end
-
-"""
-    _vgg_convolutional_layers(config, batchnorm, inchannels)
-
-Create VGG convolution layers ([reference](https://arxiv.org/abs/1409.1556v6)).
-
-# Arguments
-
-  - `config`: vector of tuples `(output_channels, num_convolutions)` for each block
-    (see `Metalhead._vgg_block`)
-  - `batchnorm`: set to `true` to include batch normalization after each convolution
-  - `inchannels`: number of input channels
-"""
-function _vgg_convolutional_layers(config, batchnorm, inchannels)
-    layers = []
+function __vgg_convolutional_layers(config, batchnorm, inchannels)
+    layers = Vector{Any}(undef, length(config) * 2)
     input_filters = inchannels
-    for c in config
-        push!(layers, _vgg_block(input_filters, c..., batchnorm))
-        push!(layers, MaxPool((2, 2); stride=2))
-        input_filters, _ = c
+    for (i, (chs, depth)) in enumerate(config)
+        layers[2i - 1] = Layers.ConvBatchNormActivation(
+            (3, 3), input_filters => chs, depth, relu;
+            conv_kwargs=(; pad=(1, 1)), use_norm=batchnorm)
+        layers[2i] = Lux.MaxPool((2, 2))
+        input_filters = chs
     end
-    return Chain(layers...)
+    return Lux.Chain(layers...)
+end
+
+function __vgg_classifier_layers(imsize, nclasses, fcsize, dropout)
+    return Lux.Chain(Lux.FlattenLayer(), Lux.Dense(Int(prod(imsize)) => fcsize, relu),
+        Lux.Dropout(dropout), Lux.Dense(fcsize => fcsize, relu),
+        Lux.Dropout(dropout), Lux.Dense(fcsize => nclasses))
 end
 
 """
-    _vgg_classifier_layers(imsize, nclasses, fcsize, dropout)
+    VGG(imsize; config, inchannels, batchnorm = false, nclasses, fcsize, dropout)
 
-Create VGG classifier (fully connected) layers
-([reference](https://arxiv.org/abs/1409.1556v6)).
+Create a VGG model [1].
 
-# Arguments
-
-  - `imsize`: tuple `(width, height, channels)` indicating the size after the convolution
-    layers (see `Metalhead._vgg_convolutional_layers`)
-  - `nclasses`: number of output classes
-  - `fcsize`: input and output size of the intermediate fully connected layer
-  - `dropout`: the dropout level between each fully connected layer
-"""
-function _vgg_classifier_layers(imsize, nclasses, fcsize, dropout)
-    return Chain(FlattenLayer(), Dense(Int(prod(imsize)), fcsize, relu), Dropout(dropout),
-        Dense(fcsize, fcsize, relu), Dropout(dropout), Dense(fcsize, nclasses))
-end
-
-"""
-    vgg(imsize; config, inchannels, batchnorm = false, nclasses, fcsize, dropout)
-
-Create a VGG model ([reference](https://arxiv.org/abs/1409.1556v6)).
-
-# Arguments
+## Arguments
 
   - `imsize`: input image width and height as a tuple
   - `config`: the configuration for the convolution layers
@@ -77,49 +30,57 @@ Create a VGG model ([reference](https://arxiv.org/abs/1409.1556v6)).
   - `batchnorm`: set to `true` to use batch normalization after each convolution
   - `nclasses`: number of output classes
   - `fcsize`: intermediate fully connected layer size
-    (see `Metalhead._vgg_classifier_layers`)
   - `dropout`: dropout level between fully connected layers
+
+## References
+
+[1] Simonyan, Karen, and Andrew Zisserman. "Very deep convolutional networks for large-scale
+    image recognition." arXiv preprint arXiv:1409.1556 (2014).
 """
-function vgg(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, dropout)
-    conv = _vgg_convolutional_layers(config, batchnorm, inchannels)
-    class = _vgg_classifier_layers((7, 7, 512), nclasses, fcsize, dropout)
-    return Chain(Chain(conv), class)
+function VGG(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, dropout)
+    feature_extrator = __vgg_convolutional_layers(config, batchnorm, inchannels)
+
+    img = ones(Float32, (imsize..., inchannels, 2))
+    rng = Xoshiro(0)
+    _ps, _st = LuxCore.setup(rng, feature_extrator)
+    outsize = size(first(feature_extrator(img, _ps, _st)))
+
+    classifier = __vgg_classifier_layers(outsize[1:((end - 1))], nclasses, fcsize, dropout)
+
+    return Lux.Chain(feature_extrator, classifier)
 end
 
-const VGG_CONV_CONFIG = Dict(:A => [(64, 1), (128, 1), (256, 2), (512, 2), (512, 2)],
-    :B => [(64, 2), (128, 2), (256, 2), (512, 2), (512, 2)],
-    :D => [(64, 2), (128, 2), (256, 3), (512, 3), (512, 3)],
-    :E => [(64, 2), (128, 2), (256, 4), (512, 4), (512, 4)])
+#! format: off
+const VGG_CONFIG = Dict(
+    11 => [(64, 1), (128, 1), (256, 2), (512, 2), (512, 2)],
+    13 => [(64, 2), (128, 2), (256, 2), (512, 2), (512, 2)],
+    16 => [(64, 2), (128, 2), (256, 3), (512, 3), (512, 3)],
+    19 => [(64, 2), (128, 2), (256, 4), (512, 4), (512, 4)]
+)
+#! format: on
 
-const VGG_CONFIG = Dict(11 => :A, 13 => :B, 16 => :D, 19 => :E)
+"""
+    VGG(depth::Int; batchnorm=false, kwargs...)
 
-function vgg(name::Symbol; kwargs...)
-    assert_name_present_in(name,
-        (:vgg11, :vgg11_bn, :vgg13, :vgg13_bn, :vgg16, :vgg16_bn, :vgg19, :vgg19_bn))
-    model = if name == :vgg11
-        vgg((224, 224); config=VGG_CONV_CONFIG[VGG_CONFIG[11]], inchannels=3,
-            batchnorm=false, nclasses=1000, fcsize=4096, dropout=0.5f0)
-    elseif name == :vgg11_bn
-        vgg((224, 224); config=VGG_CONV_CONFIG[VGG_CONFIG[11]], inchannels=3,
-            batchnorm=true, nclasses=1000, fcsize=4096, dropout=0.5f0)
-    elseif name == :vgg13
-        vgg((224, 224); config=VGG_CONV_CONFIG[VGG_CONFIG[13]], inchannels=3,
-            batchnorm=false, nclasses=1000, fcsize=4096, dropout=0.5f0)
-    elseif name == :vgg13_bn
-        vgg((224, 224); config=VGG_CONV_CONFIG[VGG_CONFIG[13]], inchannels=3,
-            batchnorm=true, nclasses=1000, fcsize=4096, dropout=0.5f0)
-    elseif name == :vgg16
-        vgg((224, 224); config=VGG_CONV_CONFIG[VGG_CONFIG[16]], inchannels=3,
-            batchnorm=false, nclasses=1000, fcsize=4096, dropout=0.5f0)
-    elseif name == :vgg16_bn
-        vgg((224, 224); config=VGG_CONV_CONFIG[VGG_CONFIG[16]], inchannels=3,
-            batchnorm=true, nclasses=1000, fcsize=4096, dropout=0.5f0)
-    elseif name == :vgg19
-        vgg((224, 224); config=VGG_CONV_CONFIG[VGG_CONFIG[19]], inchannels=3,
-            batchnorm=false, nclasses=1000, fcsize=4096, dropout=0.5f0)
-    elseif name == :vgg19_bn
-        vgg((224, 224); config=VGG_CONV_CONFIG[VGG_CONFIG[19]], inchannels=3,
-            batchnorm=true, nclasses=1000, fcsize=4096, dropout=0.5f0)
-    end
-    return _initialize_model(name, model; kwargs...)
+Create a VGG model [1] with ImageNet Configuration.
+
+## Arguments
+
+  * `depth::Int`: the depth of the VGG model. Choices: {`11`, `13`, `16`, `19`}.
+
+## Keyword Arguments
+
+  * `batchnorm = false`: set to `true` to use batch normalization after each convolution.
+$(INITIALIZE_KWARGS)
+
+## References
+
+[1] Simonyan, Karen, and Andrew Zisserman. "Very deep convolutional networks for large-scale
+    image recognition." arXiv preprint arXiv:1409.1556 (2014).
+"""
+function VGG(depth::Int; batchnorm::Bool=false, kwargs...)
+    name = Symbol(:vgg, depth, ifelse(batchnorm, "_bn", ""))
+    config, inchannels, nclasses, fcsize = VGG_CONFIG[depth], 3, 1000, 4096
+    model = VGG((224, 224); config, inchannels, batchnorm, nclasses, fcsize, dropout=0.5f0)
+    return __maybe_initialize_model(name, model; kwargs...)
 end
