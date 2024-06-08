@@ -25,8 +25,7 @@ Don't rely on these, they are for internal use only.
   - `flatten_model`: set to `true` construct a flat chain without internal chains (not
     recommended)
 """
-function ConvNormActivation(
-        kernel_size::Dims, in_chs::Integer, hidden_chs::Dims{N},
+function ConvNormActivation(kernel_size::Dims, in_chs::Integer, hidden_chs::Dims{N},
         activation::F=NNlib.relu; norm_layer::NF=nothing, conv_kwargs=(;),
         norm_kwargs=(;), flatten_model::Bool=false) where {N, F, NF}
     layers = Vector{AbstractExplicitLayer}(undef, N)

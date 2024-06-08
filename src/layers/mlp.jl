@@ -1,6 +1,6 @@
 """
     MLP(in_dims::Integer, hidden_dims::Dims{N}, activation=NNlib.relu; norm_layer=nothing,
-        dropout_rate::Real=0.0f0, dense_kwargs=(;), norm_kwargs=(;))
+        dropout_rate::Real=0.0f0, dense_kwargs=(;), norm_kwargs=(;)) where {N}
 
 Construct a multi-layer perceptron (MLP) with dense layers, optional normalization layers,
 and dropout.

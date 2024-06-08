@@ -1,7 +1,7 @@
 @testsetup module SharedTestSetup
 
 import Reexport: @reexport
-@reexport using Boltz, Lux, LuxCUDA, LuxAMDGPU, LuxLib, LuxTestUtils
+@reexport using Boltz, Lux, LuxCUDA, LuxAMDGPU, LuxLib, LuxTestUtils, Random
 import Metalhead
 
 const BACKEND_GROUP = get(ENV, "BACKEND_GROUP", "All")
