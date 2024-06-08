@@ -1,6 +1,7 @@
 """
     MLP(in_dims::Integer, hidden_dims::Dims{N}, activation=NNlib.relu; norm_layer=nothing,
-        dropout_rate::Real=0.0f0, dense_kwargs=(;), norm_kwargs=(;)) where {N}
+        dropout_rate::Real=0.0f0, dense_kwargs=(;), norm_kwargs=(;),
+        last_layer_activation=false) where {N}
 
 Construct a multi-layer perceptron (MLP) with dense layers, optional normalization layers,
 and dropout.
@@ -18,16 +19,20 @@ and dropout.
   - `dropout_rate`: dropout rate (default: `0.0f0`)
   - `dense_kwargs`: keyword arguments for the dense layers
   - `norm_kwargs`: keyword arguments for the normalization layers
+  - `last_layer_activation`: set to `true` to apply the activation function to the last
+    layer
 """
-function MLP(in_dims::Integer, hidden_dims::Dims{N}, activation::F=NNlib.relu;
-        norm_layer::NF=nothing, dropout_rate::Real=0.0f0,
+function MLP(in_dims::Integer, hidden_dims::Dims{N},
+        activation::F=NNlib.relu; norm_layer::NF=nothing,
+        dropout_rate::Real=0.0f0, last_layer_activation::Bool=false,
         dense_kwargs=(;), norm_kwargs=(;)) where {N, F, NF}
     @argcheck N > 0
     name = "MLP(in_dims=$in_dims, hidden_dims=$(hidden_dims[1:(N - 1)]), \
             out_dims=$(hidden_dims[N]))"
     layers = Vector{AbstractExplicitLayer}(undef, N)
     for (i, out_dims) in enumerate(hidden_dims)
-        layers[i] = __dense_norm_act_dropout(i, in_dims => out_dims, activation, norm_layer,
+        act = i != N ? activation : (last_layer_activation ? activation : identity)
+        layers[i] = __dense_norm_act_dropout(i, in_dims => out_dims, act, norm_layer,
             dropout_rate, dense_kwargs, norm_kwargs)
         in_dims = out_dims
     end

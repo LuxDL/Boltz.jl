@@ -7,7 +7,7 @@
                 (i, ch, act; kwargs...) -> GroupNorm(ch, 2, act; kwargs...), nothing)
 
             model = Layers.MLP(2, (4, 4, 2), act; dropout_rate=0.1f0, norm_layer=norm)
-            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            ps, st = Lux.setup(Xoshiro(0), model) |> dev
 
             x = randn(Float32, 2, 2) |> aType
 

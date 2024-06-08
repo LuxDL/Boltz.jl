@@ -1,7 +1,7 @@
 """
     ConvNormActivation(kernel_size::Dims, in_chs::Integer, hidden_chs::Dims{N},
         activation; norm_layer=nothing, conv_kwargs=(;), norm_kwargs=(;),
-        flatten_model::Bool=false) where {N}
+        last_layer_activation::Bool=false, flatten_model::Bool=false) where {N}
 
 Construct a Chain of convolutional layers with normalization and activation functions.
 
@@ -17,6 +17,8 @@ Construct a Chain of convolutional layers with normalization and activation func
   - `norm_layer`: $(NORM_LAYER_DOC)
   - `conv_kwargs`: keyword arguments for the convolutional layers
   - `norm_kwargs`: keyword arguments for the normalization layers
+  - `last_layer_activation`: set to `true` to apply the activation function to the last
+    layer
 
 ## Internal Keyword Arguments
 
@@ -25,13 +27,15 @@ Don't rely on these, they are for internal use only.
   - `flatten_model`: set to `true` construct a flat chain without internal chains (not
     recommended)
 """
-function ConvNormActivation(kernel_size::Dims, in_chs::Integer, hidden_chs::Dims{N},
-        activation::F=NNlib.relu; norm_layer::NF=nothing, conv_kwargs=(;),
-        norm_kwargs=(;), flatten_model::Bool=false) where {N, F, NF}
+function ConvNormActivation(
+        kernel_size::Dims, in_chs::Integer, hidden_chs::Dims{N}, activation::F=NNlib.relu;
+        norm_layer::NF=nothing, conv_kwargs=(;), norm_kwargs=(;),
+        flatten_model::Bool=false, last_layer_activation::Bool=false) where {N, F, NF}
     layers = Vector{AbstractExplicitLayer}(undef, N)
     for (i, out_chs) in enumerate(hidden_chs)
-        layers[i] = __conv_norm_act(i, kernel_size, in_chs => out_chs, activation,
-            norm_layer, conv_kwargs, norm_kwargs)
+        act = i != N ? activation : (last_layer_activation ? activation : identity)
+        layers[i] = __conv_norm_act(
+            i, kernel_size, in_chs => out_chs, act, norm_layer, conv_kwargs, norm_kwargs)
         in_chs = out_chs
     end
     flatten_model && return Lux.Chain(layers...; name="ConvNormActivation")
@@ -53,7 +57,7 @@ end
 """
     ConvBatchNormActivation(kernel_size::Dims, (in_filters, out_filters)::Pair{Int, Int},
         depth::Int, act::F; use_norm::Bool=true, conv_kwargs=(;),
-        norm_kwargs=(;), flatten_model=false) where {F}
+        last_layer_activation::Bool=true, norm_kwargs=(;), flatten_model=false) where {F}
 
 This function is a convenience wrapper around [`ConvNormActivation`](@ref) that constructs a
 chain with `norm_layer` set to `Lux.BatchNorm` if `use_norm` is `true` and `nothing`
@@ -71,5 +75,6 @@ function ConvBatchNormActivation(
         norm_layer=use_norm ?
                    (i, chs, bn_act; kwargs...) -> Lux.BatchNorm(chs, bn_act; kwargs...) :
                    nothing,
+        last_layer_activation=true,
         kwargs...)
 end
