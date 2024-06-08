@@ -14,7 +14,7 @@ steps:
       queue: "juliagpu"
       cuda: "*"
     env:
-      GROUP: "CUDA"
+      BACKEND_GROUP: "CUDA"
     if: build.message !~ /\[skip tests\]/
     timeout_in_minutes: 240
     matrix:
@@ -37,7 +37,7 @@ steps:
       JULIA_AMDGPU_CORE_MUST_LOAD: "1"
       JULIA_AMDGPU_HIP_MUST_LOAD: "1"
       JULIA_AMDGPU_DISABLE_ARTIFACTS: "1"
-      GROUP: "AMDGPU"
+      BACKEND_GROUP: "AMDGPU"
     agents:
       queue: "juliagpu"
       rocm: "*"
@@ -50,4 +50,6 @@ steps:
           - "1"
 
 env:
+  RETESTITEMS_NWORKERS: 4
+  RETESTITEMS_NWORKER_THREADS: 2
   SECRET_CODECOV_TOKEN: "TEJEkJA4PvPGNMb6mOizb4+U1eYmEHYk7ojQxLYDQJaarX79BsNs0cmWDOWGj7HkEVYVuQENfUBLqHfv/ih2991s8HS4jHX9zcZhUYXVarWC6Zr+hB8iMReiT7zfoZq7lEocUegTzVEoOstqfFusALwUHibpWHMpaG8SzHD0ii7N53uWyh6HJeQO6mfwusdtgr5oxGgDwYwb1E+iBGGj5AP6z7m+BrXgRbiKaAgoHADYd9AJzhN52S37lkwWMH9RMujFtojyCojIo7f9I5zYoqBKG44uy/IQEoEysf8qQ3WHSBZ/2i+/ircPY4xwVjqS1XZCTbUJ2uHuR+uEETJ9rw==;U2FsdGVkX19yYNkBa1palRpYrA2OylGMaUoLA/TowOS0D2+zxpNW97mOA5vfl13VZSmkQiRElPQEukKTrsFQyA=="

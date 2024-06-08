@@ -35,7 +35,7 @@ Create a VGG model [1].
 ## References
 
 [1] Simonyan, Karen, and Andrew Zisserman. "Very deep convolutional networks for large-scale
-    image recognition." arXiv preprint arXiv:1409.1556 (2014).
+image recognition." arXiv preprint arXiv:1409.1556 (2014).
 """
 function VGG(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, dropout)
     feature_extrator = __vgg_convolutional_layers(config, batchnorm, inchannels)
