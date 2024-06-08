@@ -1,6 +1,6 @@
 @testitem "AlexNet" setup=[SharedTestSetup] tags=[:vision] begin
     for (mode, aType, dev, ongpu) in MODES
-        model, ps, st = Layers.AlexNet(; pretrained=false)
+        model, ps, st = Vision.AlexNet(; pretrained=false)
         ps = ps |> dev
         st = Lux.testmode(st) |> dev
         img = randn(Float32, 224, 224, 3, 2) |> aType
@@ -83,19 +83,21 @@ end
 end
 
 @testitem "VGG" setup=[SharedTestSetup] tags=[:vision] begin
-    for (mode, aType, dev, ongpu) in MODES,
-        name in [:vgg11, :vgg11_bn, :vgg13, :vgg13_bn, :vgg16, :vgg16_bn, :vgg19, :vgg19_bn],
-        pretrained in [false, true]
+    for (mode, aType, dev, ongpu) in MODES, depth in [11, 13, 16, 19]
+        @testset "pretrained: $(pretrained), batchnorm: $(batchnorm)" for pretrained in [
+                false, true],
+            batchnorm in [false, true]
 
-        model, ps, st = Vision.VGG(name; pretrained)
-        ps = ps |> dev
-        st = Lux.testmode(st) |> dev
-        img = randn(Float32, 224, 224, 3, 2) |> aType
+            model, ps, st = Vision.VGG(depth; batchnorm, pretrained)
+            ps = ps |> dev
+            st = Lux.testmode(st) |> dev
+            img = randn(Float32, 224, 224, 3, 2) |> aType
 
-        @jet model(img, ps, st)
-        @test size(first(model(img, ps, st))) == (1000, 2)
+            @jet model(img, ps, st)
+            @test size(first(model(img, ps, st))) == (1000, 2)
 
-        GC.gc(true)
+            GC.gc(true)
+        end
     end
 end
 

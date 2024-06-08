@@ -93,7 +93,7 @@ $(INITIALIZE_KWARGS)
     recognition. 2015.
 """
 function Vision.GoogLeNet(; kwargs...)
-    model = FromFluxAdaptor()(GoogLeNet().layers)
+    model = FromFluxAdaptor()(Metalhead.GoogLeNet().layers)
     return __maybe_initialize_model(:googlenet, model; kwargs...)
 end
 

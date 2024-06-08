@@ -24,9 +24,9 @@ function MultiHeadSelfAttention(in_planes::Int, number_heads::Int; qkv_bias::Boo
     return Lux.@compact(; number_heads, qkv_layer, attention_dropout,
         projection, dispatch=:MultiHeadSelfAttention) do x::AbstractArray{<:Real, 3}
         qkv = qkv_layer(x)
-        q, k, v = _fast_chunk(qkv, Val(3), Val(4))
+        q, k, v = _fast_chunk(qkv, Val(3), Val(1))
         y, _ = NNlib.dot_product_attention(
-            q, k, v; fdrop=attention_dropout, nhead=number_heads)
+            q, k, v; fdrop=attention_dropout, nheads=number_heads)
         @return projection(y)
     end
 end
