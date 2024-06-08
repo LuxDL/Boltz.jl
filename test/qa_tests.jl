@@ -6,7 +6,7 @@ end
 
 @testitem "Explicit Imports: Quality Assurance" tags=[:others] begin
     # Load all trigger packages
-    import Lux, Metalhead
+    import Lux, Metalhead, ForwardDiff, Zygote
     using ExplicitImports
 
     # Skip our own packages

@@ -44,6 +44,12 @@ end
         i::Integer, (in_dims, out_dims)::Pair{<:Integer, <:Integer}, activation::F,
         norm_layer::NF, dropout_rate::Real, dense_kwargs, norm_kwargs) where {F, NF}
     name = "DenseNormActDropoutBlock"
+    if iszero(dropout_rate)
+        norm_layer === nothing && return Lux.Chain(;
+            dense=Lux.Dense(in_dims => out_dims, activation; dense_kwargs...), name)
+        return Lux.Chain(; dense=Lux.Dense(in_dims => out_dims; dense_kwargs...),
+            norm=norm_layer(i, out_dims, activation; norm_kwargs...), name)
+    end
     norm_layer === nothing && return Lux.Chain(;
         dense=Lux.Dense(in_dims => out_dims, activation; dense_kwargs...),
         dropout=Lux.Dropout(dropout_rate), name)

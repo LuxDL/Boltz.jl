@@ -4,11 +4,12 @@ using PrecompileTools: @recompile_invalidations
 
 @recompile_invalidations begin
     using ArgCheck: @argcheck
-    using ..Boltz: _fast_chunk
+    using ADTypes: AutoForwardDiff, AutoZygote
+    using ..Boltz: _fast_chunk, _should_type_assert
     using ConcreteStructs: @concrete
     using ChainRulesCore: ChainRulesCore
-    using Lux: Lux
-    using LuxCore: LuxCore, AbstractExplicitLayer
+    using Lux: Lux, StatefulLuxLayer
+    using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
     using NNlib: NNlib
     using Random: AbstractRNG
     using WeightInitializers: zeros32, randn32
@@ -27,6 +28,7 @@ include("attention.jl")
 include("conv_norm_act.jl")
 include("encoder.jl")
 include("embeddings.jl")
+include("hamiltonian.jl")
 include("mlp.jl")
 
 end

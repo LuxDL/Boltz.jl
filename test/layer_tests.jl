@@ -18,3 +18,66 @@
         end
     end
 end
+
+@testitem "Hamiltonian Neural Network" setup=[SharedTestSetup] tags=[:layers] begin
+    using ComponentArrays, ForwardDiff, Zygote
+
+    _remove_nothing(xs) = map(x -> x === nothing ? 0 : x, xs)
+
+    @testset "$(mode): $(autodiff)" for (mode, aType, dev, ongpu) in MODES,
+        autodiff in (nothing, AutoZygote(), AutoForwardDiff())
+
+        ongpu && autodiff === AutoForwardDiff() && continue
+
+        hnn = Layers.HamiltonianNN{true}(Layers.MLP(2, (4, 4, 2), NNlib.gelu); autodiff)
+        ps, st = Lux.setup(Xoshiro(0), hnn) |> dev
+
+        x = randn(Float32, 2, 4) |> aType
+
+        @test_throws ArgumentError hnn(x, ps, st)
+
+        hnn = Layers.HamiltonianNN{true}(Layers.MLP(2, (4, 4, 1), NNlib.gelu); autodiff)
+        ps, st = Lux.setup(Xoshiro(0), hnn) |> dev
+        ps_ca = ComponentArray(ps |> cpu_device()) |> dev
+
+        @test st.first_call
+        y, st = hnn(x, ps, st)
+        @test !st.first_call
+
+        ∂x_zyg, ∂ps_zyg = Zygote.gradient(
+            (x, ps) -> sum(abs2, first(hnn(x, ps, st))), x, ps)
+        @test ∂x_zyg !== nothing
+        @test ∂ps_zyg !== nothing
+        if !ongpu
+            ∂ps_zyg = _remove_nothing(getdata(ComponentArray(∂ps_zyg |> cpu_device()) |>
+                                              dev))
+            ∂x_fd = ForwardDiff.gradient(x -> sum(abs2, first(hnn(x, ps, st))), x)
+            ∂ps_fd = getdata(ForwardDiff.gradient(
+                ps -> sum(abs2, first(hnn(x, ps, st))), ps_ca))
+
+            @test ∂x_zyg≈∂x_fd atol=1e-3 rtol=1e-3
+            @test ∂ps_zyg≈∂ps_fd atol=1e-3 rtol=1e-3
+        end
+
+        st = Lux.initialstates(Xoshiro(0), hnn) |> dev
+
+        @test st.first_call
+        y, st = hnn(x, ps_ca, st)
+        @test !st.first_call
+
+        ∂x_zyg, ∂ps_zyg = Zygote.gradient(
+            (x, ps) -> sum(abs2, first(hnn(x, ps, st))), x, ps_ca)
+        @test ∂x_zyg !== nothing
+        @test ∂ps_zyg !== nothing
+        if !ongpu
+            ∂ps_zyg = _remove_nothing(getdata(ComponentArray(∂ps_zyg |> cpu_device()) |>
+                                              dev))
+            ∂x_fd = ForwardDiff.gradient(x -> sum(abs2, first(hnn(x, ps_ca, st))), x)
+            ∂ps_fd = getdata(ForwardDiff.gradient(
+                ps -> sum(abs2, first(hnn(x, ps, st))), ps_ca))
+
+            @test ∂x_zyg≈∂x_fd atol=1e-3 rtol=1e-3
+            @test ∂ps_zyg≈∂ps_fd atol=1e-3 rtol=1e-3
+        end
+    end
+end
