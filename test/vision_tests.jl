@@ -1,16 +1,18 @@
 @testitem "AlexNet" setup=[SharedTestSetup] tags=[:vision] begin
     for (mode, aType, dev, ongpu) in MODES
-        model, ps, st = Vision.AlexNet(; pretrained=false)
-        ps = ps |> dev
-        st = Lux.testmode(st) |> dev
-        img = randn(Float32, 224, 224, 3, 2) |> aType
+        @testset "pretrained: $(pretrained)" for pretrained in [true, false]
+            model, ps, st = Vision.AlexNet(; pretrained)
+            ps = ps |> dev
+            st = Lux.testmode(st) |> dev
+            img = randn(Float32, 224, 224, 3, 2) |> aType
 
-        @jet model(img, ps, st)
-        @test size(first(model(img, ps, st))) == (1000, 2)
+            @jet model(img, ps, st)
+            @test size(first(model(img, ps, st))) == (1000, 2)
 
-        @test_deprecated alexnet(:alexnet)
+            @test_deprecated alexnet(:alexnet)
 
-        GC.gc(true)
+            GC.gc(true)
+        end
     end
 end
 
