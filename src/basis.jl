@@ -13,7 +13,7 @@ function Base.show(io::IO, basis::GeneralBasisFunction{name}) where {name}
     print(io, "Basis.$(name)(order=$(basis.n))")
 end
 
-function (basis::GeneralBasisFunction{name, F})(x::AbstractArray) where {name, F}
+@inline function (basis::GeneralBasisFunction{name, F})(x::AbstractArray) where {name, F}
     return basis.f.(1:(basis.n), _unsqueeze1(x))
 end
 
@@ -66,7 +66,8 @@ $F_j(x) = j is even ? cos((j÷2)x) : sin((j÷2)x)$ => $[F_0(x), F_1(x), \dots, F
 Fourier(n) = GeneralBasisFunction{:Fourier}(__fourier, n)
 
 @inline function __fourier(i, x)
-    s, c = @fastmath sincos(i * x / 2)
+    # Don't use @fastmasth here, fast mode needs float but Zygote uses Duals for broadcast
+    s, c = sincos(i * x / 2)
     return ifelse(iseven(i), c, s)
 end
 

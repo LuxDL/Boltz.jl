@@ -44,4 +44,7 @@ type-assert for `x`.
 @inline _unsqueeze1(x::AbstractArray) = reshape(x, 1, size(x)...)
 @inline _unsqueezeN(x::AbstractArray) = reshape(x, size(x)..., 1)
 
-@inline _batchview(x::AbstractArray{T, N}) where {T, N} = Lux._eachslice(x, Val(N))
+@inline _catN(x::AbstractArray{T, N}, y::AbstractArray{T, N}) where {T, N} = cat(
+    x, y; dims=Val(N))
+
+@inline _stack(xs) = mapreduce(_unsqueezeN, _catN, xs)

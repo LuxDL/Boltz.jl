@@ -81,3 +81,29 @@ end
         end
     end
 end
+
+@testitem "Tensor Product Layer" setup=[SharedTestSetup] tags=[:layers] begin
+    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+        mode === "AMDGPU" && continue
+
+        @testset "$(basis)" for basis in (Basis.Chebyshev, Basis.Sin, Basis.Cos,
+            Basis.Fourier, Basis.Legendre, Basis.Polynomial)
+            tensor_project = Layers.TensorProductLayer([basis(n + 2) for n in 1:3], 4)
+            ps, st = Lux.setup(Xoshiro(0), tensor_project) |> dev
+
+            x = tanh.(randn(Float32, 2, 4, 5)) |> aType
+
+            @test_throws ArgumentError tensor_project(x, ps, st)
+
+            x = tanh.(randn(Float32, 2, 3, 5)) |> aType
+
+            y, st = tensor_project(x, ps, st)
+            @test size(y) == (2, 4, 5)
+
+            @jet tensor_project(x, ps, st)
+
+            __f = (x, ps) -> sum(abs2, first(tensor_project(x, ps, st)))
+            @eval @test_gradients $(__f) $x $ps gpu_testing=$(ongpu) atol=1e-3 rtol=1e-3 skip_tracker=true
+        end
+    end
+end
