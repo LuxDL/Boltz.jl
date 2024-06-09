@@ -1,9 +1,13 @@
 module Basis
 
 using ..Boltz: _unsqueeze1
+using ChainRulesCore: ChainRulesCore, NoTangent
 using ConcreteStructs: @concrete
 using Markdown: @doc_str
 
+const CRC = ChainRulesCore
+
+# The rrules in this file are hardcoded to be used exclusively with GeneralBasisFunction
 @concrete struct GeneralBasisFunction{name}
     f
     n::Int
@@ -65,10 +69,30 @@ $F_j(x) = j is even ? cos((j÷2)x) : sin((j÷2)x)$ => $[F_0(x), F_1(x), \dots, F
 """
 Fourier(n) = GeneralBasisFunction{:Fourier}(__fourier, n)
 
-@inline function __fourier(i, x)
-    # Don't use @fastmasth here, fast mode needs float but Zygote uses Duals for broadcast
+@inline @fastmath function __fourier(i, x::AbstractFloat)
     s, c = sincos(i * x / 2)
     return ifelse(iseven(i), c, s)
+end
+
+@inline function __fourier(i, x) # No FastMath for non abstract floats
+    s, c = sincos(i * x / 2)
+    return ifelse(iseven(i), c, s)
+end
+
+@fastmath function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(__fourier), i, x)
+    ix_by_2 = @. i * x / 2
+    s = @. sin(ix_by_2)
+    c = @. cos(ix_by_2)
+    y = @. ifelse(iseven(i), c, s)
+
+    ∇fourier = let s = s, c = c, i = i
+        Δ -> begin
+            return (NoTangent(), NoTangent(), NoTangent(),
+                dropdims(sum((i / 2) .* ifelse.(iseven.(i), -s, c) .* Δ; dims=1); dims=1))
+        end
+    end
+
+    return y, ∇fourier
 end
 
 @doc doc"""
@@ -111,5 +135,17 @@ Constructs a Polynomial basis of the form $[1, x, \dots, x^(n-1)]$.
 Polynomial(n) = GeneralBasisFunction{:Polynomial}(__polynomial, n)
 
 @inline __polynomial(i, x) = x^(i - 1)
+
+function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(__polynomial), i, x)
+    y_m1 = x .^ (i .- 2)
+    y = y_m1 .* x
+    ∇polynomial = let y_m1 = y_m1, i = i
+        Δ -> begin
+            return (NoTangent(), NoTangent(), NoTangent(),
+                dropdims(sum((i .- 1) .* y_m1 .* Δ; dims=1); dims=1))
+        end
+    end
+    return y, ∇polynomial
+end
 
 end
