@@ -5,11 +5,12 @@ using PrecompileTools: @recompile_invalidations
 @recompile_invalidations begin
     using ArgCheck: @argcheck
     using ADTypes: AutoForwardDiff, AutoZygote
-    using ..Boltz: _fast_chunk, _should_type_assert
+    using ..Boltz: Boltz, _fast_chunk, _should_type_assert, _batchview, _unsqueezeN
     using ConcreteStructs: @concrete
     using ChainRulesCore: ChainRulesCore
     using Lux: Lux, StatefulLuxLayer
     using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
+    using Markdown: @doc_str
     using NNlib: NNlib
     using Random: AbstractRNG
     using WeightInitializers: zeros32, randn32
@@ -30,5 +31,7 @@ include("encoder.jl")
 include("embeddings.jl")
 include("hamiltonian.jl")
 include("mlp.jl")
+include("spline.jl")
+include("tensor_product.jl")
 
 end

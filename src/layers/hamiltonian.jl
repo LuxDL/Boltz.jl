@@ -47,12 +47,13 @@ end
 
 function HamiltonianNN{FST}(model; autodiff=nothing) where {FST}
     if autodiff === nothing # Select best possible backend
-        autodiff = Lux._is_extension_loaded(Val(:Zygote)) ? AutoZygote() :
-                   Lux._is_extension_loaded(Val(:ForwardDiff)) ? AutoForwardDiff() : nothing
+        autodiff = Boltz._is_extension_loaded(Val(:Zygote)) ? AutoZygote() :
+                   Boltz._is_extension_loaded(Val(:ForwardDiff)) ? AutoForwardDiff() :
+                   nothing
     elseif autodiff isa AutoForwardDiff
-        autodiff = Lux._is_extension_loaded(Val(:ForwardDiff)) ? autodiff : nothing
+        autodiff = Boltz._is_extension_loaded(Val(:ForwardDiff)) ? autodiff : nothing
     elseif autodiff isa AutoZygote
-        autodiff = Lux._is_extension_loaded(Val(:Zygote)) ? autodiff : nothing
+        autodiff = Boltz._is_extension_loaded(Val(:Zygote)) ? autodiff : nothing
     else
         throw(ArgumentError("Invalid autodiff backend: $(autodiff). Available options: \
                              `AutoForwardDiff`, or `AutoZygote`."))
