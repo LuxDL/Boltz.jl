@@ -23,6 +23,9 @@ include("utils.jl")
 include("initialize.jl")
 include("patch.jl")
 
+# Basis Functions
+include("basis.jl")
+
 # Layers
 include("layers/Layers.jl")
 
@@ -32,6 +35,6 @@ include("vision/Vision.jl")
 # deprecated
 include("deprecated.jl")
 
-export Layers, Vision
+export Basis, Layers, Vision
 
 end

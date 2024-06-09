@@ -1,9 +1,9 @@
 function __vgg_convolutional_layers(config, batchnorm, inchannels)
-    layers = Vector{Any}(undef, length(config) * 2)
+    layers = Vector{AbstractExplicitLayer}(undef, length(config) * 2)
     input_filters = inchannels
     for (i, (chs, depth)) in enumerate(config)
         layers[2i - 1] = Layers.ConvBatchNormActivation(
-            (3, 3), input_filters => chs, depth, relu;
+            (3, 3), input_filters => chs, depth, relu; last_layer_activation=true,
             conv_kwargs=(; pad=(1, 1)), use_norm=batchnorm, flatten_model=true)
         layers[2i] = Lux.MaxPool((2, 2))
         input_filters = chs

@@ -30,3 +30,21 @@ end
 Computes the mean of `x` along dimension `2`
 """
 @inline _seconddimmean(x) = dropdims(mean(x; dims=2); dims=2)
+
+"""
+    _should_type_assert(x)
+
+In certain cases, to ensure type-stability we want to add type-asserts. But this won't work
+for exotic types like `ForwardDiff.Dual`. We use this function to check if we should add a
+type-assert for `x`.
+"""
+@inline _should_type_assert(::AbstractArray{T}) where {T} = isbitstype(T)
+@inline _should_type_assert(x) = true
+
+@inline _unsqueeze1(x::AbstractArray) = reshape(x, 1, size(x)...)
+@inline _unsqueezeN(x::AbstractArray) = reshape(x, size(x)..., 1)
+
+@inline _catN(x::AbstractArray{T, N}, y::AbstractArray{T, N}) where {T, N} = cat(
+    x, y; dims=Val(N))
+
+@inline _stack(xs) = mapreduce(_unsqueezeN, _catN, xs)
