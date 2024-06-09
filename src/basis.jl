@@ -61,6 +61,21 @@ Chebyshev(n; dim::Int=1) = GeneralBasisFunction{:Chebyshev}(__chebyshev, n, dim)
 
 @inline __chebyshev(i, x) = @fastmath cos(i * acos(x))
 
+@fastmath function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(__chebyshev), i, x)
+    iacosx = @. i * acos(x)
+    y = @. cos(iacosx)
+
+    ∇chebyshev = let iacosx = iacosx, i = i, x = x
+        Δ -> begin
+            den = @. sqrt(1 - x^2)
+            return (NoTangent(), NoTangent(), NoTangent(),
+                dropdims(sum(i .* sin.(iacosx) .* Δ ./ den; dims=1); dims=1))
+        end
+    end
+
+    return y, ∇chebyshev
+end
+
 @doc doc"""
     Sin(n; dim::Int=1)
 

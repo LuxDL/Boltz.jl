@@ -25,12 +25,15 @@ include("basis.jl")
 # Layers
 include("layers/Layers.jl")
 
+# Kolmogorov-Arnold Networks
+include("kan/KAN.jl")
+
 # Vision Models
 include("vision/Vision.jl")
 
 # deprecated
 include("deprecated.jl")
 
-export Basis, Layers, Vision
+export Basis, KAN, Layers, Vision
 
 end
