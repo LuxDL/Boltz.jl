@@ -29,7 +29,7 @@ BoltzMetalheadExt = "Metalhead"
 [compat]
 Aqua = "0.8.7"
 ArgCheck = "2.3"
-Artifacts = "1.10"
+Artifacts = "1.10, 1"
 ChainRulesCore = "1.24"
 ConcreteStructs = "0.2.3"
 ExplicitImports = "1.5"
