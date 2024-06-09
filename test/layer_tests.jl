@@ -142,3 +142,52 @@ end
         end
     end
 end
+
+@testitem "Spline Layer" setup=[SharedTestSetup] tags=[:layers] begin
+    using ComponentArrays, DataInterpolations, ForwardDiff, Zygote
+
+    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+        ongpu && continue
+
+        @testset "$(spl): train_grid $(train_grid), dims $(dims)" for spl in (
+                ConstantInterpolation, LinearInterpolation, QuadraticInterpolation,
+                QuadraticSpline, CubicSpline),
+            train_grid in (true, false),
+            dims in ((), (8,))
+
+            spline = Layers.SplineLayer(dims, 0.0f0, 1.0f0, 0.1f0, spl; train_grid)
+            ps, st = Lux.setup(Xoshiro(0), spline) |> dev
+            ps_ca = ComponentArray(ps |> cpu_device()) |> dev
+
+            x = tanh.(randn(Float32, 4)) |> aType
+
+            y, st = spline(x, ps, st)
+            @test size(y) == (dims..., 4)
+
+            @jet spline(x, ps, st)
+
+            y, st = spline(x, ps_ca, st)
+            @test size(y) == (dims..., 4)
+
+            @jet spline(x, ps_ca, st)
+
+            ∂x, ∂ps = Zygote.gradient((x, ps) -> sum(abs2, first(spline(x, ps, st))), x, ps)
+            spl !== ConstantInterpolation && @test ∂x !== nothing
+            @test ∂ps !== nothing
+
+            ∂x_fd = ForwardDiff.gradient(x -> sum(abs2, first(spline(x, ps, st))), x)
+            ∂ps_fd = ForwardDiff.gradient(ps -> sum(abs2, first(spline(x, ps, st))), ps_ca)
+
+            spl !== ConstantInterpolation && @test ∂x≈∂x_fd atol=1e-3 rtol=1e-3
+
+            @test ∂ps.saved_points≈∂ps_fd.saved_points atol=1e-3 rtol=1e-3
+            if train_grid
+                if ∂ps.grid === nothing
+                    @test all(Base.Fix1(isapprox, 0), ∂ps_fd.grid)
+                else
+                    @test ∂ps.grid≈∂ps_fd.grid atol=1e-3 rtol=1e-3
+                end
+            end
+        end
+    end
+end

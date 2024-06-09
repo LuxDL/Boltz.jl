@@ -5,7 +5,7 @@ using PrecompileTools: @recompile_invalidations
 @recompile_invalidations begin
     using ArgCheck: @argcheck
     using ADTypes: AutoForwardDiff, AutoZygote
-    using ..Boltz: Boltz, _fast_chunk, _should_type_assert, _stack
+    using ..Boltz: Boltz, _fast_chunk, _should_type_assert, _stack, __unwrap_val
     using ConcreteStructs: @concrete
     using ChainRulesCore: ChainRulesCore
     using Lux: Lux, StatefulLuxLayer
