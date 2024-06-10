@@ -1,4 +1,3 @@
-# TODO: We want to clean up the struct once we have the variants we want implemented
 @concrete struct KANDense{mode, PI <: NamedTuple, SI <: NamedTuple} <: AbstractExplicitLayer
     input_dim::Int
     output_dim::Int
@@ -32,15 +31,18 @@ end
 
 """
     KANDense(input_dim::Int, output_dim::Int, basis::Basis.SimpleBasisFunction;
-        init_coefficients=randn32)
+        init_coefficients=randn32, use_bias=true, init_bias=zeros32)
 
 Constructs a Kolmogorov-Arnold Network (KAN) dense layer with `Basis.SimpleBasisFunction`.
 A common example of this is Chebychev KAN which is constructed using `Basis.Chebyshev`.
 """
-function KANDense(input_dim::Int, output_dim::Int,
-        basis::Basis.SimpleBasisFunction; init_coefficients=randn32)
-    return KANDense{:SimpleBasisFunction}(input_dim, output_dim, basis,
-        (; coefficients=(init_coefficients, (basis.n, input_dim, output_dim))), (;))
+function KANDense(input_dim::Int, output_dim::Int, basis::Basis.SimpleBasisFunction;
+        init_coefficients=randn32, use_bias=true, init_bias=zeros32)
+    ps_init_fns = (; coefficients=(init_coefficients, (basis.n, input_dim, output_dim)),)
+    if use_bias
+        ps_init_fns = merge(ps_init_fns, (; bias=(init_bias, (output_dim,))))
+    end
+    return KANDense{:SimpleBasisFunction}(input_dim, output_dim, basis, ps_init_fns, (;))
 end
 
 function (kan::KANDense{:SimpleBasisFunction})(x::AbstractVector{T}, ps, st) where {T}
@@ -52,8 +54,11 @@ function (kan::KANDense{:SimpleBasisFunction})(x::AbstractArray{T, N}, ps, st) w
     @argcheck size(x, 1) == kan.input_dim
     x_size_rem = size(x)[2:end]
 
-    y = reshape(kan.basis(x), :, kan.input_dim, 1, prod(x_size_rem))    # D x I x 1 x B′
-    z = dropdims(prod(y .* ps.coefficients; dims=(1, 2)); dims=(1, 2))  # D x O x B′
+    y = reshape(kan.basis(x), :, kan.input_dim, 1, prod(x_size_rem))       # D x I x 1 x B′
+    z = dropdims(prod(y .* ps.coefficients; dims=(1, 2)); dims=(1, 2))     # O x B′
+
+    bias = Lux._getproperty(ps, Val(:bias))
+    bias !== nothing && (z = z .+ bias)
 
     return reshape(z, kan.output_dim, x_size_rem...), st
 end
@@ -61,7 +66,7 @@ end
 """
     KANDense(input_dim::Int, output_dim::Int, basis::Basis.AbstractRadialBasisFunction;
         grid_min=-1.0f0, grid_max=1.0f0, grid_size=8, init_weight=kaiming_normal,
-        epsilon=0.1f0)
+        epsilon=0.1f0, use_bias=true, init_bias=zeros32)
 
 Constructs a Kolmogorov-Arnold Network (KAN) dense layer with
 `Basis.AbstractRadialBasisFunction`. A common example of this is RBF KAN which is
@@ -70,13 +75,19 @@ really the fastest version).
 """
 function KANDense(input_dim::Int, output_dim::Int, basis::Basis.AbstractRadialBasisFunction;
         grid_min=-1.0f0, grid_max=1.0f0, grid_size::Int=8,
-        init_weight=kaiming_normal, epsilon=0.1f0)
+        init_weight=kaiming_normal, epsilon=0.1f0, use_bias=true, init_bias=zeros32)
     init_grid = (rng, gmin, gmax, gsize) -> collect(LinRange(gmin, gmax, gsize))
     init_epsilon = (rng, eps) -> eps
+
+    ps_init_fns = (; weight=(init_weight, (output_dim, grid_size * input_dim)),)
+    if use_bias
+        ps_init_fns = merge(ps_init_fns, (; bias=(init_bias, (output_dim,))))
+    end
+
     return KANDense{:RadialBasisFunction}(input_dim,
         output_dim,
         basis,
-        (; weight=(init_weight, (output_dim, grid_size * input_dim))),
+        ps_init_fns,
         (; grid=(init_grid, (grid_min, grid_max, grid_size)),
             epsilon=(init_epsilon, (epsilon,))))
 end
@@ -90,9 +101,10 @@ function (kan::KANDense{:RadialBasisFunction})(x::AbstractArray{T, N}, ps, st) w
     @argcheck size(x, 1) == kan.input_dim
     x_size_rem = size(x)[2:end]
 
-    basis = kan.basis(x, st.grid, st.epsilon)   # G x I x ....
-    y = reshape(basis, :, prod(x_size_rem))     # (G x I) x 1 x B′
-    z = ps.weight * y                           # O x B′
+    basis = kan.basis(x, st.grid, st.epsilon)                           # G x I x ....
+    y = reshape(basis, :, prod(x_size_rem))                             # (G x I) x 1 x B′
+    z = fused_dense_bias_activation(
+        identity, ps.weight, y, Lux._getproperty(ps, Val(:bias)))       # O x B′
 
     return reshape(z, kan.output_dim, x_size_rem...), st
 end

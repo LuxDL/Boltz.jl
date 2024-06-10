@@ -1,11 +1,16 @@
 module Basis
 
-using ArgCheck: @argcheck
-using ..Boltz: _unsqueeze1
-using ChainRulesCore: ChainRulesCore, NoTangent
-using ConcreteStructs: @concrete
-using LuxDeviceUtils: get_device, LuxCPUDevice
-using Markdown: @doc_str
+using PrecompileTools: @recompile_invalidations
+
+@recompile_invalidations begin
+    using ArgCheck: @argcheck
+    using ..Boltz: _unsqueeze1
+    using ChainRulesCore: ChainRulesCore, NoTangent
+    using ConcreteStructs: @concrete
+    using LuxDeviceUtils: get_device, LuxCPUDevice
+    using Markdown: @doc_str
+    using NNlib: tanh_fast
+end
 
 const CRC = ChainRulesCore
 
@@ -247,6 +252,23 @@ struct InverseMultiquadicRBF <: AbstractRadialBasisFunction end
 
 @fastmath @inline function (::InverseMultiquadicRBF)(x, grid::AbstractVector, ϵ)
     return sqrt.(InverseQuadraticRBF()(x, grid, ϵ))
+end
+
+struct RSWAF <: AbstractRadialBasisFunction end
+
+@fastmath @inline function (::RSWAF)(x, grid::AbstractVector, ϵ)
+    return __rswaf((_unsqueeze1(x) .- grid) .* ϵ)
+end
+
+@inline __rswaf(y) = @fastmath @. 1 - tanh_fast(y)^2
+
+@fastmath @inline function CRC.rrule(::typeof(__rswaf), y::AbstractArray{T}) where {T}
+    tx = @. tanh_fast(y)
+    z = @. T(1) - tx^2
+    ∇rswaf = let z = z, tx = tx, T = T
+        Δ -> (NoTangent(), -T(2) .* tx .* z .* Δ)
+    end
+    return z, ∇rswaf
 end
 
 end
