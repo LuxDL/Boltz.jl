@@ -9,7 +9,7 @@ using PrecompileTools: @recompile_invalidations
     using LuxCore: AbstractExplicitLayer, LuxCore
     using NNlib: NNlib
     using Random: Random, AbstractRNG
-    using WeightInitializers: randn32
+    using WeightInitializers: randn32, kaiming_normal
 end
 
 include("dense.jl")

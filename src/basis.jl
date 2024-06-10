@@ -9,22 +9,25 @@ using Markdown: @doc_str
 
 const CRC = ChainRulesCore
 
-# The rrules in this file are hardcoded to be used exclusively with GeneralBasisFunction
-@concrete struct GeneralBasisFunction{name}
+abstract type AbstractBasisFunction end
+
+@inline __basis_broadcast(f::F, i, x) where {F} = f.(i, x)
+
+@concrete struct SimpleBasisFunction{name} <: AbstractBasisFunction
     f
     n::Int
     dim::Int
 end
 
-function Base.show(io::IO, basis::GeneralBasisFunction{name}) where {name}
+function Base.show(io::IO, basis::SimpleBasisFunction{name}) where {name}
     print(io, "Basis.$(name)(order=$(basis.n))")
 end
 
-@inline function (basis::GeneralBasisFunction{name, F})(x::AbstractArray,
+@inline function (basis::SimpleBasisFunction{name, F})(x::AbstractArray,
         grid::Union{AbstractRange, AbstractVector}=1:1:(basis.n)) where {name, F}
     @argcheck length(grid) == basis.n
     if basis.dim == 1 # Fast path where we don't need to materialize the range
-        return basis.f.(grid, _unsqueeze1(x))
+        return __basis_broadcast(basis.f, grid, _unsqueeze1(x))
     end
 
     @argcheck ndims(x) + 1 ≥ basis.dim
@@ -38,7 +41,7 @@ end
     end
     grid_shape = ntuple(i -> i == basis.dim ? basis.n : 1, ndims(x) + 1)
     grid_new = reshape(grid, grid_shape)
-    return basis.f.(grid_new, x_new)
+    return __basis_broadcast(basis.f, grid_new, x_new)
 end
 
 const DIM_KWARG_DOC = "  - `dim::Int=1`: The dimension along which the basis functions are applied."
@@ -57,11 +60,11 @@ $T_j(.)$ is the $j^{th}$ Chebyshev polynomial of the first kind.
 
 $(DIM_KWARG_DOC)
 """
-Chebyshev(n; dim::Int=1) = GeneralBasisFunction{:Chebyshev}(__chebyshev, n, dim)
+Chebyshev(n; dim::Int=1) = SimpleBasisFunction{:Chebyshev}(__chebyshev, n, dim)
 
 @inline __chebyshev(i, x) = @fastmath cos(i * acos(x))
 
-@fastmath function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(__chebyshev), i, x)
+@fastmath function CRC.rrule(::typeof(__basis_broadcast), ::typeof(__chebyshev), i, x)
     iacosx = @. i * acos(x)
     y = @. cos(iacosx)
 
@@ -89,7 +92,7 @@ Constructs a sine basis of the form $[\sin(x), \sin(2x), \dots, \sin(nx)]$.
 
 $(DIM_KWARG_DOC)
 """
-Sin(n; dim::Int=1) = GeneralBasisFunction{:Sin}(@fastmath(sin∘*), n, dim)
+Sin(n; dim::Int=1) = SimpleBasisFunction{:Sin}(@fastmath(sin∘*), n, dim)
 
 @doc doc"""
     Cos(n; dim::Int=1)
@@ -104,7 +107,7 @@ Constructs a cosine basis of the form $[\cos(x), \cos(2x), \dots, \cos(nx)]$.
 
 $(DIM_KWARG_DOC)
 """
-Cos(n; dim::Int=1) = GeneralBasisFunction{:Cos}(@fastmath(cos∘*), n, dim)
+Cos(n; dim::Int=1) = SimpleBasisFunction{:Cos}(@fastmath(cos∘*), n, dim)
 
 @doc doc"""
     Fourier(n; dim=1)
@@ -124,7 +127,7 @@ $$F_j(x) = \begin{cases}
 
 $(DIM_KWARG_DOC)
 """
-Fourier(n; dim::Int=1) = GeneralBasisFunction{:Fourier}(__fourier, n, dim)
+Fourier(n; dim::Int=1) = SimpleBasisFunction{:Fourier}(__fourier, n, dim)
 
 @inline @fastmath function __fourier(i, x::AbstractFloat)
     s, c = sincos(i * x / 2)
@@ -136,7 +139,7 @@ end
     return ifelse(iseven(i), c, s)
 end
 
-@fastmath function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(__fourier), i, x)
+@fastmath function CRC.rrule(::typeof(__basis_broadcast), ::typeof(__fourier), i, x)
     ix_by_2 = @. i * x / 2
     s = @. sin(ix_by_2)
     c = @. cos(ix_by_2)
@@ -166,7 +169,7 @@ $P_j(.)$ is the $j^{th}$ Legendre polynomial.
 
 $(DIM_KWARG_DOC)
 """
-Legendre(n; dim::Int=1) = GeneralBasisFunction{:Legendre}(__legendre_poly, n, dim)
+Legendre(n; dim::Int=1) = SimpleBasisFunction{:Legendre}(__legendre_poly, n, dim)
 
 ## Source: https://github.com/ranocha/PolynomialBases.jl/blob/master/src/legendre.jl
 @inline function __legendre_poly(i, x)
@@ -197,11 +200,11 @@ Constructs a Polynomial basis of the form $[1, x, \dots, x^{(n-1)}]$.
 
 $(DIM_KWARG_DOC)
 """
-Polynomial(n; dim::Int=1) = GeneralBasisFunction{:Polynomial}(__polynomial, n, dim)
+Polynomial(n; dim::Int=1) = SimpleBasisFunction{:Polynomial}(__polynomial, n, dim)
 
 @inline __polynomial(i, x) = x^(i - 1)
 
-function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(__polynomial), i, x)
+function CRC.rrule(::typeof(__basis_broadcast), ::typeof(__polynomial), i, x)
     y_m1 = x .^ (i .- 2)
     y = y_m1 .* x
     ∇polynomial = let y_m1 = y_m1, i = i
@@ -211,6 +214,39 @@ function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(__polynomial), i, x
         end
     end
     return y, ∇polynomial
+end
+
+abstract type AbstractRadialBasisFunction <: AbstractBasisFunction end
+
+# Part of these are taken from https://github.com/vpuri3/KolmogorovArnold.jl/blob/master/src/utils.jl
+struct GaussianRBF <: AbstractRadialBasisFunction end
+
+@fastmath @inline function (::GaussianRBF)(x, grid::AbstractVector, ϵ)
+    return __gaussian_rbf((_unsqueeze1(x) .- grid) .* ϵ)
+end
+
+@inline __gaussian_rbf(y) = @fastmath @. exp(-y^2)
+
+@fastmath @inline function CRC.rrule(
+        ::typeof(__gaussian_rbf), y::AbstractArray{T}) where {T}
+    z = __gaussian_rbf(y)
+    ∇gaussian_rbf = let y = y, z = z, T = T
+        Δ -> (NoTangent(), -T(2) * y * z * Δ)
+    end
+    return z, ∇gaussian_rbf
+end
+
+struct InverseQuadraticRBF <: AbstractRadialBasisFunction end
+
+@fastmath @inline function (::InverseQuadraticRBF)(x, grid::AbstractVector, ϵ)
+    z = ((_unsqueeze1(x) .- grid) .* ϵ) .^ 2
+    return 1 ./ (1 .+ z)
+end
+
+struct InverseMultiquadicRBF <: AbstractRadialBasisFunction end
+
+@fastmath @inline function (::InverseMultiquadicRBF)(x, grid::AbstractVector, ϵ)
+    return sqrt.(InverseMultiquadicRBF()(x, grid, ϵ))
 end
 
 end
