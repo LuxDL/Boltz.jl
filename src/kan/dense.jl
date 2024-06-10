@@ -43,8 +43,13 @@ function KANDense(input_dim::Int, output_dim::Int,
         (; coefficients=(init_coefficients, (basis.n, input_dim, output_dim))), (;))
 end
 
+function (kan::KANDense{:SimpleBasisFunction})(x::AbstractVector{T}, ps, st) where {T}
+    y, st = kan(reshape(x, :, 1), ps, st)
+    return vec(y), st
+end
+
 function (kan::KANDense{:SimpleBasisFunction})(x::AbstractArray{T, N}, ps, st) where {T, N}
-    @argcheck size(x, 1) == kan.input_dim && N ≥ 2
+    @argcheck size(x, 1) == kan.input_dim
     x_size_rem = size(x)[2:end]
 
     y = reshape(kan.basis(x), :, kan.input_dim, 1, prod(x_size_rem))    # D x I x 1 x B′
@@ -76,8 +81,13 @@ function KANDense(input_dim::Int, output_dim::Int, basis::Basis.AbstractRadialBa
             epsilon=(init_epsilon, (epsilon,))))
 end
 
+function (kan::KANDense{:RadialBasisFunction})(x::AbstractVector{T}, ps, st) where {T}
+    y, st = kan(reshape(x, :, 1), ps, st)
+    return vec(y), st
+end
+
 function (kan::KANDense{:RadialBasisFunction})(x::AbstractArray{T, N}, ps, st) where {T, N}
-    @argcheck size(x, 1) == kan.input_dim && N ≥ 2
+    @argcheck size(x, 1) == kan.input_dim
     x_size_rem = size(x)[2:end]
 
     basis = kan.basis(x, st.grid, st.epsilon)   # G x I x ....

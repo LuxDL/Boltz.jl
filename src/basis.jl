@@ -231,7 +231,7 @@ end
         ::typeof(__gaussian_rbf), y::AbstractArray{T}) where {T}
     z = __gaussian_rbf(y)
     ∇gaussian_rbf = let y = y, z = z, T = T
-        Δ -> (NoTangent(), -T(2) * y * z * Δ)
+        Δ -> (NoTangent(), -T(2) .* y .* z .* Δ)
     end
     return z, ∇gaussian_rbf
 end
@@ -246,7 +246,7 @@ end
 struct InverseMultiquadicRBF <: AbstractRadialBasisFunction end
 
 @fastmath @inline function (::InverseMultiquadicRBF)(x, grid::AbstractVector, ϵ)
-    return sqrt.(InverseMultiquadicRBF()(x, grid, ϵ))
+    return sqrt.(InverseQuadraticRBF()(x, grid, ϵ))
 end
 
 end
