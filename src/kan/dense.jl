@@ -31,36 +31,18 @@ end
 
 """
     KANDense(input_dim::Int, output_dim::Int, basis::Basis.SimpleBasisFunction;
-        init_coefficients=randn32, use_bias=true, init_bias=zeros32)
+        init_weight=kaiming_normal, use_bias=true, init_bias=zeros32)
 
 Constructs a Kolmogorov-Arnold Network (KAN) dense layer with `Basis.SimpleBasisFunction`.
 A common example of this is Chebychev KAN which is constructed using `Basis.Chebyshev`.
 """
 function KANDense(input_dim::Int, output_dim::Int, basis::Basis.SimpleBasisFunction;
-        init_coefficients=randn32, use_bias=true, init_bias=zeros32)
-    ps_init_fns = (; coefficients=(init_coefficients, (basis.n, input_dim, output_dim)),)
+        init_weight=kaiming_normal, use_bias=true, init_bias=zeros32)
+    ps_init_fns = (; weight=(init_weight, (output_dim, basis.n * input_dim)),)
     if use_bias
         ps_init_fns = merge(ps_init_fns, (; bias=(init_bias, (output_dim,))))
     end
     return KANDense{:SimpleBasisFunction}(input_dim, output_dim, basis, ps_init_fns, (;))
-end
-
-function (kan::KANDense{:SimpleBasisFunction})(x::AbstractVector{T}, ps, st) where {T}
-    y, st = kan(reshape(x, :, 1), ps, st)
-    return vec(y), st
-end
-
-function (kan::KANDense{:SimpleBasisFunction})(x::AbstractArray{T, N}, ps, st) where {T, N}
-    @argcheck size(x, 1) == kan.input_dim
-    x_size_rem = size(x)[2:end]
-
-    y = reshape(kan.basis(x), :, kan.input_dim, 1, prod(x_size_rem))       # D x I x 1 x B′
-    z = dropdims(prod(y .* ps.coefficients; dims=(1, 2)); dims=(1, 2))     # O x B′
-
-    bias = Lux._getproperty(ps, Val(:bias))
-    bias !== nothing && (z = z .+ bias)
-
-    return reshape(z, kan.output_dim, x_size_rem...), st
 end
 
 """
@@ -92,19 +74,26 @@ function KANDense(input_dim::Int, output_dim::Int, basis::Basis.AbstractRadialBa
             epsilon=(init_epsilon, (epsilon,))))
 end
 
-function (kan::KANDense{:RadialBasisFunction})(x::AbstractVector{T}, ps, st) where {T}
-    y, st = kan(reshape(x, :, 1), ps, st)
-    return vec(y), st
-end
+for mode in (:RadialBasisFunction, :SimpleBasisFunction)
+    basis_expr = mode == :RadialBasisFunction ?
+                 :(basis = kan.basis(x, st.grid, st.epsilon)) : :(basis = kan.basis(x))
+    @eval begin
+        function (kan::KANDense{$(Meta.quot(mode))})(x::AbstractVector{T}, ps, st) where {T}
+            y, st = kan(reshape(x, :, 1), ps, st)
+            return vec(y), st
+        end
 
-function (kan::KANDense{:RadialBasisFunction})(x::AbstractArray{T, N}, ps, st) where {T, N}
-    @argcheck size(x, 1) == kan.input_dim
-    x_size_rem = size(x)[2:end]
+        function (kan::KANDense{$(Meta.quot(mode))})(
+                x::AbstractArray{T, N}, ps, st) where {T, N}
+            @argcheck size(x, 1) == kan.input_dim
+            x_size_rem = size(x)[2:end]
 
-    basis = kan.basis(x, st.grid, st.epsilon)                           # G x I x ....
-    y = reshape(basis, :, prod(x_size_rem))                             # (G x I) x 1 x B′
-    z = fused_dense_bias_activation(
-        identity, ps.weight, y, Lux._getproperty(ps, Val(:bias)))       # O x B′
+            $(basis_expr)
+            y = reshape(basis, :, prod(x_size_rem))                          # (G x I) x B′
+            z = fused_dense_bias_activation(
+                identity, ps.weight, y, Lux._getproperty(ps, Val(:bias)))    # O x B′
 
-    return reshape(z, kan.output_dim, x_size_rem...), st
+            return reshape(z, kan.output_dim, x_size_rem...), st
+        end
+    end
 end
