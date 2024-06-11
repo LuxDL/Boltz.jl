@@ -10,7 +10,7 @@ position and momentum.
 ## Arguments
 
   - `FST`: If `true`, then the type of the state returned by the model must be same as the
-    type of the input state. See the documentation on [`StatefulLayer`](@ref) for more
+    type of the input state. See the documentation on [`StatefulLuxLayer`](@ref) for more
     information.
   - `model`: A `Lux.AbstractExplicitLayer` neural network that returns the Hamiltonian of
     the system. The `model` must return a "batched scalar", i.e. all the dimensions of the
