@@ -1,8 +1,8 @@
 # Boltz ⚡
 
 [![Join the chat at https://julialang.zulipchat.com #machine-learning](https://img.shields.io/static/v1?label=Zulip&message=chat&color=9558b2&labelColor=389826)](https://julialang.zulipchat.com/#narrow/stream/machine-learning)
-[![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://lux.csail.mit.edu/dev/api/)
-[![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://lux.csail.mit.edu/stable/api/)
+[![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://lux.csail.mit.edu/dev/api/Domain_Specific_Modeling/Boltz)
+[![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://lux.csail.mit.edu/stable/api/Domain_Specific_Modeling/Boltz)
 
 [![CI](https://github.com/LuxDL/Boltz.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/LuxDL/Boltz.jl/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/LuxDL/Boltz.jl/branch/main/graph/badge.svg?token=YBImUxz5qO)](https://codecov.io/gh/LuxDL/Boltz.jl)
@@ -11,7 +11,7 @@
 [![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor's%20Guide-blueviolet)](https://github.com/SciML/ColPrac)
 [![SciML Code Style](https://img.shields.io/static/v1?label=code%20style&message=SciML&color=9558b2&labelColor=389826)](https://github.com/SciML/SciMLStyle)
 
-Accelerate ⚡ your ML research using pre-built Deep Learning Models with Lux
+Accelerate ⚡ your ML research using pre-built Deep Learning Models with Lux.
 
 ## Installation
 
