@@ -37,63 +37,73 @@ Constructs a Kolmogorov-Arnold Network (KAN) dense layer with `Basis.SimpleBasis
 A common example of this is Chebychev KAN which is constructed using `Basis.Chebyshev`.
 """
 function KANDense(input_dim::Int, output_dim::Int, basis::Basis.SimpleBasisFunction;
-        init_weight=kaiming_normal, use_bias=true, init_bias=zeros32)
-    ps_init_fns = (; weight=(init_weight, (output_dim, basis.n * input_dim)),)
+        init_weight=kaiming_normal, use_bias=true,
+        init_bias=zeros32, light_version::Bool=false)
+    @argcheck basis.dim == 1 + light_version
+
+    init_grid = ((rng, basis) -> 1:(basis.n), (basis,))
+
+    ps_init_fns = (;
+        weight=(init_weight, (output_dim, ifelse(light_version, 1, basis.n) * input_dim)),)
     if use_bias
         ps_init_fns = merge(ps_init_fns, (; bias=(init_bias, (output_dim,))))
     end
-    return KANDense{:SimpleBasisFunction}(input_dim, output_dim, basis, ps_init_fns, (;))
+
+    return KANDense{:SimpleBasisFunction}(
+        input_dim, output_dim, basis, ps_init_fns, (; grid=init_grid))
 end
 
 """
-    KANDense(input_dim::Int, output_dim::Int, basis::Basis.AbstractRadialBasisFunction;
+    KANDense(input_dim::Int, output_dim::Int, basis::Basis.RadialBasisFunction;
         grid_min=-1.0f0, grid_max=1.0f0, grid_size=8, init_weight=kaiming_normal,
-        epsilon=0.1f0, use_bias=true, init_bias=zeros32)
+        use_bias=true, init_bias=zeros32)
 
 Constructs a Kolmogorov-Arnold Network (KAN) dense layer with
 `Basis.AbstractRadialBasisFunction`. A common example of this is RBF KAN which is
 constructed using `Basis.GaussianRBF` (the version used in `FastKAN`, though it is not
 really the fastest version).
 """
-function KANDense(input_dim::Int, output_dim::Int, basis::Basis.AbstractRadialBasisFunction;
-        grid_min=-1.0f0, grid_max=1.0f0, grid_size::Int=8,
-        init_weight=kaiming_normal, epsilon=0.1f0, use_bias=true, init_bias=zeros32)
-    init_grid = (rng, gmin, gmax, gsize) -> collect(LinRange(gmin, gmax, gsize))
-    init_epsilon = (rng, eps) -> eps
+function KANDense(input_dim::Int, output_dim::Int, basis::Basis.RadialBasisFunction;
+        grid_min=-1.0f0, grid_max=1.0f0, grid_size::Int=8, light_version::Bool=false,
+        init_weight=kaiming_normal, use_bias=true, init_bias=zeros32)
+    @argcheck grid_min < grid_max && grid_size > 0
+    @argcheck basis.dim == 1 + light_version
 
-    ps_init_fns = (; weight=(init_weight, (output_dim, grid_size * input_dim)),)
+    init_grid = (rng, gmin, gmax, gsize) -> collect(LinRange(gmin, gmax, gsize))
+
+    ps_init_fns = (;
+        weight=(init_weight, (output_dim, ifelse(light_version, 1, grid_size) * input_dim)),)
     if use_bias
         ps_init_fns = merge(ps_init_fns, (; bias=(init_bias, (output_dim,))))
     end
 
-    return KANDense{:RadialBasisFunction}(input_dim,
-        output_dim,
-        basis,
-        ps_init_fns,
-        (; grid=(init_grid, (grid_min, grid_max, grid_size)),
-            epsilon=(init_epsilon, (epsilon,))))
+    return KANDense{:RadialBasisFunction}(input_dim, output_dim, basis, ps_init_fns,
+        (; grid=(init_grid, (grid_min, grid_max, grid_size))))
 end
 
-for mode in (:RadialBasisFunction, :SimpleBasisFunction)
-    basis_expr = mode == :RadialBasisFunction ?
-                 :(basis = kan.basis(x, st.grid, st.epsilon)) : :(basis = kan.basis(x))
-    @eval begin
-        function (kan::KANDense{$(Meta.quot(mode))})(x::AbstractVector{T}, ps, st) where {T}
-            y, st = kan(reshape(x, :, 1), ps, st)
-            return vec(y), st
-        end
+function (kan::KANDense)(x::AbstractVector{T}, ps, st) where {T}
+    y, st = kan(reshape(x, :, 1), ps, st)
+    return vec(y), st
+end
 
-        function (kan::KANDense{$(Meta.quot(mode))})(
-                x::AbstractArray{T, N}, ps, st) where {T, N}
-            @argcheck size(x, 1) == kan.input_dim
-            x_size_rem = size(x)[2:end]
+function (kan::KANDense)(x::AbstractArray{T, N}, ps, st) where {T, N}
+    @argcheck size(x, 1) == kan.input_dim
+    x_size_rem = size(x)[2:end]
 
-            $(basis_expr)
-            y = reshape(basis, :, prod(x_size_rem))                          # (G x I) x B′
-            z = fused_dense_bias_activation(
-                identity, ps.weight, y, Lux._getproperty(ps, Val(:bias)))    # O x B′
+    basis = kan.basis(x, st.grid)
 
-            return reshape(z, kan.output_dim, x_size_rem...), st
-        end
+    if kan.basis.dim == 1       # Regular version
+        y = reshape(basis, :, prod(x_size_rem))                          # (G x I) x B′
+        z = fused_dense_bias_activation(
+            identity, ps.weight, y, Lux._getproperty(ps, Val(:bias)))    # O x B′I
+    elseif kan.basis.dim == 2   # Light version
+        y = reshape(basis, size(basis, 1), :)                           # G x (I x B′)
+        z_inter = fused_dense_bias_activation(
+            identity, ps.weight, y, Lux._getproperty(ps, Val(:bias)))    # O x (I x B′)
+        z = Boltz._seconddimmean(reshape(z_inter, kan.output_dim, length(st.grid), :))  # O x B′
+    else
+        throw(ArgumentError(lazy"Invalid basis dimension: $(kan.basis.dim)"))
     end
+
+    return reshape(z, kan.output_dim, x_size_rem...), st
 end
