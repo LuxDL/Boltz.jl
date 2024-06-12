@@ -108,3 +108,37 @@ end
         end
     end
 end
+
+@testitem "Basis Functions" setup=[SharedTestSetup] tags=[:layers] begin
+    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+        @testset "$(basis)" for basis in (Basis.Chebyshev, Basis.Sin, Basis.Cos,
+            Basis.Fourier, Basis.Legendre, Basis.Polynomial)
+            x = tanh.(randn(Float32, 2, 4)) |> aType
+            grid = collect(1:3) |> aType
+
+            fn = basis(3)
+            @test size(fn(x)) == (3, 2, 4)
+            @jet fn(x)
+            @test size(fn(x, grid)) == (3, 2, 4)
+            @jet fn(x, grid)
+
+            fn = basis(3; dim=2)
+            @test size(fn(x)) == (2, 3, 4)
+            @jet fn(x)
+            @test size(fn(x, grid)) == (2, 3, 4)
+            @jet fn(x, grid)
+
+            fn = basis(3; dim=3)
+            @test size(fn(x)) == (2, 4, 3)
+            @jet fn(x)
+            @test size(fn(x, grid)) == (2, 4, 3)
+            @jet fn(x, grid)
+
+            fn = basis(3; dim=4)
+            @test_throws ArgumentError fn(x)
+
+            grid = 1:5 |> aType
+            @test_throws ArgumentError fn(x, grid)
+        end
+    end
+end
