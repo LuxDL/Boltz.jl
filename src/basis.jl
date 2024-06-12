@@ -4,7 +4,7 @@ using PrecompileTools: @recompile_invalidations
 
 @recompile_invalidations begin
     using ArgCheck: @argcheck
-    using ..Boltz: _unsqueeze1
+    using ..Boltz: Boltz, _unsqueeze1
     using ChainRulesCore: ChainRulesCore, NoTangent
     using ConcreteStructs: @concrete
     using LuxDeviceUtils: get_device, LuxCPUDevice
@@ -17,7 +17,6 @@ const CRC = ChainRulesCore
 abstract type AbstractBasisFunction end
 
 @inline __basis_broadcast(f::F, i, x, ::Int) where {F} = f.(i, x)
-@inline __basis_broadcast(f::F, x, ::Int) where {F} = f.(x)
 
 @concrete struct SimpleBasisFunction{name} <: AbstractBasisFunction
     f
@@ -50,8 +49,6 @@ end
     return __basis_broadcast(basis.f, grid_new, x_new, basis.dim)
 end
 
-const DIM_KWARG_DOC = "  - `dim::Int=1`: The dimension along which the basis functions are applied."
-
 @doc doc"""
     Chebyshev(n; dim::Int=1)
 
@@ -64,7 +61,7 @@ $T_j(.)$ is the $j^{th}$ Chebyshev polynomial of the first kind.
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
 Chebyshev(n; dim::Int=1) = SimpleBasisFunction{:Chebyshev}(__chebyshev, n, dim)
 
@@ -97,7 +94,7 @@ Constructs a sine basis of the form $[\sin(x), \sin(2x), \dots, \sin(nx)]$.
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
 Sin(n; dim::Int=1) = SimpleBasisFunction{:Sin}(@fastmath(sin∘*), n, dim)
 
@@ -112,7 +109,7 @@ Constructs a cosine basis of the form $[\cos(x), \cos(2x), \dots, \cos(nx)]$.
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
 Cos(n; dim::Int=1) = SimpleBasisFunction{:Cos}(@fastmath(cos∘*), n, dim)
 
@@ -132,7 +129,7 @@ $$F_j(x) = \begin{cases}
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
 Fourier(n; dim::Int=1) = SimpleBasisFunction{:Fourier}(__fourier, n, dim)
 
@@ -175,7 +172,7 @@ $P_j(.)$ is the $j^{th}$ Legendre polynomial.
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
 Legendre(n; dim::Int=1) = SimpleBasisFunction{:Legendre}(__legendre_poly, n, dim)
 
@@ -206,7 +203,7 @@ Constructs a Polynomial basis of the form $[1, x, \dots, x^{(n-1)}]$.
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
 Polynomial(n; dim::Int=1) = SimpleBasisFunction{:Polynomial}(__polynomial, n, dim)
 
@@ -251,7 +248,9 @@ end
     return basis.f((x_new .- grid_new) .* basis.ϵ)
 end
 
-GaussianRBF(ϵ; dim::Int=1) = RadialBasisFunction{:GaussianRBF}(__gaussian_rbf, ϵ, dim)
+function GaussianRBF(ϵ; approx_exp::Bool=false, dim::Int=1)
+    return RadialBasisFunction{:GaussianRBF}(Base.Fix2(__gaussian_rbf, approx_exp), ϵ, dim)
+end
 
 function InverseQuadraticRBF(ϵ; dim::Int=1)
     return RadialBasisFunction{:InverseQuadraticRBF}(__inverse_quadratic_rbf, ϵ, dim)
@@ -263,11 +262,14 @@ end
 
 RSWAF(ϵ; dim::Int=1) = RadialBasisFunction{:RSWAF}(__rswaf, ϵ, dim)
 
-@inline __gaussian_rbf(y) = @fastmath @. exp(-y^2)
+@inline function __gaussian_rbf(y, approx_exp::Bool)
+    approx_exp && return @. Boltz.fast_approx_exp(-y^2)
+    return @fastmath @. exp(-y^2)
+end
 
 @fastmath @inline function CRC.rrule(
-        ::typeof(__gaussian_rbf), y::AbstractArray{T}) where {T}
-    z = __gaussian_rbf(y)
+        ::typeof(__gaussian_rbf), y::AbstractArray{T}, approx_exp::Bool) where {T}
+    z = __gaussian_rbf(y, approx_exp)
     ∇gaussian_rbf = let y = y, z = z, T = T
         Δ -> (NoTangent(), -T(2) .* y .* z .* Δ)
     end
