@@ -50,3 +50,7 @@ type-assert for `x`.
     x, y; dims=Val(N))
 
 @inline _stack(xs) = mapreduce(_unsqueezeN, _catN, xs)
+
+@inline function fast_approx_exp(x::T) where {T <: Real}
+    return T(reinterpret(Float64, ceil(Int64, 1512775 * x + 1072632447) << 32))
+end
