@@ -16,7 +16,8 @@ const CRC = ChainRulesCore
 
 abstract type AbstractBasisFunction end
 
-@inline __basis_broadcast(f::F, i, x) where {F} = f.(i, x)
+@inline __basis_broadcast(f::F, i, x, ::Int) where {F} = f.(i, x)
+@inline __basis_broadcast(f::F, x, ::Int) where {F} = f.(x)
 
 @concrete struct SimpleBasisFunction{name} <: AbstractBasisFunction
     f
@@ -32,7 +33,7 @@ end
         grid::Union{AbstractRange, AbstractVector}=1:1:(basis.n)) where {name, F}
     @argcheck length(grid) == basis.n
     if basis.dim == 1 # Fast path where we don't need to materialize the range
-        return __basis_broadcast(basis.f, grid, _unsqueeze1(x))
+        return __basis_broadcast(basis.f, grid, _unsqueeze1(x), 1)
     end
 
     @argcheck ndims(x) + 1 ≥ basis.dim
@@ -46,7 +47,7 @@ end
     end
     grid_shape = ntuple(i -> i == basis.dim ? basis.n : 1, ndims(x) + 1)
     grid_new = reshape(grid, grid_shape)
-    return __basis_broadcast(basis.f, grid_new, x_new)
+    return __basis_broadcast(basis.f, grid_new, x_new, basis.dim)
 end
 
 const DIM_KWARG_DOC = "  - `dim::Int=1`: The dimension along which the basis functions are applied."
@@ -69,7 +70,8 @@ Chebyshev(n; dim::Int=1) = SimpleBasisFunction{:Chebyshev}(__chebyshev, n, dim)
 
 @inline __chebyshev(i, x) = @fastmath cos(i * acos(x))
 
-@fastmath function CRC.rrule(::typeof(__basis_broadcast), ::typeof(__chebyshev), i, x)
+@fastmath function CRC.rrule(
+        ::typeof(__basis_broadcast), ::typeof(__chebyshev), i, x, dims::Int)
     iacosx = @. i * acos(x)
     y = @. cos(iacosx)
 
@@ -77,7 +79,7 @@ Chebyshev(n; dim::Int=1) = SimpleBasisFunction{:Chebyshev}(__chebyshev, n, dim)
         Δ -> begin
             den = @. sqrt(1 - x^2)
             return (NoTangent(), NoTangent(), NoTangent(),
-                dropdims(sum(i .* sin.(iacosx) .* Δ ./ den; dims=1); dims=1))
+                dropdims(sum(i .* sin.(iacosx) .* Δ ./ den; dims); dims))
         end
     end
 
@@ -144,7 +146,8 @@ end
     return ifelse(iseven(i), c, s)
 end
 
-@fastmath function CRC.rrule(::typeof(__basis_broadcast), ::typeof(__fourier), i, x)
+@fastmath function CRC.rrule(
+        ::typeof(__basis_broadcast), ::typeof(__fourier), i, x, dims::Int)
     ix_by_2 = @. i * x / 2
     s = @. sin(ix_by_2)
     c = @. cos(ix_by_2)
@@ -153,7 +156,7 @@ end
     ∇fourier = let s = s, c = c, i = i
         Δ -> begin
             return (NoTangent(), NoTangent(), NoTangent(),
-                dropdims(sum((i / 2) .* ifelse.(iseven.(i), -s, c) .* Δ; dims=1); dims=1))
+                dropdims(sum((i / 2) .* ifelse.(iseven.(i), -s, c) .* Δ; dims); dims))
         end
     end
 
@@ -209,26 +212,56 @@ Polynomial(n; dim::Int=1) = SimpleBasisFunction{:Polynomial}(__polynomial, n, di
 
 @inline __polynomial(i, x) = x^(i - 1)
 
-function CRC.rrule(::typeof(__basis_broadcast), ::typeof(__polynomial), i, x)
+function CRC.rrule(::typeof(__basis_broadcast), ::typeof(__polynomial), i, x, dims::Int)
     y_m1 = x .^ (i .- 2)
     y = y_m1 .* x
     ∇polynomial = let y_m1 = y_m1, i = i
         Δ -> begin
             return (NoTangent(), NoTangent(), NoTangent(),
-                dropdims(sum((i .- 1) .* y_m1 .* Δ; dims=1); dims=1))
+                dropdims(sum((i .- 1) .* y_m1 .* Δ; dims); dims))
         end
     end
     return y, ∇polynomial
 end
 
-abstract type AbstractRadialBasisFunction <: AbstractBasisFunction end
-
 # Part of these are taken from https://github.com/vpuri3/KolmogorovArnold.jl/blob/master/src/utils.jl
-struct GaussianRBF <: AbstractRadialBasisFunction end
-
-@fastmath @inline function (::GaussianRBF)(x, grid::AbstractVector, ϵ)
-    return __gaussian_rbf((_unsqueeze1(x) .- grid) .* ϵ)
+@concrete struct RadialBasisFunction{name} <: AbstractBasisFunction
+    f
+    ϵ
+    dim::Int
 end
+
+function Base.show(io::IO, basis::RadialBasisFunction{name}) where {name}
+    print(io, "Basis.$(name)(ϵ=$(basis.ϵ))")
+end
+
+@inline function (basis::RadialBasisFunction{name, F})(
+        x::AbstractArray, grid::AbstractVector) where {name, F}
+    if basis.dim == 1 # Fast path where we don't need to materialize the range
+        return basis.f((_unsqueeze1(x) .- grid) .* basis.ϵ)
+    end
+
+    @argcheck ndims(x) + 1 ≥ basis.dim
+    new_x_size = ntuple(
+        i -> i == basis.dim ? 1 : (i < basis.dim ? size(x, i) : size(x, i - 1)),
+        ndims(x) + 1)
+    x_new = reshape(x, new_x_size)
+    grid_shape = ntuple(i -> i == basis.dim ? length(grid) : 1, ndims(x) + 1)
+    grid_new = reshape(grid, grid_shape)
+    return basis.f((x_new .- grid_new) .* basis.ϵ)
+end
+
+GaussianRBF(ϵ; dim::Int=1) = RadialBasisFunction{:GaussianRBF}(__gaussian_rbf, ϵ, dim)
+
+function InverseQuadraticRBF(ϵ; dim::Int=1)
+    return RadialBasisFunction{:InverseQuadraticRBF}(__inverse_quadratic_rbf, ϵ, dim)
+end
+
+function InverseMultiquadicRBF(ϵ; dim::Int=1)
+    return RadialBasisFunction{:InverseMultiquadicRBF}(__inverse_multiquadic_rbf, ϵ, dim)
+end
+
+RSWAF(ϵ; dim::Int=1) = RadialBasisFunction{:RSWAF}(__rswaf, ϵ, dim)
 
 @inline __gaussian_rbf(y) = @fastmath @. exp(-y^2)
 
@@ -241,24 +274,9 @@ end
     return z, ∇gaussian_rbf
 end
 
-struct InverseQuadraticRBF <: AbstractRadialBasisFunction end
+@inline __inverse_quadratic_rbf(y) = @fastmath @. 1 / (1 + y^2)
 
-@fastmath @inline function (::InverseQuadraticRBF)(x, grid::AbstractVector, ϵ)
-    z = ((_unsqueeze1(x) .- grid) .* ϵ) .^ 2
-    return 1 ./ (1 .+ z)
-end
-
-struct InverseMultiquadicRBF <: AbstractRadialBasisFunction end
-
-@fastmath @inline function (::InverseMultiquadicRBF)(x, grid::AbstractVector, ϵ)
-    return sqrt.(InverseQuadraticRBF()(x, grid, ϵ))
-end
-
-struct RSWAF <: AbstractRadialBasisFunction end
-
-@fastmath @inline function (::RSWAF)(x, grid::AbstractVector, ϵ)
-    return __rswaf((_unsqueeze1(x) .- grid) .* ϵ)
-end
+@inline __inverse_multiquadic_rbf(y) = @fastmath @. 1 / sqrt(1 + y^2)
 
 @inline __rswaf(y) = @fastmath @. 1 - tanh_fast(y)^2
 
