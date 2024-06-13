@@ -150,8 +150,8 @@ end
         ongpu && continue
 
         @testset "$(spl): train_grid $(train_grid), dims $(dims)" for spl in (
-                ConstantInterpolation, LinearInterpolation, QuadraticInterpolation,
-                QuadraticSpline, CubicSpline),
+                ConstantInterpolation, LinearInterpolation,
+                QuadraticInterpolation, QuadraticSpline, CubicSpline),
             train_grid in (true, false),
             dims in ((), (8,))
 
@@ -164,12 +164,14 @@ end
             y, st = spline(x, ps, st)
             @test size(y) == (dims..., 4)
 
-            @jet spline(x, ps, st)
+            opt_broken = !ongpu && dims != () && spl !== ConstantInterpolation
+
+            @jet spline(x, ps, st) opt_broken=opt_broken # See SciML/DataInterpolations.jl/issues/267
 
             y, st = spline(x, ps_ca, st)
             @test size(y) == (dims..., 4)
 
-            @jet spline(x, ps_ca, st)
+            @jet spline(x, ps_ca, st) opt_broken=opt_broken # See SciML/DataInterpolations.jl/issues/267
 
             ∂x, ∂ps = Zygote.gradient((x, ps) -> sum(abs2, first(spline(x, ps, st))), x, ps)
             spl !== ConstantInterpolation && @test ∂x !== nothing
