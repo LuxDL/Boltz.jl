@@ -25,10 +25,10 @@ position and momentum.
 
 ## Autodiff Backends
 
-| `autodiff`        | Package Needed   | Notes                                                                                  |
-|:----------------- |:---------------- |:-------------------------------------------------------------------------------------- |
-| `AutoZygote`      | `Zygote.jl`      | Preferred Backend. Chosen if `Zygote` is loaded and `autodiff` is `nothing`.           |
-| `AutoForwardDiff` | `ForwardDiff.jl` | Chosen if `ForwardDiff` is loaded, `Zygote` is not loaded and `autodiff` is `nothing`. |
+| `autodiff`        | Package Needed   | Notes                                                                        |
+|:----------------- |:---------------- |:---------------------------------------------------------------------------- |
+| `AutoZygote`      | `Zygote.jl`      | Preferred Backend. Chosen if `Zygote` is loaded and `autodiff` is `nothing`. |
+| `AutoForwardDiff` | `ForwardDiff.jl` | Chosen if `Zygote` is not loaded and `autodiff` is `nothing`.                |
 
 !!! note
 
@@ -47,20 +47,15 @@ end
 
 function HamiltonianNN{FST}(model; autodiff=nothing) where {FST}
     if autodiff === nothing # Select best possible backend
-        autodiff = Boltz._is_extension_loaded(Val(:Zygote)) ? AutoZygote() :
-                   Boltz._is_extension_loaded(Val(:ForwardDiff)) ? AutoForwardDiff() :
-                   nothing
-    elseif autodiff isa AutoForwardDiff
-        autodiff = Boltz._is_extension_loaded(Val(:ForwardDiff)) ? autodiff : nothing
+        autodiff = ifelse(
+            Boltz._is_extension_loaded(Val(:Zygote)), AutoZygote(), AutoForwardDiff())
     elseif autodiff isa AutoZygote
         autodiff = Boltz._is_extension_loaded(Val(:Zygote)) ? autodiff : nothing
     else
+        !(autodiff isa AutoForwardDiff)
         throw(ArgumentError("Invalid autodiff backend: $(autodiff). Available options: \
                              `AutoForwardDiff`, or `AutoZygote`."))
     end
-    @argcheck autodiff!==nothing "No functional autodiff package found. Please install \
-                                  and load `ForwardDiff` for `AutoForwardDiff` or \
-                                  `Zygote` for `AutoZygote`."
     return HamiltonianNN{FST}(model, autodiff)
 end
 
