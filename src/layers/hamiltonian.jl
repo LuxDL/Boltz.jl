@@ -51,8 +51,7 @@ function HamiltonianNN{FST}(model; autodiff=nothing) where {FST}
             Boltz._is_extension_loaded(Val(:Zygote)), AutoZygote(), AutoForwardDiff())
     elseif autodiff isa AutoZygote
         autodiff = Boltz._is_extension_loaded(Val(:Zygote)) ? autodiff : nothing
-    else
-        !(autodiff isa AutoForwardDiff)
+    elseif !(autodiff isa AutoForwardDiff)
         throw(ArgumentError("Invalid autodiff backend: $(autodiff). Available options: \
                              `AutoForwardDiff`, or `AutoZygote`."))
     end
