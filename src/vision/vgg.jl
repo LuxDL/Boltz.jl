@@ -38,16 +38,16 @@ Create a VGG model [1].
 image recognition." arXiv preprint arXiv:1409.1556 (2014).
 """
 function VGG(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, dropout)
-    feature_extrator = __vgg_convolutional_layers(config, batchnorm, inchannels)
+    feature_extractor = __vgg_convolutional_layers(config, batchnorm, inchannels)
 
     img = ones(Float32, (imsize..., inchannels, 2))
     rng = Xoshiro(0)
-    _ps, _st = LuxCore.setup(rng, feature_extrator)
-    outsize = size(first(feature_extrator(img, _ps, _st)))
+    _ps, _st = LuxCore.setup(rng, feature_extractor)
+    outsize = size(first(feature_extractor(img, _ps, _st)))
 
     classifier = __vgg_classifier_layers(outsize[1:((end - 1))], nclasses, fcsize, dropout)
 
-    return Lux.Chain(feature_extrator, classifier)
+    return Lux.Chain(feature_extractor, classifier)
 end
 
 #! format: off
