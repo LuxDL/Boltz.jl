@@ -1,19 +1,14 @@
 module Boltz
 
-using PrecompileTools: @recompile_invalidations
+using ArgCheck: @argcheck
+using Artifacts: Artifacts, @artifact_str
+using JLD2: JLD2, load
+using ForwardDiff: ForwardDiff
+using GPUArraysCore: GPUArraysCore
+using LazyArtifacts: LazyArtifacts
+using Random: Random
 using Reexport: @reexport
-
-@recompile_invalidations begin
-    using ArgCheck: @argcheck
-    using Artifacts: Artifacts, @artifact_str
-    using JLD2: JLD2, load
-    using ForwardDiff: ForwardDiff
-    using GPUArraysCore: GPUArraysCore
-    using LazyArtifacts: LazyArtifacts
-    using Lux
-    using Random: Random
-    using Statistics: mean
-end
+using Statistics: mean
 
 @reexport using Lux
 
