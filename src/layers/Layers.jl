@@ -1,22 +1,18 @@
 module Layers
 
-using PrecompileTools: @recompile_invalidations
-
-@recompile_invalidations begin
-    using ArgCheck: @argcheck
-    using ADTypes: AutoForwardDiff, AutoZygote
-    using ..Boltz: Boltz, _fast_chunk, _should_type_assert, _stack, __unwrap_val
-    using ConcreteStructs: @concrete
-    using ChainRulesCore: ChainRulesCore
-    using ForwardDiff: ForwardDiff
-    using Lux: Lux, StatefulLuxLayer
-    using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
-    using LuxDeviceUtils: get_device, LuxCPUDevice, LuxCUDADevice
-    using Markdown: @doc_str
-    using NNlib: NNlib
-    using Random: AbstractRNG
-    using WeightInitializers: zeros32, randn32
-end
+using ArgCheck: @argcheck
+using ADTypes: AutoForwardDiff, AutoZygote
+using ..Boltz: Boltz, _fast_chunk, _should_type_assert, _stack, __unwrap_val
+using ConcreteStructs: @concrete
+using ChainRulesCore: ChainRulesCore
+using ForwardDiff: ForwardDiff
+using Lux: Lux, StatefulLuxLayer
+using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
+using LuxDeviceUtils: get_device, LuxCPUDevice, LuxCUDADevice
+using Markdown: @doc_str
+using NNlib: NNlib
+using Random: AbstractRNG
+using WeightInitializers: zeros32, randn32
 
 const CRC = ChainRulesCore
 
