@@ -7,6 +7,7 @@ using Reexport: @reexport
     using ArgCheck: @argcheck
     using Artifacts: Artifacts, @artifact_str
     using JLD2: JLD2, load
+    using ForwardDiff: ForwardDiff
     using GPUArraysCore: GPUArraysCore
     using LazyArtifacts: LazyArtifacts
     using Lux

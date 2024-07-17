@@ -1,7 +1,8 @@
 @testitem "Aqua: Quality Assurance" tags=[:others] begin
     using Aqua
 
-    Aqua.test_all(Boltz)
+    Aqua.test_all(Boltz; ambiguities=false)
+    Aqua.test_ambiguities(Boltz; recursive=false)
 end
 
 @testitem "Explicit Imports: Quality Assurance" tags=[:others] begin

@@ -39,6 +39,8 @@ for exotic types like `ForwardDiff.Dual`. We use this function to check if we sh
 type-assert for `x`.
 """
 @inline _should_type_assert(::AbstractArray{T}) where {T} = isbitstype(T)
+@inline _should_type_assert(::AbstractArray{<:ForwardDiff.Dual}) = false
+@inline _should_type_assert(::ForwardDiff.Dual) = false
 @inline _should_type_assert(x) = true
 
 @inline _unsqueeze1(x::AbstractArray) = reshape(x, 1, size(x)...)

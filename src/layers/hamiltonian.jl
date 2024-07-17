@@ -70,6 +70,10 @@ end
 
 function hamiltonian_forward end
 
+function Layers.hamiltonian_forward(::AutoForwardDiff, model, x)
+    return ForwardDiff.gradient(sum ∘ model, x)
+end
+
 function (hnn::HamiltonianNN{FST})(x::AbstractArray{T, N}, ps, st) where {FST, T, N}
     model = StatefulLuxLayer{FST}(hnn.model, ps, st.model)
 

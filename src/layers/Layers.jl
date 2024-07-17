@@ -8,6 +8,7 @@ using PrecompileTools: @recompile_invalidations
     using ..Boltz: Boltz, _fast_chunk, _should_type_assert, _stack, __unwrap_val
     using ConcreteStructs: @concrete
     using ChainRulesCore: ChainRulesCore
+    using ForwardDiff: ForwardDiff
     using Lux: Lux, StatefulLuxLayer
     using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
     using LuxDeviceUtils: get_device, LuxCPUDevice, LuxCUDADevice
