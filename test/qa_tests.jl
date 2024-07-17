@@ -6,13 +6,14 @@
 end
 
 @testitem "Explicit Imports: Quality Assurance" tags=[:others] begin
-    # Load all trigger packages
-    import Lux, Metalhead, ForwardDiff, Zygote
+    import Lux, Metalhead, Zygote # Load all trigger packages
     using ExplicitImports
 
-    # Skip our own packages
-    @test check_no_implicit_imports(Boltz; skip=(Boltz, Base, Core, Lux)) === nothing
-    ## AbstractRNG seems to be a spurious detection in LuxFluxExt
+    @test check_no_implicit_imports(Boltz; skip=(Base, Core, Lux)) === nothing
     @test check_no_stale_explicit_imports(Boltz) === nothing
+    @test check_no_self_qualified_accesses(Boltz) === nothing
+    @test check_all_explicit_imports_via_owners(Boltz) === nothing
     @test check_all_qualified_accesses_via_owners(Boltz) === nothing
+    @test_broken check_all_explicit_imports_are_public(Boltz) === nothing  # mostly upstream problems
+    @test_broken check_all_qualified_accesses_are_public(Boltz) === nothing  # mostly upstream
 end
