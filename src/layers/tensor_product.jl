@@ -24,8 +24,8 @@ function TensorProductLayer(basis_fns, out_dim::Int; init_weight::F=randn32) whe
         prod(Base.Fix2(getproperty, :n), basis_fns) => out_dim; use_bias=false, init_weight)
     return Lux.@compact(; basis_fns=Tuple(basis_fns), dense,
         out_dim, dispatch=:TensorProductLayer) do x::AbstractArray #  I1 x I2 x ... x T  x B
-        dev = get_device(x)
-        @argcheck dev isa LuxCPUDevice || dev isa LuxCUDADevice # kron is not widely supported
+        dev = get_device_type(x)
+        @argcheck dev <: CPUDevice || dev <: CUDADevice       # kron is not widely supported
 
         x_ = Lux._eachslice(x, Val(ndims(x) - 1))                  # [I1 x I2 x ... x B] x T
         @argcheck length(x_) == length(basis_fns)
