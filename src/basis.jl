@@ -4,8 +4,8 @@ using ArgCheck: @argcheck
 using ..Boltz: _unsqueeze1
 using ChainRulesCore: ChainRulesCore, NoTangent
 using ConcreteStructs: @concrete
-using LuxDeviceUtils: get_device, LuxCPUDevice
 using Markdown: @doc_str
+using MLDataDevices: get_device, CPUDevice
 
 const CRC = ChainRulesCore
 
@@ -34,7 +34,7 @@ end
     x_new = reshape(x, new_x_size)
     if grid isa AbstractRange
         dev = get_device(x)
-        grid = dev isa LuxCPUDevice ? collect(grid) : dev(grid)
+        grid = dev isa CPUDevice ? collect(grid) : dev(grid)
     end
     grid_shape = ntuple(i -> i == basis.dim ? basis.n : 1, ndims(x) + 1)
     grid_new = reshape(grid, grid_shape)

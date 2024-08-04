@@ -8,8 +8,8 @@ using ChainRulesCore: ChainRulesCore
 using ForwardDiff: ForwardDiff
 using Lux: Lux, StatefulLuxLayer
 using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
-using LuxDeviceUtils: get_device, LuxCPUDevice, LuxCUDADevice
 using Markdown: @doc_str
+using MLDataDevices: get_device_type, CPUDevice, CUDADevice
 using NNlib: NNlib
 using Random: AbstractRNG
 using WeightInitializers: zeros32, randn32

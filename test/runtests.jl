@@ -1,4 +1,6 @@
-using ReTestItems, Pkg
+using ReTestItems, Pkg, InteractiveUtils, Hwloc
+
+@info sprint(io -> versioninfo(io; verbose=true))
 
 const BACKEND_GROUP = lowercase(get(ENV, "BACKEND_GROUP", "all"))
 const EXTRA_PKGS = String[]
@@ -14,10 +16,18 @@ if !isempty(EXTRA_PKGS)
     Pkg.instantiate()
 end
 
-const BOLTZ_TEST_GROUP = lowercase(get(ENV, "BOLTZ_TEST_GROUP", "all"))
-@info "Running tests for group: $BOLTZ_TEST_GROUP"
-const RETESTITEMS_NWORKERS = parse(Int, get(ENV, "RETESTITEMS_NWORKERS", "0"))
+using Boltz
+
+const BOLTZ_TEST_GROUP = get(ENV, "BOLTZ_TEST_GROUP", "all")
+const RETESTITEMS_NWORKERS = parse(
+    Int, get(ENV, "RETESTITEMS_NWORKERS", string(min(Hwloc.num_physical_cores(), 16))))
+const RETESTITEMS_NWORKER_THREADS = parse(Int,
+    get(ENV, "RETESTITEMS_NWORKER_THREADS",
+        string(max(Hwloc.num_virtual_cores() ÷ RETESTITEMS_NWORKERS, 1))))
+
+@info "Running tests for group: $BOLTZ_TEST_GROUP with $RETESTITEMS_NWORKERS workers"
 
 ReTestItems.runtests(
-    @__DIR__; tags=(BOLTZ_TEST_GROUP == "all" ? nothing : [Symbol(BOLTZ_TEST_GROUP)]),
-    nworkers=ifelse(BACKEND_GROUP ∈ ("cuda", "amdgpu"), 0, RETESTITEMS_NWORKERS))
+    Boltz; tags=(BOLTZ_TEST_GROUP == "all" ? nothing : [Symbol(BOLTZ_TEST_GROUP)]),
+    nworkers=ifelse(BACKEND_GROUP ∈ ("cuda", "amdgpu"), 0, RETESTITEMS_NWORKERS),
+    nworker_threads=RETESTITEMS_NWORKER_THREADS, testitem_timeout=3600)
