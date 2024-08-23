@@ -1,6 +1,6 @@
 using ReTestItems, Pkg, InteractiveUtils, Hwloc
 
-@info sprint(io -> versioninfo(io; verbose=true))
+@info sprint(versioninfo)
 
 const BACKEND_GROUP = lowercase(get(ENV, "BACKEND_GROUP", "all"))
 const EXTRA_PKGS = String[]

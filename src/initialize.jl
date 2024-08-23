@@ -24,8 +24,8 @@ function initialize_model(
         name::Symbol, model; pretrained::Bool=false, rng=nothing, seed=0, kwargs...)
     if pretrained
         path = get_pretrained_weights_path(name)
-        ps = load(joinpath(path, "$name.jld2"), "parameters")
-        st = load(joinpath(path, "$name.jld2"), "states")
+        ps = JLD2.load(joinpath(path, "$name.jld2"), "parameters")
+        st = JLD2.load(joinpath(path, "$name.jld2"), "states")
         return ps, st
     end
     if rng === nothing

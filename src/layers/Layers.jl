@@ -2,15 +2,18 @@ module Layers
 
 using ArgCheck: @argcheck
 using ADTypes: AutoForwardDiff, AutoZygote
+using Compat: @compat
 using ConcreteStructs: @concrete
 using ChainRulesCore: ChainRulesCore
+using Markdown: @doc_str
+using Random: AbstractRNG
+
 using ForwardDiff: ForwardDiff
+
 using Lux: Lux, StatefulLuxLayer
 using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
-using Markdown: @doc_str
 using MLDataDevices: get_device_type, CPUDevice, CUDADevice
 using NNlib: NNlib
-using Random: AbstractRNG
 using WeightInitializers: zeros32, randn32
 
 using ..Boltz: Boltz
@@ -34,5 +37,7 @@ include("hamiltonian.jl")
 include("mlp.jl")
 include("spline.jl")
 include("tensor_product.jl")
+
+@compat public MultiHeadSelfAttention
 
 end
