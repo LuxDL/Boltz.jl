@@ -7,7 +7,7 @@ function __patch_embedding(
     @argcheck (im_width % patch_width == 0) && (im_height % patch_height == 0)
 
     return Lux.Chain(Lux.Conv(patch_size, in_channels => embed_planes; stride=patch_size),
-        flatten ? _flatten_spatial : identity, norm_layer(embed_planes))
+        ifelse(flatten, flatten_spatial, identity), norm_layer(embed_planes))
 end
 
 # ViT Implementation
@@ -26,7 +26,7 @@ function VisionTransformer(;
             Lux.Dropout(embedding_dropout_rate),
             Layers.VisionTransformerEncoder(
                 embed_planes, depth, number_heads; mlp_ratio, dropout_rate),
-            Lux.WrappedFunction(ifelse(pool === :class, x -> x[:, 1, :], _seconddimmean));
+            Lux.WrappedFunction(ifelse(pool === :class, x -> x[:, 1, :], second_dim_mean));
             disable_optimizations=true),
         Lux.Chain(Lux.LayerNorm((embed_planes,); affine=true),
             Lux.Dense(embed_planes, num_classes, tanh); disable_optimizations=true);

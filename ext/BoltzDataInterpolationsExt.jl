@@ -1,6 +1,6 @@
 module BoltzDataInterpolationsExt
 
-using Boltz: Boltz, Layers
+using Boltz: Boltz, Layers, Utils
 using DataInterpolations: AbstractInterpolation
 
 for train_grid in (true, false)
@@ -11,7 +11,7 @@ for train_grid in (true, false)
         interp = __construct_basis(Basis, ps.saved_points, grid; extrapolate=true)
         sol = interp.(t)
         spl.in_dims == () && return sol, st
-        return Boltz._stack(sol), st
+        return Utils.mapreduce_stack(sol), st
     end
 end
 

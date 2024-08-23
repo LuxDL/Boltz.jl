@@ -2,7 +2,6 @@ module Layers
 
 using ArgCheck: @argcheck
 using ADTypes: AutoForwardDiff, AutoZygote
-using ..Boltz: Boltz, _fast_chunk, _should_type_assert, _stack, __unwrap_val
 using ConcreteStructs: @concrete
 using ChainRulesCore: ChainRulesCore
 using ForwardDiff: ForwardDiff
@@ -13,6 +12,9 @@ using MLDataDevices: get_device_type, CPUDevice, CUDADevice
 using NNlib: NNlib
 using Random: AbstractRNG
 using WeightInitializers: zeros32, randn32
+
+using ..Boltz: Boltz
+using ..Utils: fast_chunk, should_type_assert, mapreduce_stack, unwrap_val
 
 const CRC = ChainRulesCore
 

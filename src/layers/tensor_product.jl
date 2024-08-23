@@ -34,7 +34,8 @@ function TensorProductLayer(basis_fns, out_dim::Int; init_weight::F=randn32) whe
             eachcol(reshape(fn(xᵢ), :, prod(size(xᵢ))))
         end                                        # [[D₁ x ... x Dₙ] x (I1 x I2 x ... x B)]
 
-        @return reshape(dense(_stack(y)), size(x)[1:(end - 2)]..., out_dim, size(x)[end])
+        @return reshape(
+            dense(mapreduce_stack(y)), size(x)[1:(end - 2)]..., out_dim, size(x)[end])
     end
 end
 
