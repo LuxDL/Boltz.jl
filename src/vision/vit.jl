@@ -62,7 +62,7 @@ $(INITIALIZE_KWARGS)
 function VisionTransformer(name::Symbol; kwargs...)
     @argcheck name in keys(VIT_CONFIGS)
     model = VisionTransformer(; VIT_CONFIGS[name]..., kwargs...)
-    return __maybe_initialize_model(name, model; kwargs...)
+    return maybe_initialize_model(name, model; kwargs...)
 end
 
 const ViT = VisionTransformer

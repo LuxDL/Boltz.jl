@@ -143,15 +143,15 @@ $(INITIALIZE_KWARGS)
 function ConvMixer end
 
 for f in [:AlexNet, :ResNet, :ResNeXt, :GoogLeNet, :DenseNet, :MobileNet, :ConvMixer]
-    f_inner = Symbol("__", f)
+    f_metalhead = Symbol(f, :Metalhead)
     @eval begin
-        function $(f_inner) end
-        function $f(args...; kwargs...)
+        function $(f_metalhead) end
+        function $(f)(args...; kwargs...)
             if !is_extension_loaded(Val(:Metalhead))
-                error("Metalhead.jl is not loaded. Please load Metalhead.jl to use this \
-                       function.")
+                error("`Metalhead.jl` is not loaded. Please load `Metalhead.jl` to use \
+                       this function.")
             end
-            $(f_inner)(args...; kwargs...)
+            $(f_metalhead)(args...; kwargs...)
         end
     end
 end

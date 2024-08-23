@@ -82,5 +82,5 @@ function VGG(depth::Int; batchnorm::Bool=false, kwargs...)
     name = Symbol(:vgg, depth, ifelse(batchnorm, "_bn", ""))
     config, inchannels, nclasses, fcsize = VGG_CONFIG[depth], 3, 1000, 4096
     model = VGG((224, 224); config, inchannels, batchnorm, nclasses, fcsize, dropout=0.5f0)
-    return __maybe_initialize_model(name, model; kwargs...)
+    return maybe_initialize_model(name, model; kwargs...)
 end
