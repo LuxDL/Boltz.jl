@@ -147,7 +147,7 @@ for f in [:AlexNet, :ResNet, :ResNeXt, :GoogLeNet, :DenseNet, :MobileNet, :ConvM
     @eval begin
         function $(f_inner) end
         function $f(args...; kwargs...)
-            if !_is_extension_loaded(Val(:Metalhead))
+            if !is_extension_loaded(Val(:Metalhead))
                 error("Metalhead.jl is not loaded. Please load Metalhead.jl to use this \
                        function.")
             end

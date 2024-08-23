@@ -4,6 +4,8 @@ using ForwardDiff: ForwardDiff
 using GPUArraysCore: AnyGPUArray
 using Statistics: mean
 
+is_extension_loaded(::Val) = false
+
 """
     fast_chunk(x::AbstractArray, ::Val{n}, ::Val{dim})
 
