@@ -2,10 +2,11 @@ module Vision
 
 using ArgCheck: @argcheck
 using Compat: @compat
+using ConcreteStructs: @concrete
 using Random: Xoshiro
 
 using Lux: Lux
-using LuxCore: LuxCore, AbstractExplicitLayer
+using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
 using NNlib: relu
 
 using ..InitializeModels: maybe_initialize_model, INITIALIZE_KWARGS
