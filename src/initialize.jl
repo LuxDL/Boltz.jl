@@ -2,7 +2,8 @@ module InitializeModels
 
 using ArgCheck: @argcheck
 using Artifacts: Artifacts, @artifact_str
-using JLD2: JLD2
+using JLD2: JLD2 # TODO[BREAKING]: Remove JLD2 dependency and ask users to load it
+using LazyArtifacts: LazyArtifacts
 using Random: Random
 
 using LuxCore: LuxCore

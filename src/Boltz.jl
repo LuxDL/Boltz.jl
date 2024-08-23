@@ -1,14 +1,9 @@
 module Boltz
 
 using ArgCheck: @argcheck
-using Artifacts: Artifacts, @artifact_str
-using JLD2: JLD2, load
-using ForwardDiff: ForwardDiff
-using GPUArraysCore: GPUArraysCore
-using LazyArtifacts: LazyArtifacts
+using JLD2: JLD2 # TODO[BREAKING]: Remove JLD2 dependency and ask users to load it
 using Random: Random
 using Reexport: @reexport
-using Statistics: mean
 
 @reexport using Lux
 
