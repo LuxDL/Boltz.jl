@@ -1,11 +1,12 @@
 module BoltzMetalheadExt
 
 using ArgCheck: @argcheck
-using Boltz: Boltz, __maybe_initialize_model, Vision
-using Lux: Lux, FromFluxAdaptor
 using Metalhead: Metalhead
 
-@inline Boltz._is_extension_loaded(::Val{:Metalhead}) = true
+using Boltz: Boltz, Utils, __maybe_initialize_model, Vision
+using Lux: Lux, FromFluxAdaptor
+
+Utils.is_extension_loaded(::Val{:Metalhead}) = true
 
 function Vision.__AlexNet(; pretrained=false, kwargs...)
     model = FromFluxAdaptor()(Metalhead.AlexNet().layers)

@@ -48,9 +48,9 @@ end
 function HamiltonianNN{FST}(model; autodiff=nothing) where {FST}
     if autodiff === nothing # Select best possible backend
         autodiff = ifelse(
-            Boltz._is_extension_loaded(Val(:Zygote)), AutoZygote(), AutoForwardDiff())
+            is_extension_loaded(Val(:Zygote)), AutoZygote(), AutoForwardDiff())
     elseif autodiff isa AutoZygote
-        autodiff = Boltz._is_extension_loaded(Val(:Zygote)) ? autodiff : nothing
+        autodiff = is_extension_loaded(Val(:Zygote)) ? autodiff : nothing
     elseif !(autodiff isa AutoForwardDiff)
         throw(ArgumentError("Invalid autodiff backend: $(autodiff). Available options: \
                              `AutoForwardDiff`, or `AutoZygote`."))

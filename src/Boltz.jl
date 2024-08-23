@@ -12,8 +12,6 @@ using Statistics: mean
 
 @reexport using Lux
 
-@inline _is_extension_loaded(::Val) = false
-
 # Utility Functions
 include("utils.jl")
 include("initialize.jl")

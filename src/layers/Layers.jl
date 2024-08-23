@@ -14,7 +14,8 @@ using Random: AbstractRNG
 using WeightInitializers: zeros32, randn32
 
 using ..Boltz: Boltz
-using ..Utils: fast_chunk, should_type_assert, mapreduce_stack, unwrap_val
+using ..Utils: fast_chunk, should_type_assert, mapreduce_stack, unwrap_val,
+               is_extension_loaded
 
 const CRC = ChainRulesCore
 
