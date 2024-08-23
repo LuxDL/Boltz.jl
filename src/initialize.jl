@@ -34,11 +34,8 @@ end
 
 function __maybe_initialize_model(name::Symbol, model; pretrained=false,
         initialized::Union{Val, Bool}=Val(true), kwargs...)
-    @argcheck !pretrained || __unwrap_val(initialized)
-    __unwrap_val(initialized) || return model
+    @argcheck !pretrained || unwrap_val(initialized)
+    unwrap_val(initialized) || return model
     ps, st = __initialize_model(name, model; pretrained, kwargs...)
     return model, ps, st
 end
-
-@inline __unwrap_val(::Val{T}) where {T} = T
-@inline __unwrap_val(T) = T

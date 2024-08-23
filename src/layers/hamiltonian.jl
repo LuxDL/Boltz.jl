@@ -69,7 +69,7 @@ function (hnn::HamiltonianNN{FST})(x::AbstractArray{T, N}, ps, st) where {FST, T
 
     st.first_call && __check_hamiltonian_layer(hnn.model, x, ps, st.model)
 
-    if _should_type_assert(x) && _should_type_assert(ps)
+    if should_type_assert(x) && should_type_assert(ps)
         H = hamiltonian_forward(hnn.autodiff, model, x)::typeof(x)
     else
         H = hamiltonian_forward(hnn.autodiff, model, x)

@@ -46,7 +46,7 @@ end
 
 function SplineLayer(in_dims::Dims, grid_min, grid_max, grid_step, basis::Type{Basis};
         train_grid::Union{Val, Bool}=Val(false), init_saved_points=nothing) where {Basis}
-    return SplineLayer{__unwrap_val(train_grid), Basis}(
+    return SplineLayer{unwrap_val(train_grid), Basis}(
         grid_min, grid_max, grid_step, basis, in_dims, init_saved_points)
 end
 
