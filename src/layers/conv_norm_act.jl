@@ -34,7 +34,7 @@ function ConvNormActivation(
     layers = Vector{AbstractExplicitLayer}(undef, N)
     for (i, out_chs) in enumerate(hidden_chs)
         act = i != N ? activation : (last_layer_activation ? activation : identity)
-        layers[i] = __conv_norm_act(
+        layers[i] = conv_norm_act(
             i, kernel_size, in_chs => out_chs, act, norm_layer, conv_kwargs, norm_kwargs)
         in_chs = out_chs
     end
@@ -43,7 +43,7 @@ function ConvNormActivation(
     return Lux.Chain(inner_blocks; name="ConvNormActivation", disable_optimizations=true)
 end
 
-@inline function __conv_norm_act(
+function conv_norm_act(
         i::Integer, kernel_size::Dims, (in_chs, out_chs)::Pair{<:Integer, <:Integer},
         activation::F, norm_layer::NF, conv_kwargs, norm_kwargs) where {F, NF}
     name = "ConvNormActBlock"
@@ -67,10 +67,9 @@ flexible interface.
 function ConvBatchNormActivation(
         kernel_size::Dims, (in_filters, out_filters)::Pair{Int, Int},
         depth::Int, act::F; use_norm::Bool=true, kwargs...) where {F}
-    hidden_chs = ntuple(Returns(out_filters), depth)
     return ConvNormActivation(kernel_size,
         in_filters,
-        hidden_chs,
+        ntuple(Returns(out_filters), depth),
         act;
         norm_layer=use_norm ?
                    (i, chs, bn_act; kwargs...) -> Lux.BatchNorm(chs, bn_act; kwargs...) :

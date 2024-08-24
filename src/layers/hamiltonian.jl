@@ -25,10 +25,10 @@ position and momentum.
 
 ## Autodiff Backends
 
-| `autodiff`        | Package Needed   | Notes                                                                        |
-|:----------------- |:---------------- |:---------------------------------------------------------------------------- |
-| `AutoZygote`      | `Zygote.jl`      | Preferred Backend. Chosen if `Zygote` is loaded and `autodiff` is `nothing`. |
-| `AutoForwardDiff` | `ForwardDiff.jl` | Chosen if `Zygote` is not loaded and `autodiff` is `nothing`.                |
+| `autodiff`        | Package Needed | Notes                                                                        |
+|:----------------- |:-------------- |:---------------------------------------------------------------------------- |
+| `AutoZygote`      | `Zygote.jl`    | Preferred Backend. Chosen if `Zygote` is loaded and `autodiff` is `nothing`. |
+| `AutoForwardDiff` |                | Chosen if `Zygote` is not loaded and `autodiff` is `nothing`.                |
 
 !!! note
 
@@ -46,15 +46,19 @@ Advances in Neural Information Processing Systems 32 (2019): 15379-15389.
 end
 
 function HamiltonianNN{FST}(model; autodiff=nothing) where {FST}
+    @argcheck autodiff isa Union{Nothing, AutoForwardDiff, AutoZygote}
+
+    zygote_loaded = is_extension_loaded(Val(:Zygote))
+
     if autodiff === nothing # Select best possible backend
-        autodiff = ifelse(
-            is_extension_loaded(Val(:Zygote)), AutoZygote(), AutoForwardDiff())
-    elseif autodiff isa AutoZygote
-        autodiff = is_extension_loaded(Val(:Zygote)) ? autodiff : nothing
-    elseif !(autodiff isa AutoForwardDiff)
-        throw(ArgumentError("Invalid autodiff backend: $(autodiff). Available options: \
-                             `AutoForwardDiff`, or `AutoZygote`."))
+        autodiff = ifelse(zygote_loaded, AutoZygote(), AutoForwardDiff())
+    else
+        if autodiff isa AutoZygote && !zygote_loaded
+            throw(ArgumentError("`autodiff` cannot be `AutoZygote` when `Zygote.jl` is not \
+                                 loaded."))
+        end
     end
+
     return HamiltonianNN{FST}(model, autodiff)
 end
 
@@ -67,7 +71,7 @@ hamiltonian_forward(::AutoForwardDiff, model, x) = ForwardDiff.gradient(sum ∘ 
 function (hnn::HamiltonianNN{FST})(x::AbstractArray{T, N}, ps, st) where {FST, T, N}
     model = StatefulLuxLayer{FST}(hnn.model, ps, st.model)
 
-    st.first_call && __check_hamiltonian_layer(hnn.model, x, ps, st.model)
+    st.first_call && check_hamiltonian_layer(hnn.model, x, ps, st.model)
 
     if should_type_assert(x) && should_type_assert(ps)
         H = hamiltonian_forward(hnn.autodiff, model, x)::typeof(x)
@@ -80,10 +84,9 @@ function (hnn::HamiltonianNN{FST})(x::AbstractArray{T, N}, ps, st) where {FST, T
         (; model=model.st, first_call=false))
 end
 
-function __check_hamiltonian_layer(model, x::AbstractArray{T, N}, ps, st) where {T, N}
+function check_hamiltonian_layer(model, x::AbstractArray{T, N}, ps, st) where {T, N}
     y = first(model(x, ps, st))
-    _size = size(y)[1:(end - 1)]
-    @argcheck all(isone, _size) && size(y, ndims(y)) == size(x, N)
+    @argcheck all(isone, size(y)[1:(end - 1)]) && size(y, ndims(y)) == size(x, N)
 end
 
-CRC.@non_differentiable __check_hamiltonian_layer(::Any...)
+@non_differentiable check_hamiltonian_layer(::Any...)

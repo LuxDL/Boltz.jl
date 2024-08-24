@@ -4,12 +4,18 @@ using ForwardDiff: ForwardDiff
 using GPUArraysCore: AnyGPUArray
 using Statistics: mean
 
+using MLDataDevices: get_device_type, get_device, CPUDevice, CUDADevice
+
 is_extension_loaded(::Val) = false
 
 """
     fast_chunk(x::AbstractArray, ::Val{n}, ::Val{dim})
 
 Type-stable and faster version of `MLUtils.chunk`.
+
+!!! danger
+
+    This function is not part of the public API and may be removed in the future.
 """
 fast_chunk(h::Int, n::Int) = (1:h) .+ h * (n - 1)
 function fast_chunk(x::AbstractArray, h::Int, n::Int, ::Val{dim}) where {dim}
@@ -26,6 +32,10 @@ end
     flatten_spatial(x::AbstractArray{T, 4})
 
 Flattens the first 2 dimensions of `x`, and permutes the remaining dimensions to (2, 1, 3).
+
+!!! danger
+
+    This function is not part of the public API and may be removed in the future.
 """
 function flatten_spatial(x::AbstractArray{T, 4}) where {T}
     # TODO: Should we do lazy permutedims for non-GPU arrays?
@@ -45,6 +55,10 @@ second_dim_mean(x) = dropdims(mean(x; dims=2); dims=2)
 In certain cases, to ensure type-stability we want to add type-asserts. But this won't work
 for exotic types like `ForwardDiff.Dual`. We use this function to check if we should add a
 type-assert for `x`.
+
+!!! danger
+
+    This function is not part of the public API and may be removed in the future.
 """
 should_type_assert(::AbstractArray{T}) where {T} = isbitstype(T)
 should_type_assert(::AbstractArray{<:ForwardDiff.Dual}) = false
@@ -60,5 +74,21 @@ mapreduce_stack(xs) = mapreduce(unsqueezeN, catN, xs)
 
 unwrap_val(x) = x
 unwrap_val(::Val{T}) where {T} = T
+
+safe_kron(a, b) = map(safe_kron_internal, a, b)
+function safe_kron_internal(a::AbstractVector, b::AbstractVector)
+    return safe_kron_internal(get_device_type((a, b)), a, b)
+end
+
+safe_kron_internal(::Type{CPUDevice}, a::AbstractVector, b::AbstractVector) = kron(a, b)
+function safe_kron_internal(::Type{CUDADevice}, a::AbstractVector, b::AbstractVector)
+    return vec(kron(reshape(a, :, 1), reshape(b, 1, :)))
+end
+function safe_kron_internal(::Type{D}, a::AbstractVector, b::AbstractVector) where {D}
+    @warn "`kron` is not supported on $(D). Falling back to `kron` on CPU." maxlog=1
+    a_cpu = a |> CPUDevice()
+    b_cpu = b |> CPUDevice()
+    return safe_kron_internal(CPUDevice, a_cpu, b_cpu) |> get_device((a, b))
+end
 
 end
