@@ -98,8 +98,7 @@ end
             y, st = tensor_project(x, ps, st)
             @test size(y) == (2, 4, 5)
 
-            # Passes in PR and fails on main. Skipping!
-            # @jet tensor_project(x, ps, st)
+            @jet tensor_project(x, ps, st)
 
             __f = (x, ps) -> sum(abs2, first(tensor_project(x, ps, st)))
             test_gradients(__f, x, ps; atol=1e-3, rtol=1e-3,
@@ -165,12 +164,12 @@ end
 
             opt_broken = !ongpu && dims != () && spl !== ConstantInterpolation
 
-            @jet spline(x, ps, st) opt_broken=opt_broken # See SciML/DataInterpolations.jl/issues/267
+            @jet spline(x, ps, st)
 
             y, st = spline(x, ps_ca, st)
             @test size(y) == (dims..., 4)
 
-            @jet spline(x, ps_ca, st) opt_broken=opt_broken # See SciML/DataInterpolations.jl/issues/267
+            @jet spline(x, ps_ca, st)
 
             ∂x, ∂ps = Zygote.gradient((x, ps) -> sum(abs2, first(spline(x, ps, st))), x, ps)
             spl !== ConstantInterpolation && @test ∂x !== nothing
