@@ -1,7 +1,7 @@
 @testsetup module SharedTestSetup
 
 import Reexport: @reexport
-@reexport using Boltz, Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random
+@reexport using Boltz, Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random, StableRNGs
 import Metalhead
 using MLDataDevices
 

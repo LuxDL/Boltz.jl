@@ -20,7 +20,7 @@ end
 """
     VGG(imsize; config, inchannels, batchnorm = false, nclasses, fcsize, dropout)
 
-Create a VGG model [1].
+Create a VGG model [simonyan2014very](@citep).
 
 ## Arguments
 
@@ -31,11 +31,6 @@ Create a VGG model [1].
   - `nclasses`: number of output classes
   - `fcsize`: intermediate fully connected layer size
   - `dropout`: dropout level between fully connected layers
-
-## References
-
-[1] Simonyan, Karen, and Andrew Zisserman. "Very deep convolutional networks for large-scale
-image recognition." arXiv preprint arXiv:1409.1556 (2014).
 """
 function VGG(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, dropout)
     feature_extractor = vgg_convolutional_layers(config, batchnorm, inchannels)
@@ -63,7 +58,7 @@ const VGG_CONFIG = Dict(
 """
     VGG(depth::Int; batchnorm=false, kwargs...)
 
-Create a VGG model [1] with ImageNet Configuration.
+Create a VGG model [simonyan2014very](@citep) with ImageNet Configuration.
 
 ## Arguments
 
@@ -73,11 +68,6 @@ Create a VGG model [1] with ImageNet Configuration.
 
   * `batchnorm = false`: set to `true` to use batch normalization after each convolution.
 $(INITIALIZE_KWARGS)
-
-## References
-
-[1] Simonyan, Karen, and Andrew Zisserman. "Very deep convolutional networks for large-scale
-    image recognition." arXiv preprint arXiv:1409.1556 (2014).
 """
 function VGG(depth::Int; batchnorm::Bool=false, kwargs...)
     name = Symbol(:vgg, depth, ifelse(batchnorm, "_bn", ""))

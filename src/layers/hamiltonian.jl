@@ -1,11 +1,11 @@
 """
     HamiltonianNN{FST}(model; autodiff=nothing) where {FST}
 
-Constructs a Hamiltonian Neural Network [1]. This neural network is useful for learning
-symmetries and conservation laws by supervision on the gradients of the trajectories. It
-takes as input a concatenated vector of length `2n` containing the position (of size `n`)
-and momentum (of size `n`) of the particles. It then returns the time derivatives for
-position and momentum.
+Constructs a Hamiltonian Neural Network [greydanus2019hamiltonian](@citep). This neural
+network is useful for learning symmetries and conservation laws by supervision on the
+gradients of the trajectories. It takes as input a concatenated vector of length `2n`
+containing the position (of size `n`) and momentum (of size `n`) of the particles. It then
+returns the time derivatives for position and momentum.
 
 ## Arguments
 
@@ -35,11 +35,6 @@ position and momentum.
     This layer uses nested autodiff. Please refer to the manual entry on
     [Nested Autodiff](https://lux.csail.mit.edu/stable/manual/nested_autodiff) for more
     information and known limitations.
-
-## References
-
-[1] Greydanus, Samuel, Misko Dzamba, and Jason Yosinski. "Hamiltonian Neural Networks."
-Advances in Neural Information Processing Systems 32 (2019): 15379-15389.
 """
 @concrete struct HamiltonianNN{FST} <: AbstractExplicitContainerLayer{(:model,)}
     model
