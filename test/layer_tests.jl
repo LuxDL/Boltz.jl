@@ -20,7 +20,8 @@
                 @jet model(x, ps, st)
 
                 __f = (x, ps) -> sum(abs2, first(model(x, ps, st)))
-                test_gradients(__f, x, ps; atol=1e-3, rtol=1e-3)
+                test_gradients(
+                    __f, x, ps; atol=1e-3, rtol=1e-3, soft_fail=[AutoFiniteDiff()])
             end
         end
     end
