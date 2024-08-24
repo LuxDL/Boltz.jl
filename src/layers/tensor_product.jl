@@ -15,33 +15,31 @@ where $W$ is the layer's weight, and returns $[z_1, \dots, z_{out}]$.
   - `out_dim`: Dimension of the output.
   - `init_weight`: Initializer for the weight matrix. Defaults to `randn32`.
 
-!!! warning
+!!! warning "Limited Backend Support"
 
-    This layer currently only works on CPU and CUDA devices.
+    Support for backends apart from CPU and CUDA is limited and slow due to limited
+    support for `kron` in the backend.
 """
+@concrete struct TensorProductLayer <: AbstractExplicitContainerLayer{(:dense,)}
+    basis_fns
+    dense
+    out_dim::Int
+end
+
 function TensorProductLayer(basis_fns, out_dim::Int; init_weight::F=randn32) where {F}
     dense = Lux.Dense(
         prod(Base.Fix2(getproperty, :n), basis_fns) => out_dim; use_bias=false, init_weight)
-    return Lux.@compact(; basis_fns=Tuple(basis_fns), dense,
-        out_dim, dispatch=:TensorProductLayer) do x::AbstractArray #  I1 x I2 x ... x T  x B
-        dev = get_device_type(x)
-        @argcheck dev <: CPUDevice || dev <: CUDADevice       # kron is not widely supported
-
-        x_ = Lux._eachslice(x, Val(ndims(x) - 1))                  # [I1 x I2 x ... x B] x T
-        @argcheck length(x_) == length(basis_fns)
-
-        y = mapfoldl(_kron, zip(basis_fns, x_)) do (fn, xᵢ)
-            eachcol(reshape(fn(xᵢ), :, prod(size(xᵢ))))
-        end                                        # [[D₁ x ... x Dₙ] x (I1 x I2 x ... x B)]
-
-        @return reshape(
-            dense(mapreduce_stack(y)), size(x)[1:(end - 2)]..., out_dim, size(x)[end])
-    end
+    return TensorProductLayer(Tuple(basis_fns), dense, out_dim)
 end
 
-# CUDA `kron` exists only for `CuMatrix` so we define `kron` directly by converting to
-# a matrix
-@inline _kron(a, b) = map(__kron, a, b)
-@inline function __kron(a::AbstractVector, b::AbstractVector)
-    return vec(kron(reshape(a, :, 1), reshape(b, 1, :)))
+function (tp::TensorProductLayer)(x::AbstractArray{T, N}, ps, st) where {T, N}
+    x′ = LuxOps.eachslice(x, Val(N - 1))                           # [I1 x I2 x ... x B] x T
+    @argcheck length(x′) == length(tp.basis_fns)
+
+    y = mapfoldl(safe_kron, zip(tp.basis_fns, x′)) do (fn, xᵢ)
+        eachcol(reshape(fn(xᵢ), :, prod(size(xᵢ))))
+    end                                            # [[D₁ x ... x Dₙ] x (I1 x I2 x ... x B)]
+
+    z, stₙ = tp.dense(mapreduce_stack(y), ps, st)
+    return reshape(z, size(x)[1:(end - 2)]..., tp.out_dim, size(x)[end]), stₙ
 end

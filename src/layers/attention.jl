@@ -36,7 +36,7 @@ function (mhsa::MultiHeadSelfAttention)(x::AbstractArray{T, 3}, ps, st) where {T
     qkv, st_qkv = mhsa.qkv_layer(x, ps.qkv_layer, st.qkv_layer)
     q, k, v = fast_chunk(qkv, Val(3), Val(1))
 
-    attn_dropout = Lux.StatefulLuxLayer{true}(mhsa.dropout, ps.dropout, st.dropout)
+    attn_dropout = StatefulLuxLayer{true}(mhsa.dropout, ps.dropout, st.dropout)
     y, _ = NNlib.dot_product_attention(q, k, v; fdrop=attn_dropout, mhsa.nheads)
 
     z, st_proj = mhsa.projection(y, ps.projection, st.projection)

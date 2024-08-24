@@ -84,8 +84,6 @@ end
 
 @testitem "Tensor Product Layer" setup=[SharedTestSetup] tags=[:layers] begin
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
-        mode === "amdgpu" && continue
-
         @testset "$(basis)" for basis in (Basis.Chebyshev, Basis.Sin, Basis.Cos,
             Basis.Fourier, Basis.Legendre, Basis.Polynomial)
             tensor_project = Layers.TensorProductLayer([basis(n + 2) for n in 1:3], 4)
