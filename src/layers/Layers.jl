@@ -4,7 +4,7 @@ using ArgCheck: @argcheck
 using ADTypes: AutoForwardDiff, AutoZygote
 using Compat: @compat
 using ConcreteStructs: @concrete
-using ChainRulesCore: @non_differentiable
+using ChainRulesCore: @non_differentiable, @ignore_derivatives
 using Markdown: @doc_str
 using Random: AbstractRNG
 
@@ -27,16 +27,18 @@ const NORM_LAYER_DOC = "Function with signature `f(i::Integer, dims::Integer, ac
 
 include("attention.jl")
 include("conv_norm_act.jl")
+include("dynamic_expressions.jl")
 include("encoder.jl")
 include("embeddings.jl")
 include("hamiltonian.jl")
 include("mlp.jl")
+include("periodic_embedding.jl")
 include("spline.jl")
 include("tensor_product.jl")
 
 @compat(public,
     (ClassTokens, ConvBatchNormActivation, ConvNormActivation, HamiltonianNN,
-        MultiHeadSelfAttention, MLP, SplineLayer, TensorProductLayer, ViPosEmbedding,
-        VisionTransformerEncoder))
+        MultiHeadSelfAttention, MLP, PeriodicEmbedding, SplineLayer, TensorProductLayer,
+        ViPosEmbedding, VisionTransformerEncoder))
 
 end
