@@ -15,7 +15,6 @@ using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
 using NNlib: NNlib
 using WeightInitializers: zeros32, randn32
 
-using ..Boltz: Boltz
 using ..Utils: fast_chunk, should_type_assert, mapreduce_stack, unwrap_val, safe_kron,
                is_extension_loaded
 

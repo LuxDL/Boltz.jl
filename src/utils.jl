@@ -75,6 +75,11 @@ mapreduce_stack(xs) = mapreduce(unsqueezeN, catN, xs)
 unwrap_val(x) = x
 unwrap_val(::Val{T}) where {T} = T
 
+function safe_warning(msg::AbstractString)
+    @warn msg maxlog=1
+    return
+end
+
 safe_kron(a, b) = map(safe_kron_internal, a, b)
 function safe_kron_internal(a::AbstractVector, b::AbstractVector)
     return safe_kron_internal(get_device_type((a, b)), a, b)
@@ -85,7 +90,7 @@ function safe_kron_internal(::Type{CUDADevice}, a::AbstractVector, b::AbstractVe
     return vec(kron(reshape(a, :, 1), reshape(b, 1, :)))
 end
 function safe_kron_internal(::Type{D}, a::AbstractVector, b::AbstractVector) where {D}
-    @warn "`kron` is not supported on $(D). Falling back to `kron` on CPU." maxlog=1
+    safe_warning("`kron` is not supported on $(D). Falling back to `kron` on CPU.")
     a_cpu = a |> CPUDevice()
     b_cpu = b |> CPUDevice()
     return safe_kron_internal(CPUDevice, a_cpu, b_cpu) |> get_device((a, b))
