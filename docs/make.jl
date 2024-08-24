@@ -1,4 +1,4 @@
-using Documenter, DocumenterVitepress, Boltz
+using Documenter, DocumenterVitepress, DocumenterCitations, Boltz
 
 #! format: off
 pages = [
@@ -9,12 +9,17 @@ pages = [
     "API Reference" => [
         "Index" => "api/index.md",
         "Basis Functions" => "api/basis.md",
-        "Layers" => "api/layers.md",
+        "Layers API" => "api/layers.md",
         "Vision Models" => "api/vision.md",
         "Private API" => "api/private.md",
     ]
 ]
 #! format: on
+
+bib = CitationBibliography(
+    joinpath(@__DIR__, "ref.bib");
+    style=:authoryear
+)
 
 deploy_config = Documenter.auto_detect_deploy_system()
 deploy_decision = Documenter.deploy_folder(deploy_config; repo="github.com/LuxDL/Boltz.jl",
@@ -30,6 +35,7 @@ makedocs(; sitename="Boltz.jl Docs",
     format=DocumenterVitepress.MarkdownVitepress(;
         repo="github.com/LuxDL/Boltz.jl", devbranch="main", devurl="dev", deploy_decision),
     draft=false,
+    plugins=[bib],
     pages)
 
 deploydocs(; repo="github.com/LuxDL/Boltz.jl.git",

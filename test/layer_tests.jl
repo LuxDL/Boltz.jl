@@ -1,20 +1,27 @@
 # Only tests that are not run via `vision` or other higher-level test suites are
 # included in this snippet.
 @testitem "MLP" setup=[SharedTestSetup] tags=[:layers] begin
-    for (mode, aType, dev, ongpu) in MODES
-        for act in (NNlib.relu, NNlib.gelu),
-            norm in ((i, args...; kwargs...) -> BatchNorm(args...; kwargs...),
-                (i, ch, act; kwargs...) -> GroupNorm(ch, 2, act; kwargs...), nothing)
+    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+        @testset "$(act)" for act in (tanh, NNlib.gelu)
+            @testset "nType" for nType in (BatchNorm, GroupNorm, nothing)
+                norm = if nType === nothing
+                    nType
+                elseif nType === BatchNorm
+                    (i, ch, act; kwargs...) -> BatchNorm(ch, act; kwargs...)
+                elseif nType === GroupNorm
+                    (i, ch, act; kwargs...) -> GroupNorm(ch, 2, act; kwargs...)
+                end
 
-            model = Layers.MLP(2, (4, 4, 2), act; norm_layer=norm)
-            ps, st = Lux.setup(Xoshiro(0), model) |> dev
+                model = Layers.MLP(2, (4, 4, 2), act; norm_layer=norm)
+                ps, st = Lux.setup(StableRNG(0), model) |> dev
 
-            x = randn(Float32, 2, 2) |> aType
+                x = randn(Float32, 2, 2) |> aType
 
-            @jet model(x, ps, st)
+                @jet model(x, ps, st)
 
-            __f = (x, ps) -> sum(abs2, first(model(x, ps, st)))
-            test_gradients(__f, x, ps; atol=1e-3, rtol=1e-3)
+                __f = (x, ps) -> sum(abs2, first(model(x, ps, st)))
+                test_gradients(__f, x, ps; atol=1e-3, rtol=1e-3)
+            end
         end
     end
 end
@@ -30,14 +37,14 @@ end
         ongpu && autodiff === AutoForwardDiff() && continue
 
         hnn = Layers.HamiltonianNN{true}(Layers.MLP(2, (4, 4, 2), NNlib.gelu); autodiff)
-        ps, st = Lux.setup(Xoshiro(0), hnn) |> dev
+        ps, st = Lux.setup(StableRNG(0), hnn) |> dev
 
         x = randn(Float32, 2, 4) |> aType
 
         @test_throws ArgumentError hnn(x, ps, st)
 
         hnn = Layers.HamiltonianNN{true}(Layers.MLP(2, (4, 4, 1), NNlib.gelu); autodiff)
-        ps, st = Lux.setup(Xoshiro(0), hnn) |> dev
+        ps, st = Lux.setup(StableRNG(0), hnn) |> dev
         ps_ca = ComponentArray(ps |> cpu_device()) |> dev
 
         @test st.first_call
@@ -59,7 +66,7 @@ end
             @test ∂ps_zyg≈∂ps_fd atol=1e-3 rtol=1e-3
         end
 
-        st = Lux.initialstates(Xoshiro(0), hnn) |> dev
+        st = Lux.initialstates(StableRNG(0), hnn) |> dev
 
         @test st.first_call
         y, st = hnn(x, ps_ca, st)
@@ -87,7 +94,7 @@ end
         @testset "$(basis)" for basis in (Basis.Chebyshev, Basis.Sin, Basis.Cos,
             Basis.Fourier, Basis.Legendre, Basis.Polynomial)
             tensor_project = Layers.TensorProductLayer([basis(n + 2) for n in 1:3], 4)
-            ps, st = Lux.setup(Xoshiro(0), tensor_project) |> dev
+            ps, st = Lux.setup(StableRNG(0), tensor_project) |> dev
 
             x = tanh.(randn(Float32, 2, 4, 5)) |> aType
 
@@ -154,7 +161,7 @@ end
             dims in ((), (8,))
 
             spline = Layers.SplineLayer(dims, 0.0f0, 1.0f0, 0.1f0, spl; train_grid)
-            ps, st = Lux.setup(Xoshiro(0), spline) |> dev
+            ps, st = Lux.setup(StableRNG(0), spline) |> dev
             ps_ca = ComponentArray(ps |> cpu_device()) |> dev
 
             x = tanh.(randn(Float32, 4)) |> aType
