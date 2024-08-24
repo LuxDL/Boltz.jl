@@ -1,8 +1,8 @@
-function __vgg_convolutional_layers(config, batchnorm, inchannels)
+function vgg_convolutional_layers(config, batchnorm, inchannels)
     layers = Vector{AbstractExplicitLayer}(undef, length(config) * 2)
     input_filters = inchannels
     for (i, (chs, depth)) in enumerate(config)
-        layers[2i - 1] = Layers.ConvBatchNormActivation(
+        layers[2i - 1] = ConvBatchNormActivation(
             (3, 3), input_filters => chs, depth, relu; last_layer_activation=true,
             conv_kwargs=(; pad=(1, 1)), use_norm=batchnorm, flatten_model=true)
         layers[2i] = Lux.MaxPool((2, 2))
@@ -11,7 +11,7 @@ function __vgg_convolutional_layers(config, batchnorm, inchannels)
     return Lux.Chain(layers...)
 end
 
-function __vgg_classifier_layers(imsize, nclasses, fcsize, dropout)
+function vgg_classifier_layers(imsize, nclasses, fcsize, dropout)
     return Lux.Chain(Lux.FlattenLayer(), Lux.Dense(Int(prod(imsize)) => fcsize, relu),
         Lux.Dropout(dropout), Lux.Dense(fcsize => fcsize, relu),
         Lux.Dropout(dropout), Lux.Dense(fcsize => nclasses))
@@ -38,14 +38,15 @@ Create a VGG model [1].
 image recognition." arXiv preprint arXiv:1409.1556 (2014).
 """
 function VGG(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, dropout)
-    feature_extractor = __vgg_convolutional_layers(config, batchnorm, inchannels)
+    feature_extractor = vgg_convolutional_layers(config, batchnorm, inchannels)
 
     img = ones(Float32, (imsize..., inchannels, 2))
     rng = Xoshiro(0)
+    # TODO: Use Lux.outputsize once it is ready
     _ps, _st = LuxCore.setup(rng, feature_extractor)
     outsize = size(first(feature_extractor(img, _ps, _st)))
 
-    classifier = __vgg_classifier_layers(outsize[1:((end - 1))], nclasses, fcsize, dropout)
+    classifier = vgg_classifier_layers(outsize[1:((end - 1))], nclasses, fcsize, dropout)
 
     return Lux.Chain(feature_extractor, classifier)
 end

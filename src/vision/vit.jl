@@ -21,10 +21,10 @@ function VisionTransformer(;
 
     return Lux.Chain(
         Lux.Chain(__patch_embedding(imsize; in_channels, patch_size, embed_planes),
-            Layers.ClassTokens(embed_planes),
-            Layers.ViPosEmbedding(embed_planes, number_patches + 1),
+            ClassTokens(embed_planes),
+            ViPosEmbedding(embed_planes, number_patches + 1),
             Lux.Dropout(embedding_dropout_rate),
-            Layers.VisionTransformerEncoder(
+            VisionTransformerEncoder(
                 embed_planes, depth, number_heads; mlp_ratio, dropout_rate),
             Lux.WrappedFunction(ifelse(pool === :class, x -> x[:, 1, :], second_dim_mean));
             disable_optimizations=true),
