@@ -12,10 +12,6 @@ is_extension_loaded(::Val) = false
     fast_chunk(x::AbstractArray, ::Val{n}, ::Val{dim})
 
 Type-stable and faster version of `MLUtils.chunk`.
-
-!!! danger
-
-    This function is not part of the public API and may be removed in the future.
 """
 fast_chunk(h::Int, n::Int) = (1:h) .+ h * (n - 1)
 function fast_chunk(x::AbstractArray, h::Int, n::Int, ::Val{dim}) where {dim}
@@ -32,10 +28,6 @@ end
     flatten_spatial(x::AbstractArray{T, 4})
 
 Flattens the first 2 dimensions of `x`, and permutes the remaining dimensions to (2, 1, 3).
-
-!!! danger
-
-    This function is not part of the public API and may be removed in the future.
 """
 function flatten_spatial(x::AbstractArray{T, 4}) where {T}
     # TODO: Should we do lazy permutedims for non-GPU arrays?
@@ -55,10 +47,6 @@ second_dim_mean(x) = dropdims(mean(x; dims=2); dims=2)
 In certain cases, to ensure type-stability we want to add type-asserts. But this won't work
 for exotic types like `ForwardDiff.Dual`. We use this function to check if we should add a
 type-assert for `x`.
-
-!!! danger
-
-    This function is not part of the public API and may be removed in the future.
 """
 should_type_assert(::AbstractArray{T}) where {T} = isbitstype(T)
 should_type_assert(::AbstractArray{<:ForwardDiff.Dual}) = false
