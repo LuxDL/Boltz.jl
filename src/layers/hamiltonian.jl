@@ -10,7 +10,7 @@ position and momentum.
 ## Arguments
 
   - `FST`: If `true`, then the type of the state returned by the model must be same as the
-    type of the input state. See the documentation on [`StatefulLuxLayer`](@ref) for more
+    type of the input state. See the documentation on `StatefulLuxLayer` for more
     information.
   - `model`: A `Lux.AbstractExplicitLayer` neural network that returns the Hamiltonian of
     the system. The `model` must return a "batched scalar", i.e. all the dimensions of the
@@ -33,7 +33,8 @@ position and momentum.
 !!! note
 
     This layer uses nested autodiff. Please refer to the manual entry on
-    [Nested Autodiff](@ref nested_autodiff) for more information and known limitations.
+    [Nested Autodiff](https://lux.csail.mit.edu/stable/manual/nested_autodiff) for more
+    information and known limitations.
 
 ## References
 

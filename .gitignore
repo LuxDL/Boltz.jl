@@ -10,3 +10,6 @@ docs/site
 
 scripts
 test_ext
+
+package-lock.json
+node_modules
