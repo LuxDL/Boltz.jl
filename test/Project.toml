@@ -25,8 +25,11 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
 Aqua = "0.8.7"
+Bumper = "0.6, 0.7"
 ComponentArrays = "0.15.16"
 DataInterpolations = "< 5.3"
+DynamicExpressions = "0.16, 0.17, 0.18, 0.19"
+Enzyme = "0.12"
 ExplicitImports = "1.9.0"
 ForwardDiff = "0.10.36"
 GPUArraysCore = "0.1.6"
