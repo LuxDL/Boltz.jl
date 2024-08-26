@@ -1,8 +1,8 @@
 # Boltz ⚡
 
 [![GitHub Discussions](https://img.shields.io/github/discussions/LuxDL/Lux.jl?color=white&logo=github&label=Discussions)](https://github.com/LuxDL/Lux.jl/discussions)
-[![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://luxdl.github.io/Boltz.jl/stable/)
-[![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://luxdl.github.io/Boltz.jl/dev/)
+[![Latest Docs](https://img.shields.io/badge/docs-latest-blue.svg)](https://luxdl.github.io/Boltz.jl/dev/)
+[![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://luxdl.github.io/Boltz.jl/stable/)
 
 [![CI](https://github.com/LuxDL/Boltz.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/LuxDL/Boltz.jl/actions/workflows/CI.yml)
 [![Build status](https://badge.buildkite.com/33d66eb556ba88f60e733e97ff65c133fdb5f0ac683e823cfb.svg?branch=main)](https://buildkite.com/julialang/boltz-dot-jl)
