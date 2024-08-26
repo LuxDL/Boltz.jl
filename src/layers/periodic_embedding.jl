@@ -56,9 +56,8 @@ end
 
 function (p::PeriodicEmbedding)(x::AbstractMatrix, _, st::NamedTuple)
     other_idxs = @ignore_derivatives setdiff(axes(x, 1), st.idxs)
-    return (
-        vcat(x[other_idxs, :], sinpi.(st.k .* x[p.idxs, :]), cospi.(st.k .* x[p.idxs, :])),
-        st)
+    y = vcat(x[other_idxs, :], sinpi.(st.k .* x[st.idxs, :]), cospi.(st.k .* x[st.idxs, :]))
+    return y, st
 end
 
 function (p::PeriodicEmbedding)(x::AbstractArray, ps, st::NamedTuple)
