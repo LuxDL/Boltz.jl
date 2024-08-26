@@ -23,6 +23,7 @@ bib = CitationBibliography(
 
 doctestexpr = quote
     using Random, Lux
+    using DynamicExpressions, Zygote
 end
 
 DocMeta.setdocmeta!(Boltz, :DocTestSetup, doctestexpr; recursive=true)
