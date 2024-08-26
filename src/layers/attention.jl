@@ -20,7 +20,8 @@ Multi-head self-attention layer
     nheads::Int
 end
 
-function MultiHeadSelfAttention(in_planes::Int, number_heads::Int; use_qkv_bias::Bool=false,
+function MultiHeadSelfAttention(
+        in_planes::Int, number_heads::Int; use_qkv_bias::Bool=false,
         attention_dropout_rate::T=0.0f0, projection_dropout_rate::T=0.0f0) where {T}
     @argcheck in_planes % number_heads == 0
     return MultiHeadSelfAttention(
