@@ -22,7 +22,7 @@ bib = CitationBibliography(
 )
 
 doctestexpr = quote
-    using Random, Lux
+    using Boltz, Random, Lux
     using DynamicExpressions, Zygote
 end
 

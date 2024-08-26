@@ -30,11 +30,10 @@ case, `layer([a, b, c, d], st) == ([a, d, sinpi(2 / 3.0 * b), sinpi(2 / 1.0 * c)
 ## Example
 
 ```jldoctest
-julia> layer = PeriodicEmbedding([2], [4.0])
+julia> layer = Layers.PeriodicEmbedding([2], [4.0])
 PeriodicEmbedding([2], [4.0])
 
-julia> ps, st = Lux.setup(Random.default_rng(), layer)
-(NamedTuple(), (k = [0.5],))
+julia> ps, st = Lux.setup(Random.default_rng(), layer);
 
 julia> all(layer([1.1, 2.2, 3.3], ps, st)[1] .==
            [1.1, 3.3, sinpi(2 / 4.0 * 2.2), cospi(2 / 4.0 * 2.2)])
@@ -50,7 +49,7 @@ function LuxCore.initialstates(::AbstractRNG, pe::PeriodicEmbedding)
     return (; idxs=DataTransferBarrier(pe.idxs), k=2 ./ pe.periods)
 end
 
-function (pe::PeriodicEmbedding)(x::AbstractVector, ps, st)
+function (pe::PeriodicEmbedding)(x::AbstractVector, ps, st::NamedTuple)
     return vec(first(pe(reshape(x, :, 1), ps, st))), st
 end
 
