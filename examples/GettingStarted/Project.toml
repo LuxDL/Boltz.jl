@@ -7,7 +7,7 @@ Metalhead = "dbeba491-748d-5e0e-a39e-b530a07fa0cc"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
-Boltz = "0.3.12"
+Boltz = "0.4"
 InteractiveUtils = "<0.0.1, 1"
 Literate = "2.19"
 Lux = "0.5.65"
