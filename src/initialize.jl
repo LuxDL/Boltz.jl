@@ -2,7 +2,6 @@ module InitializeModels
 
 using ArgCheck: @argcheck
 using Artifacts: Artifacts, @artifact_str
-using JLD2: JLD2 # TODO[BREAKING]: Remove JLD2 dependency and ask users to load it
 using LazyArtifacts: LazyArtifacts
 using Random: Random
 
@@ -25,8 +24,8 @@ function initialize_model(
         name::Symbol, model; pretrained::Bool=false, rng=nothing, seed=0, kwargs...)
     if pretrained
         path = get_pretrained_weights_path(name)
-        ps = JLD2.load(joinpath(path, "$name.jld2"), "parameters")
-        st = JLD2.load(joinpath(path, "$name.jld2"), "states")
+        ps = load_using_jld2(joinpath(path, "$name.jld2"), "parameters")
+        st = load_using_jld2(joinpath(path, "$name.jld2"), "states")
         return ps, st
     end
     if rng === nothing
@@ -51,5 +50,15 @@ const INITIALIZE_KWARGS = """
   * `initialized::Val{Bool}=Val(true)`: If `Val(true)`, returns
     `(model, parameters, states)`, otherwise just `model`.
 """
+
+function load_using_jld2(args...; kwargs...)
+    if !is_extension_loaded(Val(:JLD2))
+        error("`JLD2.jl` is not loaded. Please load it before trying to load pretrained \
+               weights.")
+    end
+    return load_using_jld2_internal(args...; kwargs...)
+end
+
+function load_using_jld2_internal end
 
 end

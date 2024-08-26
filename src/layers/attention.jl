@@ -1,5 +1,5 @@
 """
-    MultiHeadSelfAttention(in_planes::Int, number_heads::Int; qkv_bias::Bool=false,
+    MultiHeadSelfAttention(in_planes::Int, number_heads::Int; use_qkv_bias::Bool=false,
         attention_dropout_rate::T=0.0f0, projection_dropout_rate::T=0.0f0)
 
 Multi-head self-attention layer
@@ -8,7 +8,7 @@ Multi-head self-attention layer
 
   - `planes`: number of input channels
   - `nheads`: number of heads
-  - `qkv_bias`: whether to use bias in the layer to get the query, key and value
+  - `use_qkv_bias`: whether to use bias in the layer to get the query, key and value
   - `attn_dropout_prob`: dropout probability after the self-attention layer
   - `proj_dropout_prob`: dropout probability after the projection layer
 """
@@ -20,12 +20,11 @@ Multi-head self-attention layer
     nheads::Int
 end
 
-# TODO[BREAKING]: rename `qkv_bias` to `use_qkv_bias`
-function MultiHeadSelfAttention(in_planes::Int, number_heads::Int; qkv_bias::Bool=false,
+function MultiHeadSelfAttention(in_planes::Int, number_heads::Int; use_qkv_bias::Bool=false,
         attention_dropout_rate::T=0.0f0, projection_dropout_rate::T=0.0f0) where {T}
     @argcheck in_planes % number_heads == 0
     return MultiHeadSelfAttention(
-        Lux.Dense(in_planes, in_planes * 3; use_bias=qkv_bias),
+        Lux.Dense(in_planes, in_planes * 3; use_bias=use_qkv_bias),
         Lux.Dropout(attention_dropout_rate),
         Lux.Chain(Lux.Dense(in_planes => in_planes), Lux.Dropout(projection_dropout_rate)),
         number_heads
