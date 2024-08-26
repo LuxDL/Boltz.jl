@@ -1,5 +1,8 @@
 @testsetup module SharedTestSetup
 
+using Enzyme
+Enzyme.API.runtimeActivity!(true)
+
 import Reexport: @reexport
 @reexport using Boltz, Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random, StableRNGs
 import Metalhead
