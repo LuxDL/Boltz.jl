@@ -6,8 +6,8 @@ using MLDataDevices: CPUDevice
 
 using Boltz: Layers
 
-for T1 in (:TrackedArray, :AbstractArray), T2 in (:TrackedArray, :AbstractArray)
-    T1 === :AbstractArray && T2 === :AbstractArray && continue
+for T1 in (TrackedArray, AbstractArray), T2 in (TrackedArray, AbstractArray)
+    T1 === AbstractArray && T2 === AbstractArray && continue
 
     @eval @grad_from_chainrules Layers.apply_dynamic_expression(
         de::Layers.InternalDynamicExpressionWrapper, expr, operator_enum, x::$(T1),
