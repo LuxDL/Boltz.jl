@@ -5,6 +5,7 @@ pages = [
     "Boltz.jl" => "index.md",
     "Tutorials" => [
         "Getting Started" => "tutorials/1_GettingStarted.md",
+        "Symbolic Optimal Control" => "tutorials/2_SymbolicOptimalControl.md",
     ],
     "API Reference" => [
         "Index" => "api/index.md",
