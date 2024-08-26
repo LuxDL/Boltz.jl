@@ -202,7 +202,7 @@ end
 
 @testitem "Periodic Embedding" setup=[SharedTestSetup] tags=[:layers] begin
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
-        layer = PeriodicEmbedding([2, 3], [4.0, π / 5])
+        layer = Layers.PeriodicEmbedding([2, 3], [4.0, π / 5])
         ps, st = Lux.setup(StableRNG(0), layer) |> dev
         x = randn(StableRNG(0), 6, 4, 3, 2) |> aType
         Δx = [0.0, 12.0, -2π / 5, 0.0, 0.0, 0.0] |> aType
