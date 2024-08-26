@@ -13,3 +13,6 @@ test_ext
 
 package-lock.json
 node_modules
+
+*.cov
+tutorial_deps/

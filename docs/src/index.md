@@ -13,7 +13,7 @@ hero:
       link: https://lux.csail.mit.edu/
     - theme: alt
       text: Tutorials 📚
-      link: /tutorials/getting_started
+      link: /tutorials/1_GettingStarted
     - theme: alt
       text: Vision Models 👀
       link: /api/vision
