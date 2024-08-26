@@ -101,13 +101,13 @@ end
 
 # Forward Diff rules
 # TODO: https://github.com/SymbolicML/DynamicExpressions.jl/issues/74 fix this
-function Lux.apply_dynamic_expression(
+function Layers.apply_dynamic_expression(
         de::Layers.InternalDynamicExpressionWrapper, expr, operator_enum,
         x::AbstractMatrix{<:ForwardDiff.Dual{Tag, T, N}}, ps, ::CPUDevice) where {T, N, Tag}
     value_fn(x) = ForwardDiff.value(Tag, x)
     partials_fn(x, i) = ForwardDiff.partials(Tag, x, i)
 
-    Lux.update_de_expression_constants!(expr, ps)
+    Layers.update_de_expression_constants!(expr, ps)
     y, Jₓ, _ = eval_grad_tree_array(
         expr, value_fn.(x), operator_enum; variable=Val(true), de.eval_options.turbo)
     partials = ntuple(
@@ -118,13 +118,13 @@ function Lux.apply_dynamic_expression(
     return ForwardDiff.Dual{Tag, fT, N}.(y, partials_y)
 end
 
-function Lux.apply_dynamic_expression(
+function Layers.apply_dynamic_expression(
         de::Layers.InternalDynamicExpressionWrapper, expr, operator_enum, x,
         ps::AbstractVector{<:ForwardDiff.Dual{Tag, T, N}}, ::CPUDevice) where {T, N, Tag}
     value_fn(x) = ForwardDiff.value(Tag, x)
     partials_fn(x, i) = ForwardDiff.partials(Tag, x, i)
 
-    Lux.update_de_expression_constants!(expr, value_fn.(ps))
+    Layers.update_de_expression_constants!(expr, value_fn.(ps))
     y, Jₚ, _ = eval_grad_tree_array(
         expr, x, operator_enum; variable=Val(false), de.eval_options.turbo)
     partials = ntuple(
@@ -135,7 +135,7 @@ function Lux.apply_dynamic_expression(
     return ForwardDiff.Dual{Tag, fT, N}.(y, partials_y)
 end
 
-function Lux.apply_dynamic_expression(
+function Layers.apply_dynamic_expression(
         de::Layers.InternalDynamicExpressionWrapper, expr, operator_enum,
         x::AbstractMatrix{<:ForwardDiff.Dual{Tag, T1, N}},
         ps::AbstractVector{<:ForwardDiff.Dual{Tag, T2, N}},
@@ -146,7 +146,7 @@ function Lux.apply_dynamic_expression(
     ps_value = value_fn.(ps)
     x_value = value_fn.(x)
 
-    Lux.update_de_expression_constants!(expr, ps_value)
+    Layers.update_de_expression_constants!(expr, ps_value)
     _, Jₓ, _ = eval_grad_tree_array(
         expr, x_value, operator_enum; variable=Val(true), de.eval_options.turbo)
     y, Jₚ, _ = eval_grad_tree_array(

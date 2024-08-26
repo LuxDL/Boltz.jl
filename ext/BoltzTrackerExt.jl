@@ -6,12 +6,14 @@ using MLDataDevices: CPUDevice
 
 using Boltz: Layers
 
-for T1 in (TrackedArray, AbstractArray), T2 in (TrackedArray, AbstractArray)
-    T1 === AbstractArray && T2 === AbstractArray && continue
-
-    @eval @grad_from_chainrules Layers.apply_dynamic_expression(
-        de::Layers.InternalDynamicExpressionWrapper, expr, operator_enum, x::$(T1),
-        ps::$(T2), dev::CPUDevice)
-end
+@grad_from_chainrules Layers.apply_dynamic_expression(
+    de::Layers.InternalDynamicExpressionWrapper, expr, operator_enum, x::TrackedArray,
+    ps, ::CPUDevice)
+@grad_from_chainrules Layers.apply_dynamic_expression(
+    de::Layers.InternalDynamicExpressionWrapper, expr, operator_enum, x,
+    ps::TrackedArray, ::CPUDevice)
+@grad_from_chainrules Layers.apply_dynamic_expression(
+    de::Layers.InternalDynamicExpressionWrapper, expr, operator_enum,
+    x::TrackedArray, ps::TrackedArray, ::CPUDevice)
 
 end
