@@ -1,6 +1,7 @@
 #! format: off
 const ALL_TUTORIALS = [
     "GettingStarted/main.jl",
+    "SymbolicOptimalControl/main.jl",
 ]
 
 const TUTORIALS = collect(enumerate(ALL_TUTORIALS))
