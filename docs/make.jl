@@ -21,6 +21,12 @@ bib = CitationBibliography(
     style=:authoryear
 )
 
+doctestexpr = quote
+    using Random, Lux
+end
+
+DocMeta.setdocmeta!(Boltz, :DocTestSetup, doctestexpr; recursive=true)
+
 deploy_config = Documenter.auto_detect_deploy_system()
 deploy_decision = Documenter.deploy_folder(deploy_config; repo="github.com/LuxDL/Boltz.jl",
     devbranch="main", devurl="dev", push_preview=true)
@@ -28,7 +34,6 @@ deploy_decision = Documenter.deploy_folder(deploy_config; repo="github.com/LuxDL
 makedocs(; sitename="Boltz.jl Docs",
     authors="Avik Pal et al.",
     clean=true,
-    doctest=false,  # We test it in the CI, no need to run it here
     modules=[Boltz],
     linkcheck=true,
     repo="https://github.com/LuxDL/Boltz.jl/blob/{commit}{path}#{line}",
