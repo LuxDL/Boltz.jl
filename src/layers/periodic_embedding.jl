@@ -33,10 +33,7 @@ case, `layer([a, b, c, d], st) == ([a, d, sinpi(2 / 3.0 * b), sinpi(2 / 1.0 * c)
 julia> layer = PeriodicEmbedding([2], [4.0])
 PeriodicEmbedding([2], [4.0])
 
-julia> using Random;
-       rng = Random.seed!(123);
-
-julia> ps, st = Lux.setup(rng, layer)
+julia> ps, st = Lux.setup(Random.default_rng(), layer)
 (NamedTuple(), (k = [0.5],))
 
 julia> all(layer([1.1, 2.2, 3.3], ps, st)[1] .==
