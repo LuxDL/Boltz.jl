@@ -35,11 +35,8 @@ Create a VGG model [simonyan2014very](@citep).
 function VGG(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, dropout)
     feature_extractor = vgg_convolutional_layers(config, batchnorm, inchannels)
 
-    img = ones(Float32, (imsize..., inchannels, 2))
-    rng = Xoshiro(0)
     # TODO: Use Lux.outputsize once it is ready
-    _ps, _st = LuxCore.setup(rng, feature_extractor)
-    outsize = size(first(feature_extractor(img, _ps, _st)))
+    outsize = Lux.compute_output_size(feature_extractor, (imsize..., inchannels, 1), rng)
 
     classifier = vgg_classifier_layers(outsize[1:((end - 1))], nclasses, fcsize, dropout)
 
