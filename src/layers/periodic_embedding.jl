@@ -47,7 +47,7 @@ true
 end
 
 function LuxCore.initialstates(::AbstractRNG, pe::PeriodicEmbedding)
-    return (; idxs=pe.idxs, k=2 ./ pe.periods)
+    return (; idxs=DataTransferBarrier(pe.idxs), k=2 ./ pe.periods)
 end
 
 function (pe::PeriodicEmbedding)(x::AbstractVector, ps, st)
@@ -55,8 +55,9 @@ function (pe::PeriodicEmbedding)(x::AbstractVector, ps, st)
 end
 
 function (p::PeriodicEmbedding)(x::AbstractMatrix, _, st::NamedTuple)
-    other_idxs = @ignore_derivatives setdiff(axes(x, 1), st.idxs)
-    y = vcat(x[other_idxs, :], sinpi.(st.k .* x[st.idxs, :]), cospi.(st.k .* x[st.idxs, :]))
+    idxs = st.idxs.val
+    other_idxs = @ignore_derivatives setdiff(axes(x, 1), idxs)
+    y = vcat(x[other_idxs, :], sinpi.(st.k .* x[idxs, :]), cospi.(st.k .* x[idxs, :]))
     return y, st
 end
 
