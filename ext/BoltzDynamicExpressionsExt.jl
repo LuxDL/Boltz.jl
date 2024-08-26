@@ -57,7 +57,7 @@ function Layers.DynamicExpressionsLayer(operator_enum::OperatorEnum, expressions
 
     internal_layer = if length(expressions) == 1
         Layers.InternalDynamicExpressionWrapper(
-            operator_enum, first(expressions), name, eval_options)
+            operator_enum, first(expressions), eval_options)
     else
         Chain(
             Parallel(nothing,

@@ -1,6 +1,6 @@
 module BoltzTrackerExt
 
-using Tracker: Tracker, TrackedArray, TrackedReal, @grad_from_chainrules
+using Tracker: Tracker, TrackedArray, @grad_from_chainrules
 
 using MLDataDevices: CPUDevice
 

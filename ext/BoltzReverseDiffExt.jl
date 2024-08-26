@@ -1,6 +1,6 @@
 module BoltzReverseDiffExt
 
-using ReverseDiff: ReverseDiff, TrackedArray, TrackedReal, @grad_from_chainrules
+using ReverseDiff: ReverseDiff, TrackedArray, @grad_from_chainrules
 
 using MLDataDevices: CPUDevice
 
