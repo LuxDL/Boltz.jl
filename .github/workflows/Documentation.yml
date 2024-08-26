@@ -41,6 +41,8 @@ jobs:
         uses: julia-actions/cache@v2
       - name: Install documentation dependencies
         run: julia --project=docs -e 'using Pkg; pkg"dev ."; Pkg.instantiate(); Pkg.precompile(); Pkg.status()'
+      - name: Build the tutorials
+        run: julia --project=docs docs/tutorials.jl
       - name: Build and deploy docs
         uses: julia-actions/julia-docdeploy@v1
         env:

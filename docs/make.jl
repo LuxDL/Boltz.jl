@@ -4,7 +4,7 @@ using Documenter, DocumenterVitepress, DocumenterCitations, Boltz
 pages = [
     "Boltz.jl" => "index.md",
     "Tutorials" => [
-        "Getting Started" => "tutorials/getting_started.md",
+        "Getting Started" => "tutorials/1_GettingStarted.md",
     ],
     "API Reference" => [
         "Index" => "api/index.md",
