@@ -4,7 +4,7 @@ using ArgCheck: @argcheck
 using ADTypes: AutoForwardDiff, AutoZygote
 using Compat: @compat
 using ConcreteStructs: @concrete
-using ChainRulesCore: @non_differentiable, @ignore_derivatives
+using ChainRulesCore: ChainRulesCore, @non_differentiable, @ignore_derivatives
 using Markdown: @doc_str
 using Random: AbstractRNG
 
@@ -12,11 +12,14 @@ using ForwardDiff: ForwardDiff
 
 using Lux: Lux, LuxOps, StatefulLuxLayer
 using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
+using MLDataDevices: get_device, CPUDevice
 using NNlib: NNlib
 using WeightInitializers: zeros32, randn32
 
-using ..Utils: fast_chunk, should_type_assert, mapreduce_stack, unwrap_val, safe_kron,
-               is_extension_loaded
+using ..Utils: DataTransferBarrier, fast_chunk, should_type_assert, mapreduce_stack,
+               unwrap_val, safe_kron, is_extension_loaded
+
+const CRC = ChainRulesCore
 
 const NORM_LAYER_DOC = "Function with signature `f(i::Integer, dims::Integer, act::F; \
                         kwargs...)`. `i` is the location of the layer in the model, \
@@ -37,8 +40,8 @@ include("spline.jl")
 include("tensor_product.jl")
 
 @compat(public,
-    (ClassTokens, ConvBatchNormActivation, ConvNormActivation, HamiltonianNN,
-        MultiHeadSelfAttention, MLP, PeriodicEmbedding, SplineLayer, TensorProductLayer,
-        ViPosEmbedding, VisionTransformerEncoder))
+    (ClassTokens, ConvBatchNormActivation, ConvNormActivation, DynamicExpressionsLayer,
+        HamiltonianNN, MultiHeadSelfAttention, MLP, PeriodicEmbedding, SplineLayer,
+        TensorProductLayer, ViPosEmbedding, VisionTransformerEncoder))
 
 end

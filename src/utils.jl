@@ -84,4 +84,8 @@ function safe_kron_internal(::Type{D}, a::AbstractVector, b::AbstractVector) whe
     return safe_kron_internal(CPUDevice, a_cpu, b_cpu) |> get_device((a, b))
 end
 
+struct DataTransferBarrier{V}
+    val::V
+end
+
 end
