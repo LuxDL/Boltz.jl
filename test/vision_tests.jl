@@ -114,8 +114,7 @@ end
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
 
-        # @test_deprecated doesnt work since other @warn s are present
-        model, ps, st = vision_transformer(name; pretrained=false)
+        model, ps, st = Vision.VisionTransformer(name; pretrained=false)
         ps = ps |> dev
         st = Lux.testmode(st) |> dev
         img = randn(Float32, 256, 256, 3, 2) |> aType

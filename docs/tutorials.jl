@@ -1,11 +1,9 @@
-#! format: off
 const ALL_TUTORIALS = [
     "GettingStarted/main.jl",
-    "SymbolicOptimalControl/main.jl",
+    "SymbolicOptimalControl/main.jl"
 ]
 
 const TUTORIALS = collect(enumerate(ALL_TUTORIALS))
-#! format: on
 
 const BUILDKITE_PARALLEL_JOB_COUNT = parse(
     Int, get(ENV, "BUILDKITE_PARALLEL_JOB_COUNT", "-1"))

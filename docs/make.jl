@@ -1,21 +1,19 @@
 using Documenter, DocumenterVitepress, DocumenterCitations, Boltz
 
-#! format: off
 pages = [
     "Boltz.jl" => "index.md",
     "Tutorials" => [
         "Getting Started" => "tutorials/1_GettingStarted.md",
-        "Symbolic Optimal Control" => "tutorials/2_SymbolicOptimalControl.md",
+        "Symbolic Optimal Control" => "tutorials/2_SymbolicOptimalControl.md"
     ],
     "API Reference" => [
         "Index" => "api/index.md",
         "Basis Functions" => "api/basis.md",
         "Layers API" => "api/layers.md",
         "Vision Models" => "api/vision.md",
-        "Private API" => "api/private.md",
+        "Private API" => "api/private.md"
     ]
 ]
-#! format: on
 
 bib = CitationBibliography(
     joinpath(@__DIR__, "ref.bib");

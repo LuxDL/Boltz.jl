@@ -28,7 +28,7 @@
 end
 
 @testitem "Hamiltonian Neural Network" setup=[SharedTestSetup] tags=[:layers] begin
-    using ComponentArrays, ForwardDiff, Zygote
+    using ComponentArrays, ForwardDiff, Zygote, MLDataDevices
 
     _remove_nothing(xs) = map(x -> x === nothing ? 0 : x, xs)
 
@@ -150,7 +150,7 @@ end
 end
 
 @testitem "Spline Layer" setup=[SharedTestSetup] tags=[:layers] begin
-    using ComponentArrays, DataInterpolations, ForwardDiff, Zygote
+    using ComponentArrays, DataInterpolations, ForwardDiff, Zygote, MLDataDevices
 
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
         ongpu && continue
