@@ -4,9 +4,9 @@ using Enzyme
 Enzyme.API.runtimeActivity!(true)
 
 import Reexport: @reexport
-@reexport using Boltz, Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random, StableRNGs
+@reexport using Boltz, Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random, StableRNGs,
+                MLDataDevices
 import Metalhead
-using MLDataDevices
 
 LuxTestUtils.jet_target_modules!(["Boltz", "Lux", "LuxLib"])
 
