@@ -3,7 +3,7 @@ module Vision
 using ArgCheck: @argcheck
 using Compat: @compat
 using ConcreteStructs: @concrete
-using Random: Xoshiro
+using Random: Random
 
 using Lux: Lux
 using LuxCore: LuxCore, AbstractExplicitLayer

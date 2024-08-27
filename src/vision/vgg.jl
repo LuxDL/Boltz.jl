@@ -34,23 +34,19 @@ Create a VGG model [simonyan2014very](@citep).
 """
 function VGG(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, dropout)
     feature_extractor = vgg_convolutional_layers(config, batchnorm, inchannels)
-
     # TODO: Use Lux.outputsize once it is ready
-    outsize = Lux.compute_output_size(feature_extractor, (imsize..., inchannels, 1), rng)
-
+    outsize = Lux.compute_output_size(
+        feature_extractor, (imsize..., inchannels, 1), Random.default_rng())
     classifier = vgg_classifier_layers(outsize[1:((end - 1))], nclasses, fcsize, dropout)
-
     return Lux.Chain(feature_extractor, classifier)
 end
 
-#! format: off
 const VGG_CONFIG = Dict(
     11 => [(64, 1), (128, 1), (256, 2), (512, 2), (512, 2)],
     13 => [(64, 2), (128, 2), (256, 2), (512, 2), (512, 2)],
     16 => [(64, 2), (128, 2), (256, 3), (512, 3), (512, 3)],
     19 => [(64, 2), (128, 2), (256, 4), (512, 4), (512, 4)]
 )
-#! format: on
 
 """
     VGG(depth::Int; batchnorm=false, kwargs...)
