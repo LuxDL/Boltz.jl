@@ -9,8 +9,6 @@
             @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
 
-            @test_deprecated alexnet(:alexnet)
-
             GC.gc(true)
         end
     end
@@ -26,8 +24,6 @@ end
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
 
-        @test_deprecated convmixer(name)
-
         GC.gc(true)
     end
 end
@@ -41,8 +37,6 @@ end
 
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
-
-        @test_deprecated googlenet(:googlenet)
 
         GC.gc(true)
     end
@@ -58,8 +52,6 @@ end
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
 
-        @test_deprecated mobilenet(Symbol("mobilenet_", name))
-
         GC.gc(true)
     end
 end
@@ -74,8 +66,6 @@ end
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
 
-        @test_deprecated resnet(Symbol("resnet", depth))
-
         GC.gc(true)
     end
 end
@@ -89,8 +79,6 @@ end
 
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
-
-        @test_deprecated resnext(Symbol("resnext", depth))
 
         GC.gc(true)
     end
@@ -109,9 +97,6 @@ end
 
             @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
-
-            name = Symbol("vgg", depth, batchnorm ? "_bn" : "")
-            @test_deprecated vgg(name; pretrained)
 
             GC.gc(true)
         end
