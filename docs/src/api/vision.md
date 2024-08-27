@@ -25,6 +25,10 @@ Vision.ResNeXt
 
 ## Pretrained Models
 
+!!! note "Load JLD2"
+
+    You need to load `JLD2` before being able to load pretrained weights.
+
 !!! tip "Load Pretrained Weights"
 
     Pass `pretrained=true` to the model constructor to load the pretrained weights.

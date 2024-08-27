@@ -42,6 +42,12 @@ model
 
 # We can also load pretrained ImageNet weights using
 
+# !!! note "Load JLD2"
+#
+#     You need to load `JLD2` before being able to load pretrained weights.
+
+using JLD2
+
 model, _, _ = Vision.VGG(13; pretrained=true)
 model
 
