@@ -35,6 +35,11 @@ function TensorProductLayer(basis_fns, out_dim::Int; init_weight::F=randn32) whe
     return TensorProductLayer(Tuple(basis_fns), dense, out_dim)
 end
 
+function (tp::TensorProductLayer)(x::AbstractVector, ps, st)
+    y, stₙ = tp(reshape(x, :, 1), ps, st)
+    return vec(y), stₙ
+end
+
 function (tp::TensorProductLayer)(x::AbstractArray{T, N}, ps, st) where {T, N}
     x′ = LuxOps.eachslice(x, Val(N - 1))                           # [I1 x I2 x ... x B] x T
     @argcheck length(x′) == length(tp.basis_fns)
