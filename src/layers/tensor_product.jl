@@ -1,5 +1,5 @@
 @doc doc"""
-    TensorProductLayer(model, out_dim::Int; init_weight = randn32)
+    TensorProductLayer(basis_fns, out_dim::Int; init_weight = randn32)
 
 Constructs the Tensor Product Layer, which takes as input an array of n tensor product
 basis, $[B_1, B_2, \dots, B_n]$ a data point x, computes
@@ -13,6 +13,9 @@ where $W$ is the layer's weight, and returns $[z_1, \dots, z_{out}]$.
   - `basis_fns`: Array of TensorProductBasis $[B_1(n_1), \dots, B_k(n_k)]$, where $k$
     corresponds to the dimension of the input.
   - `out_dim`: Dimension of the output.
+
+## Keyword Arguments
+
   - `init_weight`: Initializer for the weight matrix. Defaults to `randn32`.
 
 !!! warning "Limited Backend Support"
