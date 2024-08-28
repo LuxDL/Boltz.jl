@@ -4,13 +4,14 @@ using DataInterpolations: AbstractInterpolation
 
 using Boltz: Boltz, Layers, Utils
 
-for train_grid in (true, false)
+for train_grid in (true, false), tType in (AbstractVector, Number)
     grid_expr = train_grid ? :(grid = ps.grid) : :(grid = st.grid)
+    sol_expr = tType === Number ? :(sol = interp(t)) : :(sol = interp.(t))
     @eval function (spl::Layers.SplineLayer{$(train_grid), Basis})(
-            t::AbstractVector, ps, st) where {Basis <: AbstractInterpolation}
+            t::$(tType), ps, st) where {Basis <: AbstractInterpolation}
         $(grid_expr)
         interp = construct_basis(Basis, ps.saved_points, grid; extrapolate=true)
-        sol = interp.(t)
+        $(sol_expr)
         spl.in_dims == () && return sol, st
         return Utils.mapreduce_stack(sol), st
     end
