@@ -23,7 +23,7 @@ where $W$ is the layer's weight, and returns $[z_1, \dots, z_{out}]$.
     Support for backends apart from CPU and CUDA is limited and slow due to limited
     support for `kron` in the backend.
 """
-@concrete struct TensorProductLayer <: AbstractLuxContainerLayer{(:dense,)}
+@concrete struct TensorProductLayer <: AbstractLuxWrapperLayer{:dense}
     basis_fns
     dense
     out_dim::Int
