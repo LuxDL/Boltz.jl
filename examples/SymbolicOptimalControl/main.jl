@@ -32,7 +32,7 @@
 
 # ## Package Imports
 
-using Lux, Boltz, ComponentArrays, OrdinaryDiffEq, Optimization, OptimizationOptimJL,
+using Lux, Boltz, ComponentArrays, OrdinaryDiffEqVerner, Optimization, OptimizationOptimJL,
       OptimizationOptimisers, SciMLSensitivity, Statistics, Printf, Random
 using DynamicExpressions, SymbolicRegression, MLJ, SymbolicUtils, Latexify
 using CairoMakie
@@ -96,7 +96,7 @@ ude_test = construct_ude(mlp, Vern9(); abstol=1e-10, reltol=1e-10);
 function train_model_1(ude, rng, ts_)
     ps, st = Lux.setup(rng, ude)
     ps = ComponentArray{Float64}(ps)
-    stateful_ude = StatefulLuxLayer(ude, st)
+    stateful_ude = StatefulLuxLayer{true}(ude, nothing, st)
 
     ts = collect(ts_)
 
@@ -147,7 +147,7 @@ function train_model_2(stateful_ude::StatefulLuxLayer, ts_)
     optprob = OptimizationProblem(optf, stateful_ude.ps)
     res2 = solve(optprob, LBFGS(); callback, maxiters=100)
 
-    return StatefulLuxLayer(stateful_ude.model, res2.u, stateful_ude.st)
+    return StatefulLuxLayer{true}(stateful_ude.model, res2.u, stateful_ude.st)
 end
 
 trained_ude = train_model_2(trained_ude, 0.0:0.01:8.0)
