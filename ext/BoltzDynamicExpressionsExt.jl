@@ -65,7 +65,7 @@ function Layers.DynamicExpressionsLayer(operator_enum::OperatorEnum, expressions
                     i -> Layers.InternalDynamicExpressionWrapper(
                         operator_enum, expressions[i], eval_options),
                     length(expressions))...),
-            WrappedFunction{:direct_call}(Lux.Utils.stack1))
+            WrappedFunction(Lux.Utils.stack1))
     end
     return Layers.DynamicExpressionsLayer(internal_layer)
 end

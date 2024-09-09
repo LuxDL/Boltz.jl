@@ -7,7 +7,7 @@ using Random: Random
 
 using LuxCore: LuxCore
 
-using ..Utils: is_extension_loaded, unwrap_val
+using ..Utils: is_extension_loaded
 
 get_pretrained_weights_path(name::Symbol) = get_pretrained_weights_path(string(name))
 function get_pretrained_weights_path(name::String)
