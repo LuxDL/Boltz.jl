@@ -11,7 +11,7 @@ using Random: AbstractRNG
 using ForwardDiff: ForwardDiff
 
 using Lux: Lux, LuxOps, StatefulLuxLayer
-using LuxCore: LuxCore, AbstractExplicitLayer, AbstractExplicitContainerLayer
+using LuxCore: LuxCore, AbstractLuxLayer, AbstractLuxContainerLayer, AbstractLuxWrapperLayer
 using MLDataDevices: get_device, CPUDevice
 using NNlib: NNlib
 using WeightInitializers: zeros32, randn32
@@ -35,7 +35,6 @@ include("encoder.jl")
 include("embeddings.jl")
 include("hamiltonian.jl")
 include("mlp.jl")
-include("periodic_embedding.jl")
 include("spline.jl")
 include("tensor_product.jl")
 

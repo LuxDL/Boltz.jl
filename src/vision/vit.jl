@@ -26,11 +26,9 @@ function VisionTransformer(;
             Lux.Dropout(embedding_dropout_rate),
             VisionTransformerEncoder(
                 embed_planes, depth, number_heads; mlp_ratio, dropout_rate),
-            Lux.WrappedFunction(ifelse(pool === :class, x -> x[:, 1, :], second_dim_mean));
-            disable_optimizations=true),
+            Lux.WrappedFunction(ifelse(pool === :class, x -> x[:, 1, :], second_dim_mean))),
         Lux.Chain(Lux.LayerNorm((embed_planes,); affine=true),
-            Lux.Dense(embed_planes, num_classes, tanh); disable_optimizations=true);
-        disable_optimizations=true)
+            Lux.Dense(embed_planes, num_classes, tanh)))
 end
 
 #! format: off

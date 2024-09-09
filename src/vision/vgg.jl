@@ -1,5 +1,5 @@
 function vgg_convolutional_layers(config, batchnorm, inchannels)
-    layers = Vector{AbstractExplicitLayer}(undef, length(config) * 2)
+    layers = Vector{AbstractLuxLayer}(undef, length(config) * 2)
     input_filters = inchannels
     for (i, (chs, depth)) in enumerate(config)
         layers[2i - 1] = ConvBatchNormActivation(
@@ -34,11 +34,8 @@ Create a VGG model [simonyan2014very](@citep).
 """
 function VGG(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, dropout)
     feature_extractor = vgg_convolutional_layers(config, batchnorm, inchannels)
-    # TODO: Use Lux.outputsize once it is ready
-    @show (imsize..., inchannels, 2)
-    outsize = Lux.compute_output_size(
-        feature_extractor, (imsize..., inchannels, 2), Random.default_rng())
-    @show outsize
+    nilarray = Lux.NilSizePropagation.NilArray(imsize..., inchannels, 2)
+    outsize = LuxCore.outputsize(feature_extractor, nilarray, Random.default_rng())
     classifier = vgg_classifier_layers(outsize, nclasses, fcsize, dropout)
     return Lux.Chain(feature_extractor, classifier)
 end

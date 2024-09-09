@@ -23,7 +23,7 @@ where $W$ is the layer's weight, and returns $[z_1, \dots, z_{out}]$.
     Support for backends apart from CPU and CUDA is limited and slow due to limited
     support for `kron` in the backend.
 """
-@concrete struct TensorProductLayer <: AbstractExplicitContainerLayer{(:dense,)}
+@concrete struct TensorProductLayer <: AbstractLuxContainerLayer{(:dense,)}
     basis_fns
     dense
     out_dim::Int
@@ -41,12 +41,12 @@ function (tp::TensorProductLayer)(x::AbstractVector, ps, st)
 end
 
 function (tp::TensorProductLayer)(x::AbstractArray{T, N}, ps, st) where {T, N}
-    x′ = LuxOps.eachslice(x, Val(N - 1))                           # [I1 x I2 x ... x B] x T
+    x′ = LuxOps.eachslice(x, Val(N - 1))                           # [I1, I2, ..., B] × T
     @argcheck length(x′) == length(tp.basis_fns)
 
     y = mapfoldl(safe_kron, zip(tp.basis_fns, x′)) do (fn, xᵢ)
         eachcol(reshape(fn(xᵢ), :, prod(size(xᵢ))))
-    end                                            # [[D₁ x ... x Dₙ] x (I1 x I2 x ... x B)]
+    end                                            # [[D₁, ..., Dₙ] × (I1, I2, ..., B)]
 
     z, stₙ = tp.dense(mapreduce_stack(y), ps, st)
     return reshape(z, size(x)[1:(end - 2)]..., tp.out_dim, size(x)[end]), stₙ

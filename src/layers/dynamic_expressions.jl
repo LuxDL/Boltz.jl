@@ -67,13 +67,11 @@ julia> ∂ps.layer_1.layer_2.params ≈ Float32[-31.0, 90.0]
 true
 ```
 """
-@concrete struct DynamicExpressionsLayer <: AbstractExplicitContainerLayer{(:chain,)}
-    chain
+@concrete struct DynamicExpressionsLayer <: AbstractLuxWrapperLayer{:chain}
+    chain <: Lux.Chain
 end
 
-(de::DynamicExpressionsLayer)(x, ps, st) = de.chain(x, ps, st)
-
-@concrete struct InternalDynamicExpressionWrapper <: AbstractExplicitLayer
+@concrete struct InternalDynamicExpressionWrapper <: AbstractLuxLayer
     operator_enum
     expression
     eval_options

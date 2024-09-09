@@ -13,7 +13,7 @@ Multi-head self-attention layer
   - `proj_dropout_prob`: dropout probability after the projection layer
 """
 @concrete struct MultiHeadSelfAttention <:
-                 AbstractExplicitContainerLayer{(:qkv_layer, :dropout, :projection)}
+                 AbstractLuxContainerLayer{(:qkv_layer, :dropout, :projection)}
     qkv_layer
     dropout
     projection
@@ -27,7 +27,8 @@ function MultiHeadSelfAttention(
     return MultiHeadSelfAttention(
         Lux.Dense(in_planes, in_planes * 3; use_bias=use_qkv_bias),
         Lux.Dropout(attention_dropout_rate),
-        Lux.Chain(Lux.Dense(in_planes => in_planes), Lux.Dropout(projection_dropout_rate)),
+        Lux.Chain(Lux.Dense(in_planes => in_planes),
+        Lux.Dropout(projection_dropout_rate)),
         number_heads
     )
 end
