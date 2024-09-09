@@ -6,7 +6,7 @@ using ConcreteStructs: @concrete
 using Random: Random
 
 using Lux: Lux
-using LuxCore: LuxCore, AbstractExplicitLayer
+using LuxCore: LuxCore, AbstractLuxLayer
 using NNlib: relu
 
 using ..InitializeModels: maybe_initialize_model, INITIALIZE_KWARGS

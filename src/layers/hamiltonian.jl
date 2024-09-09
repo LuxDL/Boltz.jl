@@ -12,7 +12,7 @@ returns the time derivatives for position and momentum.
   - `FST`: If `true`, then the type of the state returned by the model must be same as the
     type of the input state. See the documentation on `StatefulLuxLayer` for more
     information.
-  - `model`: A `Lux.AbstractExplicitLayer` neural network that returns the Hamiltonian of
+  - `model`: A `Lux.AbstractLuxLayer` neural network that returns the Hamiltonian of
     the system. The `model` must return a "batched scalar", i.e. all the dimensions of the
     output except the last one must be equal to 1. The last dimension must be equal to the
     batchsize of the input.
@@ -36,7 +36,7 @@ returns the time derivatives for position and momentum.
     [Nested Autodiff](https://lux.csail.mit.edu/stable/manual/nested_autodiff) for more
     information and known limitations.
 """
-@concrete struct HamiltonianNN{FST} <: AbstractExplicitContainerLayer{(:model,)}
+@concrete struct HamiltonianNN{FST} <: AbstractLuxWrapperLayer{:model}
     model
     autodiff
 end

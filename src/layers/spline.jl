@@ -35,7 +35,7 @@ Constructs a spline layer with the given basis function.
     work with GPU arrays. This will be fixed in the future by extending support to different
     basis functions.
 """
-@concrete struct SplineLayer{TG, B, T} <: AbstractExplicitLayer
+@concrete struct SplineLayer{TG, B, T} <: AbstractLuxLayer
     grid_min::T
     grid_max::T
     grid_step::T
