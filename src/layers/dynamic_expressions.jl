@@ -68,7 +68,7 @@ true
 ```
 """
 @concrete struct DynamicExpressionsLayer <: AbstractLuxWrapperLayer{:chain}
-    chain <: Lux.Chain
+    chain
 end
 
 @concrete struct InternalDynamicExpressionWrapper <: AbstractLuxLayer
