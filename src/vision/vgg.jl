@@ -4,7 +4,7 @@ function vgg_convolutional_layers(config, batchnorm, inchannels)
     for (i, (chs, depth)) in enumerate(config)
         layers[2i - 1] = ConvBatchNormActivation(
             (3, 3), input_filters => chs, depth, relu; last_layer_activation=true,
-            conv_kwargs=(; pad=(1, 1)), use_norm=batchnorm, flatten_model=true)
+            conv_kwargs=(; pad=(1, 1)), use_norm=batchnorm)
         layers[2i] = Lux.MaxPool((2, 2))
         input_filters = chs
     end
