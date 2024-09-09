@@ -5,7 +5,8 @@ Create an AlexNet model [krizhevsky2012imagenet](@citep).
 
 ## Keyword Arguments
 
-$(INITIALIZE_KWARGS)
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
 """
 function AlexNet end
 
@@ -16,11 +17,12 @@ Create a ResNet model [he2016deep](@citep).
 
 ## Arguments
 
-  * `depth::Int`: The depth of the ResNet model. Must be one of 18, 34, 50, 101, or 152.
+  - `depth::Int`: The depth of the ResNet model. Must be one of 18, 34, 50, 101, or 152.
 
 ## Keyword Arguments
 
-$(INITIALIZE_KWARGS)
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
 """
 function ResNet end
 
@@ -31,11 +33,12 @@ Create a ResNeXt model [xie2017aggregated](@citep).
 
 ## Arguments
 
-  * `depth::Int`: The depth of the ResNeXt model. Must be one of 50, 101, or 152.
+  - `depth::Int`: The depth of the ResNeXt model. Must be one of 50, 101, or 152.
 
 ## Keyword Arguments
 
-$(INITIALIZE_KWARGS)
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
 """
 function ResNeXt end
 
@@ -46,7 +49,8 @@ Create a GoogLeNet model [szegedy2015going](@citep).
 
 ## Keyword Arguments
 
-$(INITIALIZE_KWARGS)
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
 """
 function GoogLeNet end
 
@@ -57,11 +61,12 @@ Create a DenseNet model [huang2017densely](@citep).
 
 ## Arguments
 
-  * `depth::Int`: The depth of the DenseNet model. Must be one of 121, 161, 169, or 201.
+  - `depth::Int`: The depth of the DenseNet model. Must be one of 121, 161, 169, or 201.
 
 ## Keyword Arguments
 
-$(INITIALIZE_KWARGS)
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
 """
 function DenseNet end
 
@@ -73,12 +78,13 @@ Create a MobileNet model
 
 ## Arguments
 
-  * `name::Symbol`: The name of the MobileNet model. Must be one of `:v1`, `:v2`,
+  - `name::Symbol`: The name of the MobileNet model. Must be one of `:v1`, `:v2`,
     `:v3_small`, or `:v3_large`.
 
 ## Keyword Arguments
 
-$(INITIALIZE_KWARGS)
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
 """
 function MobileNet end
 
@@ -89,25 +95,33 @@ Create a ConvMixer model [trockman2022patches](@citep).
 
 ## Arguments
 
-  * `name::Symbol`: The name of the ConvMixer model. Must be one of `:base`, `:small`, or
+  - `name::Symbol`: The name of the ConvMixer model. Must be one of `:base`, `:small`, or
     `:large`.
 
 ## Keyword Arguments
 
-$(INITIALIZE_KWARGS)
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
 """
 function ConvMixer end
+
+@concrete struct MetalheadWrapperLayer <: AbstractLuxVisionLayer
+    layer
+    pretrained_name::Symbol
+    pretrained::Bool
+end
 
 for f in [:AlexNet, :ResNet, :ResNeXt, :GoogLeNet, :DenseNet, :MobileNet, :ConvMixer]
     f_metalhead = Symbol(f, :Metalhead)
     @eval begin
         function $(f_metalhead) end
-        function $(f)(args...; kwargs...)
+        function $(f)(args...; pretrained::Bool=false)
             if !is_extension_loaded(Val(:Metalhead))
                 error("`Metalhead.jl` is not loaded. Please load `Metalhead.jl` to use \
                        this function.")
             end
-            $(f_metalhead)(args...; kwargs...)
+            name, model = $(f_metalhead)(args...)
+            return MetalheadWrapperLayer(model, name, pretrained)
         end
     end
 end

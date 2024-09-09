@@ -29,16 +29,10 @@ model = Layers.MLP(784, (256, 10), relu)
 
 # ## How about VGG?
 #
-# !!! warning "Returned Values"
-#
-#     The returned value from `Vision` module functions are a 3 tuple of (model, ps, st).
-#     The `ps` and `st` are the parameters and states of the model respectively.
-#
 # Let's take a look at the `Vision` module. We can construct a VGG model with the
 # following code:
 
-model, _, _ = Vision.VGG(13)
-model
+Vision.VGG(13)
 
 # We can also load pretrained ImageNet weights using
 
@@ -48,8 +42,7 @@ model
 
 using JLD2
 
-model, _, _ = Vision.VGG(13; pretrained=true)
-model
+Vision.VGG(13; pretrained=true)
 
 # ## Loading Models from Metalhead (Flux.jl)
 
@@ -57,5 +50,4 @@ model
 
 using Metalhead
 
-model, _, _ = Vision.ResNet(18)
-model
+Vision.ResNet(18)

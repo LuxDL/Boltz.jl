@@ -1,7 +1,7 @@
 module Basis
 
 using ArgCheck: @argcheck
-using ChainRulesCore: ChainRulesCore, NoTangent
+using ChainRulesCore: ChainRulesCore
 using Compat: @compat
 using ConcreteStructs: @concrete
 using Markdown: @doc_str
@@ -11,6 +11,7 @@ using MLDataDevices: get_device, CPUDevice
 using ..Utils: unsqueeze1
 
 const CRC = ChainRulesCore
+const ∂∅ = CRC.NoTangent()
 
 # The rrules in this file are hardcoded to be used exclusively with GeneralBasisFunction
 @concrete struct GeneralBasisFunction{name}
@@ -125,10 +126,8 @@ function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(fourier), i, x)
     y = @. ifelse(iseven(i), c, s)
 
     ∇fourier = let s = s, c = c, i = i
-        Δ -> begin
-            return (NoTangent(), NoTangent(), NoTangent(),
-                dropdims(sum((i / 2) .* ifelse.(iseven.(i), -s, c) .* Δ; dims=1); dims=1))
-        end
+        Δ -> (∂∅, ∂∅, ∂∅,
+            dropdims(sum((i / 2) .* ifelse.(iseven.(i), -s, c) .* Δ; dims=1); dims=1))
     end
 
     return y, ∇fourier
@@ -187,10 +186,7 @@ function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(polynomial), i, x)
     y_m1 = x .^ (i .- 2)
     y = y_m1 .* x
     ∇polynomial = let y_m1 = y_m1, i = i
-        Δ -> begin
-            return (NoTangent(), NoTangent(), NoTangent(),
-                dropdims(sum((i .- 1) .* y_m1 .* Δ; dims=1); dims=1))
-        end
+        Δ -> (∂∅, ∂∅, ∂∅, dropdims(sum((i .- 1) .* y_m1 .* Δ; dims=1); dims=1))
     end
     return y, ∇polynomial
 end

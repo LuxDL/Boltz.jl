@@ -114,3 +114,38 @@ end
 function Base.show(io::IO, ::MIME"text/plain", p::PeriodicEmbedding)
     return print(io, "PeriodicEmbedding(", p.idxs, ", ", p.periods, ")")
 end
+
+@concrete struct PatchEmbedding <: AbstractLuxWrapperLayer{:model}
+    model <: Lux.Chain
+end
+
+"""
+    PatchEmbedding(image_size, patch_size, in_channels, embed_planes;
+        norm_layer=Returns(Lux.NoOpLayer()), flatten=true)
+
+Constructs a patch embedding layer with the given image size, patch size, input channels,
+and embedding planes. The patch size must be a divisor of the image size.
+
+## Arguments
+
+  - `image_size`: image size as a tuple
+  - `patch_size`: patch size as a tuple
+  - `in_channels`: number of input channels
+  - `embed_planes`: number of embedding planes
+
+## Keyword Arguments
+
+  - `norm_layer`: Takes the embedding planes as input and returns a layer that normalizes
+    the embedding planes. Defaults to no normalization.
+  - `flatten`: set to `true` to flatten the output of the convolutional layer
+"""
+function PatchEmbedding(image_size::Dims{N}, patch_size::Dims{N}, in_channels::Int,
+        embed_planes::Int; norm_layer=Returns(Lux.NoOpLayer()), flatten::Bool=true) where {N}
+    foreach(zip(image_size, patch_size)) do (i, p)
+        @argcheck i % p==0 "Image size ($i) must be divisible by patch size ($p)"
+    end
+
+    return PatchEmbedding(Lux.Chain(
+        Lux.Conv(patch_size, in_channels => embed_planes; stride=patch_size),
+        ifelse(flatten, flatten_spatial, identity), norm_layer(embed_planes)))
+end
