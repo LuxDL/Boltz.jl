@@ -28,7 +28,7 @@ function MultiHeadSelfAttention(
         Lux.Dense(in_planes, in_planes * 3; use_bias=use_qkv_bias),
         Lux.Dropout(attention_dropout_rate),
         Lux.Chain(Lux.Dense(in_planes => in_planes),
-        Lux.Dropout(projection_dropout_rate)),
+            Lux.Dropout(projection_dropout_rate)),
         number_heads
     )
 end
