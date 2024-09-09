@@ -30,7 +30,7 @@
 end
 
 @testitem "Hamiltonian Neural Network" setup=[SharedTestSetup] tags=[:layers] begin
-    using ComponentArrays, ForwardDiff, Zygote, MLDataDevices
+    using ComponentArrays, ForwardDiff, Zygote, MLDataDevices, NNlib
 
     _remove_nothing(xs) = map(x -> x === nothing ? 0 : x, xs)
 
