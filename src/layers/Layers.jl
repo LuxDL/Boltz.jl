@@ -17,7 +17,7 @@ using NNlib: NNlib
 using WeightInitializers: zeros32, randn32
 
 using ..Utils: DataTransferBarrier, fast_chunk, should_type_assert, mapreduce_stack,
-               unwrap_val, safe_kron, is_extension_loaded
+               unwrap_val, safe_kron, is_extension_loaded, flatten_spatial
 
 const CRC = ChainRulesCore
 
@@ -40,7 +40,7 @@ include("tensor_product.jl")
 
 @compat(public,
     (ClassTokens, ConvBatchNormActivation, ConvNormActivation, DynamicExpressionsLayer,
-        HamiltonianNN, MultiHeadSelfAttention, MLP, PeriodicEmbedding, SplineLayer,
-        TensorProductLayer, ViPosEmbedding, VisionTransformerEncoder))
+        HamiltonianNN, MultiHeadSelfAttention, MLP, PatchEmbedding, PeriodicEmbedding,
+        SplineLayer, TensorProductLayer, ViPosEmbedding, VisionTransformerEncoder))
 
 end

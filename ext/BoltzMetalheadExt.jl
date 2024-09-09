@@ -6,40 +6,38 @@ using Metalhead: Metalhead
 using Lux: Lux, FromFluxAdaptor
 
 using Boltz: Boltz, Utils, Vision
-using Boltz.InitializeModels: maybe_initialize_model
 
 Utils.is_extension_loaded(::Val{:Metalhead}) = true
 
-function Vision.AlexNetMetalhead(; pretrained=false, kwargs...)
+function Vision.AlexNetMetalhead()
     model = FromFluxAdaptor()(Metalhead.AlexNet().layers)
-    pretrained && (model = Lux.Chain(model[1], model[2])) # Compatibility with pretrained weights
-    return maybe_initialize_model(:alexnet, model; pretrained, kwargs...)
+    return :alexnet, model
 end
 
-function Vision.ResNetMetalhead(depth::Int; kwargs...)
+function Vision.ResNetMetalhead(depth::Int)
     @argcheck depth in (18, 34, 50, 101, 152)
     model = FromFluxAdaptor()(Metalhead.ResNet(depth).layers)
-    return maybe_initialize_model(Symbol(:resnet, depth), model; kwargs...)
+    return Symbol(:resnet, depth), model
 end
 
-function Vision.ResNeXtMetalhead(depth::Int; kwargs...)
+function Vision.ResNeXtMetalhead(depth::Int)
     @argcheck depth in (50, 101, 152)
     model = FromFluxAdaptor()(Metalhead.ResNeXt(depth).layers)
-    return maybe_initialize_model(Symbol(:resnext, depth), model; kwargs...)
+    return Symbol(:resnext, depth), model
 end
 
-function Vision.GoogLeNetMetalhead(; kwargs...)
+function Vision.GoogLeNetMetalhead()
     model = FromFluxAdaptor()(Metalhead.GoogLeNet().layers)
-    return maybe_initialize_model(:googlenet, model; kwargs...)
+    return :googlenet, model
 end
 
-function Vision.DenseNetMetalhead(depth::Int; kwargs...)
+function Vision.DenseNetMetalhead(depth::Int)
     @argcheck depth in (121, 161, 169, 201)
     model = FromFluxAdaptor()(Metalhead.DenseNet(depth).layers)
-    return maybe_initialize_model(Symbol(:densenet, depth), model; kwargs...)
+    return Symbol(:densenet, depth), model
 end
 
-function Vision.MobileNetMetalhead(name::Symbol; kwargs...)
+function Vision.MobileNetMetalhead(name::Symbol)
     @argcheck name in (:v1, :v2, :v3_small, :v3_large)
     model = if name == :v1
         FromFluxAdaptor()(Metalhead.MobileNetv1().layers)
@@ -50,13 +48,13 @@ function Vision.MobileNetMetalhead(name::Symbol; kwargs...)
     elseif name == :v3_large
         FromFluxAdaptor()(Metalhead.MobileNetv3(:large).layers)
     end
-    return maybe_initialize_model(Symbol(:mobilenet, "_", name), model; kwargs...)
+    return Symbol(:mobilenet_, name), model
 end
 
-function Vision.ConvMixerMetalhead(name::Symbol; kwargs...)
+function Vision.ConvMixerMetalhead(name::Symbol)
     @argcheck name in (:base, :large, :small)
     model = FromFluxAdaptor()(Metalhead.ConvMixer(name).layers)
-    return maybe_initialize_model(Symbol(:convmixer, "_", name), model; kwargs...)
+    return Symbol(:convmixer_, name), model
 end
 
 end

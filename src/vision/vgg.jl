@@ -1,4 +1,8 @@
-function vgg_convolutional_layers(config, batchnorm, inchannels)
+@concrete struct VGGFeatureExtractor <: AbstractLuxWrapperLayer{:model}
+    model <: Lux.Chain
+end
+
+function VGGFeatureExtractor(config, batchnorm, inchannels)
     layers = Vector{AbstractLuxLayer}(undef, length(config) * 2)
     input_filters = inchannels
     for (i, (chs, depth)) in enumerate(config)
@@ -8,13 +12,24 @@ function vgg_convolutional_layers(config, batchnorm, inchannels)
         layers[2i] = Lux.MaxPool((2, 2))
         input_filters = chs
     end
-    return Lux.Chain(layers...)
+    return VGGFeatureExtractor(Lux.Chain(layers...))
 end
 
-function vgg_classifier_layers(imsize, nclasses, fcsize, dropout)
-    return Lux.Chain(Lux.FlattenLayer(), Lux.Dense(Int(prod(imsize)) => fcsize, relu),
+@concrete struct VGGClassifier <: AbstractLuxWrapperLayer{:model}
+    model <: Lux.Chain
+end
+
+function VGGClassifier(imsize, nclasses, fcsize, dropout)
+    return VGGClassifier(Lux.Chain(
+        Lux.FlattenLayer(), Lux.Dense(Int(prod(imsize)) => fcsize, relu),
         Lux.Dropout(dropout), Lux.Dense(fcsize => fcsize, relu),
-        Lux.Dropout(dropout), Lux.Dense(fcsize => nclasses))
+        Lux.Dropout(dropout), Lux.Dense(fcsize => nclasses)))
+end
+
+@concrete struct VGG <: AbstractLuxVisionLayer
+    layer
+    pretrained_name::Symbol
+    pretrained::Bool
 end
 
 """
@@ -33,11 +48,11 @@ Create a VGG model [simonyan2014very](@citep).
   - `dropout`: dropout level between fully connected layers
 """
 function VGG(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, dropout)
-    feature_extractor = vgg_convolutional_layers(config, batchnorm, inchannels)
-    nilarray = Lux.NilSizePropagation.NilArray(imsize..., inchannels, 2)
+    feature_extractor = VGGFeatureExtractor(config, batchnorm, inchannels)
+    nilarray = Lux.NilSizePropagation.NilArray((imsize..., inchannels, 2))
     outsize = LuxCore.outputsize(feature_extractor, nilarray, Random.default_rng())
-    classifier = vgg_classifier_layers(outsize, nclasses, fcsize, dropout)
-    return Lux.Chain(feature_extractor, classifier)
+    classifier = VGGClassifier(outsize, nclasses, fcsize, dropout)
+    return Lux.Chain(; feature_extractor, classifier)
 end
 
 const VGG_CONFIG = Dict(
@@ -48,22 +63,23 @@ const VGG_CONFIG = Dict(
 )
 
 """
-    VGG(depth::Int; batchnorm=false, kwargs...)
+    VGG(depth::Int; batchnorm::Bool=false, pretrained::Bool=false)
 
 Create a VGG model [simonyan2014very](@citep) with ImageNet Configuration.
 
 ## Arguments
 
-  * `depth::Int`: the depth of the VGG model. Choices: {`11`, `13`, `16`, `19`}.
+  - `depth::Int`: the depth of the VGG model. Choices: {`11`, `13`, `16`, `19`}.
 
 ## Keyword Arguments
 
-  * `batchnorm = false`: set to `true` to use batch normalization after each convolution.
-$(INITIALIZE_KWARGS)
+  - `batchnorm = false`: set to `true` to use batch normalization after each convolution.
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
 """
-function VGG(depth::Int; batchnorm::Bool=false, kwargs...)
+function VGG(depth::Int; batchnorm::Bool=false, pretrained::Bool=false)
     name = Symbol(:vgg, depth, ifelse(batchnorm, "_bn", ""))
     config, inchannels, nclasses, fcsize = VGG_CONFIG[depth], 3, 1000, 4096
     model = VGG((224, 224); config, inchannels, batchnorm, nclasses, fcsize, dropout=0.5f0)
-    return maybe_initialize_model(name, model; kwargs...)
+    return VGG(model, name, pretrained)
 end

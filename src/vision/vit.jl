@@ -1,28 +1,19 @@
-function __patch_embedding(
-        imsize::Dims{2}=(224, 224); in_channels=3, patch_size::Dims{2}=(16, 16),
-        embed_planes=768, norm_layer=Returns(Lux.NoOpLayer()), flatten=true)
-    im_width, im_height = imsize
-    patch_width, patch_height = patch_size
-
-    @argcheck (im_width % patch_width == 0) && (im_height % patch_height == 0)
-
-    return Lux.Chain(Lux.Conv(patch_size, in_channels => embed_planes; stride=patch_size),
-        ifelse(flatten, flatten_spatial, identity), norm_layer(embed_planes))
+@concrete struct VisionTransformer <: AbstractLuxVisionLayer
+    layer
+    pretrained_name::Symbol
+    pretrained::Bool
 end
 
-# ViT Implementation
 function VisionTransformer(;
         imsize::Dims{2}=(256, 256), in_channels::Int=3, patch_size::Dims{2}=(16, 16),
         embed_planes::Int=768, depth::Int=6, number_heads=16,
         mlp_ratio=4.0f0, dropout_rate=0.1f0, embedding_dropout_rate=0.1f0,
-        pool::Symbol=:class, num_classes::Int=1000, kwargs...)
+        pool::Symbol=:class, num_classes::Int=1000)
     @argcheck pool in (:class, :mean)
-    number_patches = prod(imsize .÷ patch_size)
-
     return Lux.Chain(
-        Lux.Chain(__patch_embedding(imsize; in_channels, patch_size, embed_planes),
+        Lux.Chain(PatchEmbedding(imsize, patch_size, in_channels, embed_planes),
             ClassTokens(embed_planes),
-            ViPosEmbedding(embed_planes, number_patches + 1),
+            ViPosEmbedding(embed_planes, prod(imsize .÷ patch_size) + 1),
             Lux.Dropout(embedding_dropout_rate),
             VisionTransformerEncoder(
                 embed_planes, depth, number_heads; mlp_ratio, dropout_rate),
@@ -44,23 +35,24 @@ const VIT_CONFIGS = Dict(
 #! format: on
 
 """
-    VisionTransformer(name::Symbol; kwargs...)
+    VisionTransformer(name::Symbol; pretrained=false)
 
 Creates a Vision Transformer model with the specified configuration.
 
 ## Arguments
 
   - `name::Symbol`: name of the Vision Transformer model to create. The following models are
-    available:
+    available -- `:tiny`, `:small`, `:base`, `:large`, `:huge`, `:giant`, `:gigantic`.
 
 ## Keyword Arguments
 
-$(INITIALIZE_KWARGS)
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
 """
-function VisionTransformer(name::Symbol; kwargs...)
+function VisionTransformer(name::Symbol; pretrained=false, kwargs...)
     @argcheck name in keys(VIT_CONFIGS)
-    model = VisionTransformer(; VIT_CONFIGS[name]..., kwargs...)
-    return maybe_initialize_model(name, model; kwargs...)
+    return VisionTransformer(
+        VisionTransformer(; VIT_CONFIGS[name]..., kwargs...), name, pretrained)
 end
 
 const ViT = VisionTransformer

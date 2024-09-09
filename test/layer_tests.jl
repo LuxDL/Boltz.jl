@@ -1,6 +1,8 @@
 # Only tests that are not run via `vision` or other higher-level test suites are
 # included in this snippet.
 @testitem "MLP" setup=[SharedTestSetup] tags=[:layers] begin
+    using NNlib
+
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
         @testset "$(act)" for act in (tanh, NNlib.gelu)
             @testset "$(nType)" for nType in (BatchNorm, GroupNorm, nothing)
