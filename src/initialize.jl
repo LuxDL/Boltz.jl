@@ -2,6 +2,7 @@ module InitializeModels
 
 using ArgCheck: @argcheck
 using Artifacts: Artifacts, @artifact_str
+using Functors: fmap
 using LazyArtifacts: LazyArtifacts
 using Random: Random
 
@@ -29,5 +30,23 @@ function load_using_jld2(args...; kwargs...)
 end
 
 function load_using_jld2_internal end
+
+struct SerializedRNG end
+
+function remove_rng_from_structure(x)
+    return fmap(x) do xᵢ
+        xᵢ isa Random.AbstractRNG && return SerializedRNG()
+        return xᵢ
+    end
+end
+
+loadparameters(x) = x
+
+function loadstates(x)
+    return fmap(x) do xᵢ
+        xᵢ isa SerializedRNG && return Random.default_rng()
+        return xᵢ
+    end
+end
 
 end

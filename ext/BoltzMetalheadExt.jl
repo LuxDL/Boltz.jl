@@ -9,11 +9,6 @@ using Boltz: Boltz, Utils, Vision
 
 Utils.is_extension_loaded(::Val{:Metalhead}) = true
 
-function Vision.AlexNetMetalhead()
-    model = FromFluxAdaptor()(Metalhead.AlexNet().layers)
-    return :alexnet, model
-end
-
 function Vision.ResNetMetalhead(depth::Int)
     @argcheck depth in (18, 34, 50, 101, 152)
     model = FromFluxAdaptor()(Metalhead.ResNet(depth).layers)

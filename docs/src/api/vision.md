@@ -3,6 +3,7 @@
 ## Native Lux Models
 
 ```@docs
+Vision.AlexNet
 Vision.VGG
 Vision.VisionTransformer
 ```
@@ -14,7 +15,6 @@ Vision.VisionTransformer
     You need to load `Metalhead` before using these models.
 
 ```@docs
-Vision.AlexNet
 Vision.ConvMixer
 Vision.DenseNet
 Vision.GoogLeNet
