@@ -1,10 +1,10 @@
 [alexnet]
-git-tree-sha1 = "8904a6756649aa4cd264328430b829dafde95645"
+git-tree-sha1 = "f1739363d54a358cae904133699a93eca7b7a028"
 lazy = true
 
     [[alexnet.download]]
-    sha256 = "e20107404aba1c2c0ed3fad4314033a2fa600cdc0c55d03bc1bfe4f8e5031105"
-    url = "https://github.com/LuxDL/Lux.jl/releases/download/weights/alexnet.tar.gz"
+    sha256 = "feb3e1600179ba00b72a68759c7f3b12f400f6d59b28ac72b48614cbafa187d8"
+    url = "https://huggingface.co/LuxDL/alexnet/resolve/2c48051ecb131d38f2209470cdda70a343289db1/alexnet.tar.gz"
 
 # [resnet101]
 # git-tree-sha1 = "6c9143d40950726405b88db0cc021fa1dcbc0896"

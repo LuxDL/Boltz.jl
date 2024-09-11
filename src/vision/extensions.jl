@@ -1,16 +1,4 @@
 """
-    AlexNet(; kwargs...)
-
-Create an AlexNet model [krizhevsky2012imagenet](@citep).
-
-## Keyword Arguments
-
-  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
-    called.
-"""
-function AlexNet end
-
-"""
     ResNet(depth::Int; kwargs...)
 
 Create a ResNet model [he2016deep](@citep).
@@ -111,7 +99,7 @@ function ConvMixer end
     pretrained::Bool
 end
 
-for f in [:AlexNet, :ResNet, :ResNeXt, :GoogLeNet, :DenseNet, :MobileNet, :ConvMixer]
+for f in [:ResNet, :ResNeXt, :GoogLeNet, :DenseNet, :MobileNet, :ConvMixer]
     f_metalhead = Symbol(f, :Metalhead)
     @eval begin
         function $(f_metalhead) end
