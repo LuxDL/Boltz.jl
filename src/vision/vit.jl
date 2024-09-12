@@ -19,7 +19,7 @@ function VisionTransformer(;
                 embed_planes, depth, number_heads; mlp_ratio, dropout_rate),
             Lux.WrappedFunction(ifelse(pool === :class, x -> x[:, 1, :], second_dim_mean))),
         Lux.Chain(Lux.LayerNorm((embed_planes,); affine=true),
-            Lux.Dense(embed_planes, num_classes, tanh)))
+            Lux.Dense(embed_planes, num_classes)))
 end
 
 #! format: off
