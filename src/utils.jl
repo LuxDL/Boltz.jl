@@ -48,7 +48,7 @@ In certain cases, to ensure type-stability we want to add type-asserts. But this
 for exotic types like `ForwardDiff.Dual`. We use this function to check if we should add a
 type-assert for `x`.
 """
-should_type_assert(::AbstractArray{T}) where {T} = isbitstype(T)
+should_type_assert(x::AbstractArray{T}) where {T} = isbitstype(T) && parent(x) === x
 should_type_assert(::AbstractArray{<:ForwardDiff.Dual}) = false
 should_type_assert(::ForwardDiff.Dual) = false
 should_type_assert(x) = true
