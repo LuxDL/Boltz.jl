@@ -21,6 +21,8 @@ Vision.GoogLeNet
 Vision.MobileNet
 Vision.ResNet
 Vision.ResNeXt
+Vision.SqueezeNet
+Vision.WideResNet
 ```
 
 ## Pretrained Models
