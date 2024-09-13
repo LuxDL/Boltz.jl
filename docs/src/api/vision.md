@@ -46,6 +46,12 @@ Vision.ResNeXt
 | `VGG(16; batchnorm=true)` |       72.11        |       91.02        |
 | `VGG(19; batchnorm=true)` |       72.95        |       91.32        |
 
+!!! note "Pretrained Models from Metalhead"
+
+    For Models imported from Metalhead, the pretrained weights can be loaded if they are
+    available in Metalhead. Refer to the [Metalhead.jl docs](https://fluxml.ai/Metalhead.jl/stable/#Image-Classification)
+    for a list of available pretrained models.
+
 ### Preprocessing
 
 All the pretrained models require that the images be normalized with the parameters

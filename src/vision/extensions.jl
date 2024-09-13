@@ -108,8 +108,8 @@ for f in [:ResNet, :ResNeXt, :GoogLeNet, :DenseNet, :MobileNet, :ConvMixer]
                 error("`Metalhead.jl` is not loaded. Please load `Metalhead.jl` to use \
                        this function.")
             end
-            name, model = $(f_metalhead)(args...)
-            return MetalheadWrapperLayer(model, name, pretrained)
+            name, model = $(f_metalhead)(args...; pretrained)
+            return MetalheadWrapperLayer(model, name, false)
         end
     end
 end
