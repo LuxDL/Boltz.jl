@@ -15,7 +15,7 @@ Create a ResNet model [he2016deep](@citep).
 function ResNet end
 
 """
-    ResNeXt(depth::Int; pretrained::Bool=false)
+    ResNeXt(depth::Int; cardinality=32, base_width=nothing, pretrained::Bool=false)
 
 Create a ResNeXt model [xie2017aggregated](@citep).
 
@@ -27,6 +27,9 @@ Create a ResNeXt model [xie2017aggregated](@citep).
 
   - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
     called.
+  - `cardinality`: The cardinality of the ResNeXt model. Defaults to 32.
+  - `base_width`: The base width of the ResNeXt model. Defaults to 8 for depth 101 and 4
+    otherwise.
 """
 function ResNeXt end
 
@@ -132,12 +135,12 @@ for f in [:ResNet, :ResNeXt, :GoogLeNet, :DenseNet,
     f_metalhead = Symbol(f, :Metalhead)
     @eval begin
         function $(f_metalhead) end
-        function $(f)(args...; pretrained::Bool=false)
+        function $(f)(args...; pretrained::Bool=false, kwargs...)
             if !is_extension_loaded(Val(:Metalhead))
                 error("`Metalhead.jl` is not loaded. Please load `Metalhead.jl` to use \
                        this function.")
             end
-            model = $(f_metalhead)(args...; pretrained)
+            model = $(f_metalhead)(args...; pretrained, kwargs...)
             return MetalheadWrapperLayer(model, :metalhead, false)
         end
     end
