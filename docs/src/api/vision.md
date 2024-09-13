@@ -35,18 +35,28 @@ Vision.WideResNet
 
     Pass `pretrained=true` to the model constructor to load the pretrained weights.
 
-
-| MODEL                     | TOP 1 ACCURACY (%) | TOP 5 ACCURACY (%) |
-| :------------------------ | :----------------: | :----------------: |
-| `AlexNet()`               |       54.48        |       77.72        |
-| `VGG(11)`                 |       67.35        |       87.91        |
-| `VGG(13)`                 |       68.40        |       88.48        |
-| `VGG(16)`                 |       70.24        |       89.80        |
-| `VGG(19)`                 |       71.09        |       90.27        |
-| `VGG(11; batchnorm=true)` |       69.09        |       88.94        |
-| `VGG(13; batchnorm=true)` |       69.66        |       89.49        |
-| `VGG(16; batchnorm=true)` |       72.11        |       91.02        |
-| `VGG(19; batchnorm=true)` |       72.95        |       91.32        |
+| MODEL                                        | TOP 1 ACCURACY (%) | TOP 5 ACCURACY (%) |
+| :------------------------------------------- | :----------------: | :----------------: |
+| `AlexNet()`                                  |       54.48        |       77.72        |
+| `VGG(11)`                                    |       67.35        |       87.91        |
+| `VGG(13)`                                    |       68.40        |       88.48        |
+| `VGG(16)`                                    |       70.24        |       89.80        |
+| `VGG(19)`                                    |       71.09        |       90.27        |
+| `VGG(11; batchnorm=true)`                    |       69.09        |       88.94        |
+| `VGG(13; batchnorm=true)`                    |       69.66        |       89.49        |
+| `VGG(16; batchnorm=true)`                    |       72.11        |       91.02        |
+| `VGG(19; batchnorm=true)`                    |       72.95        |       91.32        |
+| `ResNet(18)`                                 |         -          |         -          |
+| `ResNet(34)`                                 |         -          |         -          |
+| `ResNet(50)`                                 |         -          |         -          |
+| `ResNet(101)`                                |         -          |         -          |
+| `ResNet(152)`                                |         -          |         -          |
+| `ResNeXt(50; cardinality=32, base_width=4)`  |         -          |         -          |
+| `ResNeXt(101; cardinality=32, base_width=8)` |         -          |         -          |
+| `ResNeXt(101; cardinality=64, base_width=4)` |         -          |         -          |
+| `SqueezeNet()`                               |         -          |         -          |
+| `WideResNet(50)`                             |         -          |         -          |
+| `WideResNet(101)`                            |         -          |         -          |
 
 !!! note "Pretrained Models from Metalhead"
 
