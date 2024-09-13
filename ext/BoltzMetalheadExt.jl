@@ -15,10 +15,12 @@ function Vision.ResNetMetalhead(depth::Int; pretrained::Bool=false)
         depth; pretrain=pretrained).layers)
 end
 
-function Vision.ResNeXtMetalhead(depth::Int; pretrained::Bool=false)
+function Vision.ResNeXtMetalhead(
+        depth::Int; cardinality=32, base_width=nothing, pretrained::Bool=false)
     @argcheck depth in (50, 101, 152)
+    base_width = base_width === nothing ? (depth == 101 ? 8 : 4) : base_width
     return FromFluxAdaptor(; preserve_ps_st=pretrained, force_preserve=true)(Metalhead.ResNeXt(
-        depth; pretrain=pretrained).layers)
+        depth; pretrain=pretrained, cardinality, base_width).layers)
 end
 
 function Vision.GoogLeNetMetalhead(; pretrained::Bool=false)
