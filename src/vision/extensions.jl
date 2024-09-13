@@ -1,5 +1,5 @@
 """
-    ResNet(depth::Int; kwargs...)
+    ResNet(depth::Int; pretrained::Bool=false)
 
 Create a ResNet model [he2016deep](@citep).
 
@@ -15,7 +15,7 @@ Create a ResNet model [he2016deep](@citep).
 function ResNet end
 
 """
-    ResNeXt(depth::Int; kwargs...)
+    ResNeXt(depth::Int; pretrained::Bool=false)
 
 Create a ResNeXt model [xie2017aggregated](@citep).
 
@@ -31,7 +31,7 @@ Create a ResNeXt model [xie2017aggregated](@citep).
 function ResNeXt end
 
 """
-    GoogLeNet(; kwargs...)
+    GoogLeNet(; pretrained::Bool=false)
 
 Create a GoogLeNet model [szegedy2015going](@citep).
 
@@ -43,7 +43,7 @@ Create a GoogLeNet model [szegedy2015going](@citep).
 function GoogLeNet end
 
 """
-    DenseNet(depth::Int; kwargs...)
+    DenseNet(depth::Int; pretrained::Bool=false)
 
 Create a DenseNet model [huang2017densely](@citep).
 
@@ -59,7 +59,7 @@ Create a DenseNet model [huang2017densely](@citep).
 function DenseNet end
 
 """
-    MobileNet(name::Symbol; kwargs...)
+    MobileNet(name::Symbol; pretrained::Bool=false)
 
 Create a MobileNet model
 [howard2017mobilenets, sandler2018mobilenetv2, howard2019searching](@citep).
@@ -77,7 +77,7 @@ Create a MobileNet model
 function MobileNet end
 
 """
-    ConvMixer(name::Symbol; kwargs...)
+    ConvMixer(name::Symbol; pretrained::Bool=false)
 
 Create a ConvMixer model [trockman2022patches](@citep).
 
@@ -93,13 +93,42 @@ Create a ConvMixer model [trockman2022patches](@citep).
 """
 function ConvMixer end
 
+"""
+    SqueezeNet(; pretrained::Bool=false)
+
+Create a SqueezeNet model [iandola2016squeezenetalexnetlevelaccuracy50x](@citep).
+
+## Keyword Arguments
+
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
+"""
+function SqueezeNet end
+
+"""
+    WideResNet(depth::Int; pretrained::Bool=false)
+
+Create a WideResNet model [zagoruyko2017wideresidualnetworks](@citep).
+
+## Arguments
+
+  - `depth::Int`: The depth of the WideResNet model. Must be one of 18, 34, 50, 101, or 152.
+
+## Keyword Arguments
+
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
+"""
+function WideResNet end
+
 @concrete struct MetalheadWrapperLayer <: AbstractLuxVisionLayer
     layer
     pretrained_name::Symbol
     pretrained::Bool
 end
 
-for f in [:ResNet, :ResNeXt, :GoogLeNet, :DenseNet, :MobileNet, :ConvMixer]
+for f in [:ResNet, :ResNeXt, :GoogLeNet, :DenseNet,
+    :MobileNet, :ConvMixer, :SqueezeNet, :WideResNet]
     f_metalhead = Symbol(f, :Metalhead)
     @eval begin
         function $(f_metalhead) end
@@ -108,8 +137,8 @@ for f in [:ResNet, :ResNeXt, :GoogLeNet, :DenseNet, :MobileNet, :ConvMixer]
                 error("`Metalhead.jl` is not loaded. Please load `Metalhead.jl` to use \
                        this function.")
             end
-            name, model = $(f_metalhead)(args...; pretrained)
-            return MetalheadWrapperLayer(model, name, false)
+            model = $(f_metalhead)(args...; pretrained)
+            return MetalheadWrapperLayer(model, :metalhead, false)
         end
     end
 end

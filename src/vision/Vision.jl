@@ -36,7 +36,7 @@ include("vit.jl")
 include("vgg.jl")
 
 @compat(public,
-    (AlexNet, ConvMixer, DenseNet, MobileNet, ResNet,
-        ResNeXt, GoogLeNet, ViT, VisionTransformer, VGG))
+    (AlexNet, ConvMixer, DenseNet, MobileNet, ResNet, ResNeXt,
+        SqueezeNet, GoogLeNet, ViT, VisionTransformer, VGG, WideResNet))
 
 end

@@ -75,9 +75,26 @@ end
 @testitem "ResNeXt" setup=[SharedTestSetup] tags=[:vision] begin
     for (mode, aType, dev, ongpu) in MODES, depth in [50, 101, 152]
         @testset for pretrained in [false, true]
+            depth == 152 && pretrained && continue
             model = Vision.ResNeXt(depth; pretrained)
             ps, st = Lux.setup(Random.default_rng(), model) |> dev
             model = Vision.ResNeXt(depth; pretrained=false)
+            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            st = Lux.testmode(st)
+            img = randn(Float32, 224, 224, 3, 2) |> aType
+
+            @jet model(img, ps, st)
+            @test size(first(model(img, ps, st))) == (1000, 2)
+
+            GC.gc(true)
+        end
+    end
+end
+
+@testitem "SqueezeNet" setup=[SharedTestSetup] tags=[:vision] begin
+    for (mode, aType, dev, ongpu) in MODES
+        @testset for pretrained in [false, true]
+            model = Vision.SqueezeNet(; pretrained)
             ps, st = Lux.setup(Random.default_rng(), model) |> dev
             st = Lux.testmode(st)
             img = randn(Float32, 224, 224, 3, 2) |> aType

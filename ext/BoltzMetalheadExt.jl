@@ -11,34 +11,30 @@ Utils.is_extension_loaded(::Val{:Metalhead}) = true
 
 function Vision.ResNetMetalhead(depth::Int; pretrained::Bool=false)
     @argcheck depth in (18, 34, 50, 101, 152)
-    model = FromFluxAdaptor(; preserve_ps_st=pretrained)(Metalhead.ResNet(
+    return FromFluxAdaptor(; preserve_ps_st=pretrained, force_preserve=true)(Metalhead.ResNet(
         depth; pretrain=pretrained).layers)
-    return Symbol(:resnet, depth), model
 end
 
 function Vision.ResNeXtMetalhead(depth::Int; pretrained::Bool=false)
     @argcheck depth in (50, 101, 152)
-    model = FromFluxAdaptor(; preserve_ps_st=pretrained)(Metalhead.ResNeXt(
+    return FromFluxAdaptor(; preserve_ps_st=pretrained, force_preserve=true)(Metalhead.ResNeXt(
         depth; pretrain=pretrained).layers)
-    return Symbol(:resnext, depth), model
 end
 
 function Vision.GoogLeNetMetalhead(; pretrained::Bool=false)
-    model = FromFluxAdaptor(; preserve_ps_st=pretrained)(Metalhead.GoogLeNet(
-        ; pretrain=pretrained).layers)
-    return :googlenet, model
+    return FromFluxAdaptor(; preserve_ps_st=pretrained, force_preserve=true)(Metalhead.GoogLeNet(;
+        pretrain=pretrained).layers)
 end
 
 function Vision.DenseNetMetalhead(depth::Int; pretrained::Bool=false)
     @argcheck depth in (121, 161, 169, 201)
-    model = FromFluxAdaptor(; preserve_ps_st=pretrained)(Metalhead.DenseNet(
+    return FromFluxAdaptor(; preserve_ps_st=pretrained, force_preserve=true)(Metalhead.DenseNet(
         depth; pretrain=pretrained).layers)
-    return Symbol(:densenet, depth), model
 end
 
 function Vision.MobileNetMetalhead(name::Symbol; pretrained::Bool=false)
     @argcheck name in (:v1, :v2, :v3_small, :v3_large)
-    adaptor = FromFluxAdaptor(; preserve_ps_st=pretrained)
+    adaptor = FromFluxAdaptor(; preserve_ps_st=pretrained, force_preserve=true)
     model = if name == :v1
         adaptor(Metalhead.MobileNetv1(; pretrain=pretrained).layers)
     elseif name == :v2
@@ -48,14 +44,24 @@ function Vision.MobileNetMetalhead(name::Symbol; pretrained::Bool=false)
     elseif name == :v3_large
         adaptor(Metalhead.MobileNetv3(:large; pretrain=pretrained).layers)
     end
-    return Symbol(:mobilenet_, name), model
+    return model
 end
 
 function Vision.ConvMixerMetalhead(name::Symbol; pretrained::Bool=false)
     @argcheck name in (:base, :large, :small)
-    model = FromFluxAdaptor(; preserve_ps_st=pretrained)(Metalhead.ConvMixer(
+    return FromFluxAdaptor(; preserve_ps_st=pretrained, force_preserve=true)(Metalhead.ConvMixer(
         name; pretrain=pretrained).layers)
-    return Symbol(:convmixer_, name), model
+end
+
+function Vision.SqueezeNetMetalhead(; pretrained::Bool=false)
+    return FromFluxAdaptor(; preserve_ps_st=pretrained, force_preserve=true)(Metalhead.SqueezeNet(;
+        pretrain=pretrained).layers)
+end
+
+function Vision.WideResNetMetalhead(depth::Int; pretrained::Bool=false)
+    @argcheck depth in (18, 34, 50, 101, 152)
+    return FromFluxAdaptor(; preserve_ps_st=pretrained, force_preserve=true)(Metalhead.WideResNet(
+        depth; pretrain=pretrained).layers)
 end
 
 end
