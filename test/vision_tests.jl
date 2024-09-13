@@ -58,38 +58,41 @@ end
 
 @testitem "ResNet" setup=[SharedTestSetup] tags=[:vision] begin
     for (mode, aType, dev, ongpu) in MODES, depth in [18, 34, 50, 101, 152]
-        model = Vision.ResNet(depth; pretrained=false)
-        ps, st = Lux.setup(Random.default_rng(), model) |> dev
-        st = Lux.testmode(st)
-        img = randn(Float32, 224, 224, 3, 2) |> aType
+        @testset for pretrained in [false, true]
+            model = Vision.ResNet(depth; pretrained)
+            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            st = Lux.testmode(st)
+            img = randn(Float32, 224, 224, 3, 2) |> aType
 
-        @jet model(img, ps, st)
-        @test size(first(model(img, ps, st))) == (1000, 2)
+            @jet model(img, ps, st)
+            @test size(first(model(img, ps, st))) == (1000, 2)
 
-        GC.gc(true)
+            GC.gc(true)
+        end
     end
 end
 
 @testitem "ResNeXt" setup=[SharedTestSetup] tags=[:vision] begin
     for (mode, aType, dev, ongpu) in MODES, depth in [50, 101, 152]
-        model = Vision.ResNeXt(depth; pretrained=false)
-        ps, st = Lux.setup(Random.default_rng(), model) |> dev
-        st = Lux.testmode(st)
-        img = randn(Float32, 224, 224, 3, 2) |> aType
+        @testset for pretrained in [false, true]
+            model = Vision.ResNeXt(depth; pretrained)
+            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            model = Vision.ResNeXt(depth; pretrained=false)
+            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            st = Lux.testmode(st)
+            img = randn(Float32, 224, 224, 3, 2) |> aType
 
-        @jet model(img, ps, st)
-        @test size(first(model(img, ps, st))) == (1000, 2)
+            @jet model(img, ps, st)
+            @test size(first(model(img, ps, st))) == (1000, 2)
 
-        GC.gc(true)
+            GC.gc(true)
+        end
     end
 end
 
 @testitem "VGG" setup=[SharedTestSetup] tags=[:vision] begin
     for (mode, aType, dev, ongpu) in MODES, depth in [11, 13, 16, 19]
-        @testset "pretrained: $(pretrained), batchnorm: $(batchnorm)" for pretrained in [
-                false, true],
-            batchnorm in [false, true]
-
+        @testset for pretrained in [false, true], batchnorm in [false, true]
             model = Vision.VGG(depth; batchnorm, pretrained)
             ps, st = Lux.setup(Random.default_rng(), model) |> dev
             st = Lux.testmode(st)
