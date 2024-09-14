@@ -7,6 +7,7 @@ using ConcreteStructs: @concrete
 using ChainRulesCore: ChainRulesCore, @non_differentiable, @ignore_derivatives
 using Markdown: @doc_str
 using Random: AbstractRNG
+using Static: Static
 
 using ForwardDiff: ForwardDiff
 
