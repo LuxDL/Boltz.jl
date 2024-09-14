@@ -36,7 +36,8 @@ returns the time derivatives for position and momentum.
     [Nested Autodiff](https://lux.csail.mit.edu/stable/manual/nested_autodiff) for more
     information and known limitations.
 """
-@concrete struct HamiltonianNN{FST} <: AbstractLuxWrapperLayer{:model}
+@concrete struct HamiltonianNN <: AbstractLuxWrapperLayer{:model}
+    fixed_state_type
     model
     autodiff
 end
@@ -55,7 +56,7 @@ function HamiltonianNN{FST}(model; autodiff=nothing) where {FST}
         end
     end
 
-    return HamiltonianNN{FST}(model, autodiff)
+    return HamiltonianNN(Static.static(FST), model, autodiff)
 end
 
 function LuxCore.initialstates(rng::AbstractRNG, hnn::HamiltonianNN)
@@ -69,8 +70,8 @@ function (hnn::HamiltonianNN)(x::AbstractVector, ps, st)
     return vec(y), stₙ
 end
 
-function (hnn::HamiltonianNN{FST})(x::AbstractArray{T, N}, ps, st) where {FST, T, N}
-    model = StatefulLuxLayer{FST}(hnn.model, ps, st.model)
+function (hnn::HamiltonianNN)(x::AbstractArray{T, N}, ps, st) where {T, N}
+    model = StatefulLuxLayer{Static.known(hnn.fixed_state_type)}(hnn.model, ps, st.model)
 
     st.first_call && check_hamiltonian_layer(hnn.model, x, ps, st.model)
 
