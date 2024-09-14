@@ -7,65 +7,65 @@ lazy = true
     url = "https://huggingface.co/LuxDL/alexnet/resolve/2c48051ecb131d38f2209470cdda70a343289db1/alexnet.tar.gz"
 
 [vgg11]
-git-tree-sha1 = "ea7e8ef9399a0fe0aad2331781af5d6435950d36"
+git-tree-sha1 = "2468801ab9bc7343c02a141e145e95209236b218"
 lazy = true
 
     [[vgg11.download]]
-    sha256 = "a88b78c4e939138270068933f6278fa6392ce699991385000b1b9bb0ff53fa3e"
-    url = "https://github.com/LuxDL/Lux.jl/releases/download/weights/vgg11.tar.gz"
+    sha256 = "509567b428c02f7e9fa69ad7b6e0f62a1347ce6ec7fbad4e4cb4fddbf4f66b60"
+    url = "https://huggingface.co/LuxDL/vgg/resolve/ac7292d920627cdb66caee17420bfee5dbfe0f61/vgg11.tar.gz"
 
 [vgg11_bn]
-git-tree-sha1 = "6bb8128b150ac7ca30c32e34295d8d7403471942"
+git-tree-sha1 = "e444f279f7b6641da80f4910362d0ccb37a5fe96"
 lazy = true
 
     [[vgg11_bn.download]]
-    sha256 = "159392d11cb5ced5bfe66dc9da7bd12fbbf92687bbea9e9bb96bf0c6b58c9ef2"
-    url = "https://github.com/LuxDL/Lux.jl/releases/download/weights/vgg11_bn.tar.gz"
+    sha256 = "8ed6002ccad7e204276d638e8bc288cce85f6b26f0a6d7cb5a85d714750a0cc7"
+    url = "https://huggingface.co/LuxDL/vgg/resolve/0ecfa4aea43abc4bbf27fd7f185ffda3fdc5d31a/vgg11_bn.tar.gz"
 
 [vgg13]
-git-tree-sha1 = "260246834e15048ec128fadc6d1a5dd050dd0928"
+git-tree-sha1 = "d9b0cc88a71a8eabe3375e9bb92b601cb0c984a5"
 lazy = true
 
     [[vgg13.download]]
-    sha256 = "757c555f47e2dd4898e89fcb6fb94f1a7a9977e4cdbdba5502eacd1d3496cf3b"
-    url = "https://github.com/LuxDL/Lux.jl/releases/download/weights/vgg13.tar.gz"
+    sha256 = "4c554fb0d7ed976019c0d03ffe9ec6ed0cc88d8fa94a3405c65b55e138c5a7b7"
+    url = "https://huggingface.co/LuxDL/vgg/resolve/f4a690e83af5a8f9e907e33de0b2d53b8a6ad1cc/vgg13.tar.gz"
 
 [vgg13_bn]
-git-tree-sha1 = "623d2ae96cbf935ae09067fb7e85ca6894b79447"
+git-tree-sha1 = "12ac8f1c9fadfcd4fb80db270ffa17ec96375fb7"
 lazy = true
 
     [[vgg13_bn.download]]
-    sha256 = "3ccfb481b79bf56e6b70fefbc727127f5eb6de6478b1c57be669e5e5bb007377"
-    url = "https://github.com/LuxDL/Lux.jl/releases/download/weights/vgg13_bn.tar.gz"
+    sha256 = "e6f69a7580a9af6eedbbb11c1c590ad6da4e57872dfdb2ac38f2e085d50b429b"
+    url = "https://huggingface.co/LuxDL/vgg/resolve/5f6acdbc972e0455428c4618c41ebedcd7d5b14b/vgg13_bn.tar.gz"
 
 [vgg16]
-git-tree-sha1 = "0e4d8a869e2688c765a3126c8a8c59e4a58fe97d"
+git-tree-sha1 = "8b85924419036f584e32aac9500b1d198a3b748a"
 lazy = true
 
     [[vgg16.download]]
-    sha256 = "79463750e1fd2424928b21a8d5d0cb2328c46e5cf39252600e0d132570bfd931"
-    url = "https://github.com/LuxDL/Lux.jl/releases/download/weights/vgg16.tar.gz"
+    sha256 = "9e2905a02c4f2425e199b5d7b47aad9c6d2029850d2f2fd4d9c1a9d26dafb163"
+    url = "https://huggingface.co/LuxDL/vgg/resolve/d05baefb64db70c66ccfe6daa6e2a3b7ce8b3021/vgg16.tar.gz"
 
 [vgg16_bn]
-git-tree-sha1 = "b93f35dddcaec69444e0cfb709a19be4fb6be53f"
+git-tree-sha1 = "46d8299cc071102ceaf9e7d84699a7029dc0293a"
 lazy = true
 
     [[vgg16_bn.download]]
-    sha256 = "98f3e88c12fd07faa20505c864bfe2afc17e714ac5ddb4b05018fab25d9b3373"
-    url = "https://github.com/LuxDL/Lux.jl/releases/download/weights/vgg16_bn.tar.gz"
+    sha256 = "b0fb3382434fd4f025f2e5517fc29b787aca093300d1a683d4dc10d380d102ed"
+    url = "https://huggingface.co/LuxDL/vgg/resolve/79b657b252c9b9a2f0fecb67c10ba4ec6c4fed0b/vgg16_bn.tar.gz"
 
 [vgg19]
-git-tree-sha1 = "8c0f1bdb7e540f1529a4038a0c73971debb1634b"
+git-tree-sha1 = "4dfc386f5da165daf80429b15a9a6bf7c2bf1b3b"
 lazy = true
 
     [[vgg19.download]]
-    sha256 = "2cedf1574207abe1989619aab292c51964dc27226b8852f0ce8a5acbc66ded31"
-    url = "https://github.com/LuxDL/Lux.jl/releases/download/weights/vgg19.tar.gz"
+    sha256 = "662c7a63b07fdf52bb548a2019c31dd19d43e8675beb8fecf9ff3901ba36ef6e"
+    url = "https://huggingface.co/LuxDL/vgg/resolve/0268c4327e5ab4ae7172755bb767bf80dd792b0c/vgg19.tar.gz"
 
 [vgg19_bn]
-git-tree-sha1 = "fb3ec225e8a0b2eb838be682c6facceaa5b8aad3"
+git-tree-sha1 = "c0db4c840ae575da62ed28b3fcb29e3ca4da570a"
 lazy = true
 
     [[vgg19_bn.download]]
-    sha256 = "7a8d3d43ea092db4f53e721015078fcba4980dd5534a743f2b388165f8af185d"
-    url = "https://github.com/LuxDL/Lux.jl/releases/download/weights/vgg19_bn.tar.gz"
+    sha256 = "43a0005b4f4ad261773e5a9dd2241165c211be476d6bce8493fd470bfe16ef5f"
+    url = "https://huggingface.co/LuxDL/vgg/resolve/9b3f3be58a84e52b40f5489c481d954d0cf4f2b4/vgg19_bn.tar.gz"
