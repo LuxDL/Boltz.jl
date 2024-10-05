@@ -1,10 +1,11 @@
 module BoltzZygoteExt
 
 using ADTypes: AutoZygote
-using Boltz: Boltz, Layers
 using Zygote: Zygote
 
-@inline Boltz._is_extension_loaded(::Val{:Zygote}) = true
+using Boltz: Boltz, Layers, Utils
+
+Utils.is_extension_loaded(::Val{:Zygote}) = true
 
 # Hamiltonian NN
 function Layers.hamiltonian_forward(::AutoZygote, model, x)

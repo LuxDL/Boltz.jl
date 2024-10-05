@@ -37,7 +37,9 @@ jobs:
       - name: "Run CompatHelper"
         run: |
           import CompatHelper
-          CompatHelper.main()
+          subdirs = ["", "docs", "test"]
+          append!(subdirs, joinpath.(("examples",), filter(p -> isdir(joinpath("examples", p)), readdir("examples"))))
+          CompatHelper.main(; subdirs)
         shell: julia --color=yes {0}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

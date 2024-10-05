@@ -1,7 +1,11 @@
 @testsetup module SharedTestSetup
 
+using Enzyme
+Enzyme.API.runtimeActivity!(true)
+
 import Reexport: @reexport
-@reexport using Boltz, Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random
+@reexport using Boltz, Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random, StableRNGs
+using MLDataDevices, JLD2
 import Metalhead
 
 LuxTestUtils.jet_target_modules!(["Boltz", "Lux", "LuxLib"])
@@ -21,18 +25,18 @@ end
 cpu_testing() = BACKEND_GROUP == "all" || BACKEND_GROUP == "cpu"
 function cuda_testing()
     return (BACKEND_GROUP == "all" || BACKEND_GROUP == "cuda") &&
-           LuxDeviceUtils.functional(LuxCUDADevice)
+           MLDataDevices.functional(CUDADevice)
 end
 function amdgpu_testing()
     return (BACKEND_GROUP == "all" || BACKEND_GROUP == "amdgpu") &&
-           LuxDeviceUtils.functional(LuxAMDGPUDevice)
+           MLDataDevices.functional(AMDGPUDevice)
 end
 
 const MODES = begin
     modes = []
-    cpu_testing() && push!(modes, ("cpu", Array, LuxCPUDevice(), false))
-    cuda_testing() && push!(modes, ("cuda", CuArray, LuxCUDADevice(), true))
-    amdgpu_testing() && push!(modes, ("amdgpu", ROCArray, LuxAMDGPUDevice(), true))
+    cpu_testing() && push!(modes, ("cpu", Array, CPUDevice(), false))
+    cuda_testing() && push!(modes, ("cuda", CuArray, CUDADevice(), true))
+    amdgpu_testing() && push!(modes, ("amdgpu", ROCArray, AMDGPUDevice(), true))
     modes
 end
 

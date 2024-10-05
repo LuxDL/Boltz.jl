@@ -1,13 +1,17 @@
 module Basis
 
 using ArgCheck: @argcheck
-using ..Boltz: _unsqueeze1
-using ChainRulesCore: ChainRulesCore, NoTangent
+using ChainRulesCore: ChainRulesCore
+using Compat: @compat
 using ConcreteStructs: @concrete
-using LuxDeviceUtils: get_device, LuxCPUDevice
 using Markdown: @doc_str
 
+using MLDataDevices: get_device, CPUDevice
+
+using ..Utils: unsqueeze1
+
 const CRC = ChainRulesCore
+const ∂∅ = CRC.NoTangent()
 
 # The rrules in this file are hardcoded to be used exclusively with GeneralBasisFunction
 @concrete struct GeneralBasisFunction{name}
@@ -16,15 +20,16 @@ const CRC = ChainRulesCore
     dim::Int
 end
 
-function Base.show(io::IO, basis::GeneralBasisFunction{name}) where {name}
+function Base.show(
+        io::IO, ::MIME"text/plain", basis::GeneralBasisFunction{name}) where {name}
     print(io, "Basis.$(name)(order=$(basis.n))")
 end
 
-@inline function (basis::GeneralBasisFunction{name, F})(x::AbstractArray,
+function (basis::GeneralBasisFunction{name, F})(x::AbstractArray,
         grid::Union{AbstractRange, AbstractVector}=1:1:(basis.n)) where {name, F}
     @argcheck length(grid) == basis.n
     if basis.dim == 1 # Fast path where we don't need to materialize the range
-        return basis.f.(grid, _unsqueeze1(x))
+        return basis.f.(grid, unsqueeze1(x))
     end
 
     @argcheck ndims(x) + 1 ≥ basis.dim
@@ -34,14 +39,12 @@ end
     x_new = reshape(x, new_x_size)
     if grid isa AbstractRange
         dev = get_device(x)
-        grid = dev isa LuxCPUDevice ? collect(grid) : dev(grid)
+        grid = dev isa CPUDevice ? collect(grid) : dev(grid)
     end
     grid_shape = ntuple(i -> i == basis.dim ? basis.n : 1, ndims(x) + 1)
     grid_new = reshape(grid, grid_shape)
     return basis.f.(grid_new, x_new)
 end
-
-const DIM_KWARG_DOC = "  - `dim::Int=1`: The dimension along which the basis functions are applied."
 
 @doc doc"""
     Chebyshev(n; dim::Int=1)
@@ -55,11 +58,11 @@ $T_j(.)$ is the $j^{th}$ Chebyshev polynomial of the first kind.
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
-Chebyshev(n; dim::Int=1) = GeneralBasisFunction{:Chebyshev}(__chebyshev, n, dim)
+Chebyshev(n; dim::Int=1) = GeneralBasisFunction{:Chebyshev}(chebyshev, n, dim)
 
-@inline __chebyshev(i, x) = @fastmath cos(i * acos(x))
+chebyshev(i, x) = @fastmath cos(i * acos(x))
 
 @doc doc"""
     Sin(n; dim::Int=1)
@@ -72,7 +75,7 @@ Constructs a sine basis of the form $[\sin(x), \sin(2x), \dots, \sin(nx)]$.
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
 Sin(n; dim::Int=1) = GeneralBasisFunction{:Sin}(@fastmath(sin∘*), n, dim)
 
@@ -87,7 +90,7 @@ Constructs a cosine basis of the form $[\cos(x), \cos(2x), \dots, \cos(nx)]$.
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
 Cos(n; dim::Int=1) = GeneralBasisFunction{:Cos}(@fastmath(cos∘*), n, dim)
 
@@ -107,31 +110,24 @@ $$F_j(x) = \begin{cases}
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
-Fourier(n; dim::Int=1) = GeneralBasisFunction{:Fourier}(__fourier, n, dim)
+Fourier(n; dim::Int=1) = GeneralBasisFunction{:Fourier}(fourier, n, dim)
 
-@inline @fastmath function __fourier(i, x::AbstractFloat)
+function fourier(i, x)
     s, c = sincos(i * x / 2)
     return ifelse(iseven(i), c, s)
 end
 
-@inline function __fourier(i, x) # No FastMath for non abstract floats
-    s, c = sincos(i * x / 2)
-    return ifelse(iseven(i), c, s)
-end
-
-@fastmath function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(__fourier), i, x)
+function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(fourier), i, x)
     ix_by_2 = @. i * x / 2
     s = @. sin(ix_by_2)
     c = @. cos(ix_by_2)
     y = @. ifelse(iseven(i), c, s)
 
     ∇fourier = let s = s, c = c, i = i
-        Δ -> begin
-            return (NoTangent(), NoTangent(), NoTangent(),
-                dropdims(sum((i / 2) .* ifelse.(iseven.(i), -s, c) .* Δ; dims=1); dims=1))
-        end
+        Δ -> (∂∅, ∂∅, ∂∅,
+            dropdims(sum((i / 2) .* ifelse.(iseven.(i), -s, c) .* Δ; dims=1); dims=1))
     end
 
     return y, ∇fourier
@@ -149,12 +145,12 @@ $P_j(.)$ is the $j^{th}$ Legendre polynomial.
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
-Legendre(n; dim::Int=1) = GeneralBasisFunction{:Legendre}(__legendre_poly, n, dim)
+Legendre(n; dim::Int=1) = GeneralBasisFunction{:Legendre}(legendre_poly, n, dim)
 
 ## Source: https://github.com/ranocha/PolynomialBases.jl/blob/master/src/legendre.jl
-@inline function __legendre_poly(i, x)
+function legendre_poly(i, x)
     p = i - 1
     a = one(x)
     b = x
@@ -180,22 +176,21 @@ Constructs a Polynomial basis of the form $[1, x, \dots, x^{(n-1)}]$.
 
 ## Keyword Arguments
 
-$(DIM_KWARG_DOC)
+  - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
-Polynomial(n; dim::Int=1) = GeneralBasisFunction{:Polynomial}(__polynomial, n, dim)
+Polynomial(n; dim::Int=1) = GeneralBasisFunction{:Polynomial}(polynomial, n, dim)
 
-@inline __polynomial(i, x) = x^(i - 1)
+polynomial(i, x) = x^(i - 1)
 
-function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(__polynomial), i, x)
+function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(polynomial), i, x)
     y_m1 = x .^ (i .- 2)
     y = y_m1 .* x
     ∇polynomial = let y_m1 = y_m1, i = i
-        Δ -> begin
-            return (NoTangent(), NoTangent(), NoTangent(),
-                dropdims(sum((i .- 1) .* y_m1 .* Δ; dims=1); dims=1))
-        end
+        Δ -> (∂∅, ∂∅, ∂∅, dropdims(sum((i .- 1) .* y_m1 .* Δ; dims=1); dims=1))
     end
     return y, ∇polynomial
 end
+
+@compat public Chebyshev, Sin, Cos, Fourier, Legendre, Polynomial
 
 end

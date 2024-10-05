@@ -22,38 +22,48 @@ and dropout.
   - `last_layer_activation`: set to `true` to apply the activation function to the last
     layer
 """
-function MLP(in_dims::Integer, hidden_dims::Dims{N},
-        activation::F=NNlib.relu; norm_layer::NF=nothing,
-        dropout_rate::Real=0.0f0, last_layer_activation::Bool=false,
+@concrete struct MLP <: AbstractLuxWrapperLayer{:chain}
+    chain <: Lux.Chain
+end
+
+function MLP(in_dims::Integer, hidden_dims::Dims{N}, activation::F=NNlib.relu;
+        norm_layer::NF=nothing, dropout_rate::Real=0.0f0, last_layer_activation::Bool=false,
         dense_kwargs=(;), norm_kwargs=(;)) where {N, F, NF}
     @argcheck N > 0
-    name = "MLP(in_dims=$in_dims, hidden_dims=$(hidden_dims[1:(N - 1)]), \
-            out_dims=$(hidden_dims[N]))"
-    layers = Vector{AbstractExplicitLayer}(undef, N)
+    layers = Vector{AbstractLuxLayer}(undef, N)
     for (i, out_dims) in enumerate(hidden_dims)
         act = i != N ? activation : (last_layer_activation ? activation : identity)
-        layers[i] = __dense_norm_act_dropout(i, in_dims => out_dims, act, norm_layer,
+        layers[i] = dense_norm_act_dropout(i, in_dims => out_dims, act, norm_layer,
             dropout_rate, dense_kwargs, norm_kwargs)
         in_dims = out_dims
     end
     inner_blocks = NamedTuple{ntuple(i -> Symbol(:block, i), N)}(layers)
-    return Lux.Chain(inner_blocks; name, disable_optimizations=true)
+    return MLP(Lux.Chain(inner_blocks))
 end
 
-@inline function __dense_norm_act_dropout(
+@concrete struct DenseNormActDropoutBlock <: AbstractLuxWrapperLayer{:block}
+    block
+end
+
+function dense_norm_act_dropout(
         i::Integer, (in_dims, out_dims)::Pair{<:Integer, <:Integer}, activation::F,
         norm_layer::NF, dropout_rate::Real, dense_kwargs, norm_kwargs) where {F, NF}
-    name = "DenseNormActDropoutBlock"
     if iszero(dropout_rate)
-        norm_layer === nothing && return Lux.Chain(;
-            dense=Lux.Dense(in_dims => out_dims, activation; dense_kwargs...), name)
-        return Lux.Chain(; dense=Lux.Dense(in_dims => out_dims; dense_kwargs...),
-            norm=norm_layer(i, out_dims, activation; norm_kwargs...), name)
+        if norm_layer === nothing
+            return DenseNormActDropoutBlock(Lux.Chain(;
+                dense=Lux.Dense(in_dims => out_dims, activation; dense_kwargs...)))
+        end
+        return DenseNormActDropoutBlock(Lux.Chain(;
+            dense=Lux.Dense(in_dims => out_dims; dense_kwargs...),
+            norm=norm_layer(i, out_dims, activation; norm_kwargs...)))
     end
-    norm_layer === nothing && return Lux.Chain(;
-        dense=Lux.Dense(in_dims => out_dims, activation; dense_kwargs...),
-        dropout=Lux.Dropout(dropout_rate), name)
-    return Lux.Chain(; dense=Lux.Dense(in_dims => out_dims; dense_kwargs...),
+    if norm_layer === nothing
+        return DenseNormActDropoutBlock(Lux.Chain(;
+            dense=Lux.Dense(in_dims => out_dims, activation; dense_kwargs...),
+            dropout=Lux.Dropout(dropout_rate)))
+    end
+    return DenseNormActDropoutBlock(Lux.Chain(;
+        dense=Lux.Dense(in_dims => out_dims; dense_kwargs...),
         norm=norm_layer(i, out_dims, activation; norm_kwargs...),
-        dropout=Lux.Dropout(dropout_rate), name)
+        dropout=Lux.Dropout(dropout_rate)))
 end
