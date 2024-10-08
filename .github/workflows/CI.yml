@@ -28,6 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
+          - "min"
           - "1"
         os:
           - ubuntu-latest
