@@ -26,7 +26,7 @@ and dropout.
     chain <: Lux.Chain
 end
 
-function MLP(in_dims::Integer, hidden_dims::Dims{N}, activation::F=NNlib.relu;
+function MLP(in_dims::Integer, hidden_dims::Dims{N}; activation::F=NNlib.relu,
         norm_layer::NF=nothing, dropout_rate::Real=0.0f0, last_layer_activation::Bool=false,
         dense_kwargs=(;), norm_kwargs=(;)) where {N, F, NF}
     @argcheck N > 0

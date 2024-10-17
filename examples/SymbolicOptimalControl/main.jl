@@ -125,7 +125,8 @@ nothing #hide
 
 #-
 
-sol, us = ude_test(([-4.0, 0.0], 0.0:0.01:8.0, Val(true)), trained_ude.ps, trained_ude.st)[1];
+sol,
+us = ude_test(([-4.0, 0.0], 0.0:0.01:8.0, Val(true)), trained_ude.ps, trained_ude.st)[1];
 plot_dynamics(sol, us, 0.0:0.01:8.0)
 
 # Now that the system is in a better behaved part of parameter space, we return to the
@@ -155,7 +156,8 @@ nothing #hide
 
 #-
 
-sol, us = ude_test(([-4.0, 0.0], 0.0:0.01:8.0, Val(true)), trained_ude.ps, trained_ude.st)[1];
+sol,
+us = ude_test(([-4.0, 0.0], 0.0:0.01:8.0, Val(true)), trained_ude.ps, trained_ude.st)[1];
 plot_dynamics(sol, us, 0.0:0.01:8.0)
 
 # ## Symbolic Regression
@@ -237,8 +239,8 @@ hybrid_ude = construct_ude(hybrid_mlp, Vern9(); abstol=1e-10, reltol=1e-10);
 st = Lux.initialstates(rng, hybrid_ude)
 ps = (;
     mlp=(; layer_1=trained_ude.ps.mlp.layer_1,
-        layer_2=Lux.initialparameters(rng, hybrid_mlp[2]),
-        layer_3=trained_ude.ps.mlp.layer_3))
+    layer_2=Lux.initialparameters(rng, hybrid_mlp[2]),
+    layer_3=trained_ude.ps.mlp.layer_3))
 ps = ComponentArray(ps)
 
 sol, us = hybrid_ude(([-4.0, 0.0], 0.0:0.01:8.0, Val(true)), ps, st)[1];

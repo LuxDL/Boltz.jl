@@ -25,7 +25,7 @@ Construct a Chain of convolutional layers with normalization and activation func
 end
 
 function ConvNormActivation(
-        kernel_size::Dims, in_chs::Integer, hidden_chs::Dims{N}, activation::F=NNlib.relu;
+        kernel_size::Dims, in_chs::Integer, hidden_chs::Dims{N}; activation::F=NNlib.relu,
         norm_layer::NF=nothing, conv_kwargs=(;), norm_kwargs=(;),
         last_layer_activation::Bool=false) where {N, F, NF}
     layers = Vector{AbstractLuxLayer}(undef, N)
