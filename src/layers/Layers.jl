@@ -41,7 +41,7 @@ include("tensor_product.jl")
 
 @compat(public,
     (ClassTokens, ConvBatchNormActivation, ConvNormActivation, DynamicExpressionsLayer,
-        HamiltonianNN, MultiHeadSelfAttention, MLP, PatchEmbedding, PeriodicEmbedding,
-        SplineLayer, TensorProductLayer, ViPosEmbedding, VisionTransformerEncoder))
+    HamiltonianNN, MultiHeadSelfAttention, MLP, PatchEmbedding, PeriodicEmbedding,
+    SplineLayer, TensorProductLayer, ViPosEmbedding, VisionTransformerEncoder))
 
 end

@@ -82,7 +82,7 @@ function (hnn::HamiltonianNN)(x::AbstractArray{T, N}, ps, st) where {T, N}
     end
     n = size(H, N - 1) ÷ 2
     return (
-        cat(selectdim(H, N - 1, (n + 1):(2n)), selectdim(H, N - 1, 1:n); dims=Val(N - 1)),
+        cat(selectdim(H, N - 1, (n+1):(2n)), selectdim(H, N - 1, 1:n); dims=Val(N - 1)),
         (; model=model.st, first_call=false))
 end
 

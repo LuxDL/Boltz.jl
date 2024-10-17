@@ -5,6 +5,7 @@ using DataInterpolations: AbstractInterpolation
 using Boltz: Boltz, Layers, Utils
 
 for train_grid in (true, false), tType in (AbstractVector, Number)
+
     grid_expr = train_grid ? :(grid = ps.grid) : :(grid = st.grid)
     sol_expr = tType === Number ? :(sol = interp(t)) : :(sol = interp.(t))
     @eval function (spl::Layers.SplineLayer{$(train_grid), Basis})(

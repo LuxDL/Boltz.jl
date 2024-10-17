@@ -85,9 +85,11 @@ end
 function Layers.∇apply_dynamic_expression(
         de::Layers.InternalDynamicExpressionWrapper, expr, operator_enum, x, ps)
     Layers.update_de_expression_constants!(expr, ps)
-    _, Jₓ, _ = eval_grad_tree_array(
+    _, Jₓ,
+    _ = eval_grad_tree_array(
         expr, x, operator_enum; variable=Val(true), de.eval_options.turbo)
-    y, Jₚ, _ = eval_grad_tree_array(
+    y, Jₚ,
+    _ = eval_grad_tree_array(
         expr, x, operator_enum; variable=Val(false), de.eval_options.turbo)
     ∇apply_dynamic_expression_internal = let Jₓ = Jₓ, Jₚ = Jₚ
         Δ -> begin
@@ -108,7 +110,8 @@ function Layers.apply_dynamic_expression(
     partials_fn(x, i) = ForwardDiff.partials(Tag, x, i)
 
     Layers.update_de_expression_constants!(expr, ps)
-    y, Jₓ, _ = eval_grad_tree_array(
+    y, Jₓ,
+    _ = eval_grad_tree_array(
         expr, value_fn.(x), operator_enum; variable=Val(true), de.eval_options.turbo)
     partials = ntuple(
         i -> dropdims(sum(partials_fn.(x, i) .* Jₓ; dims=1); dims=1), N)
@@ -125,7 +128,8 @@ function Layers.apply_dynamic_expression(
     partials_fn(x, i) = ForwardDiff.partials(Tag, x, i)
 
     Layers.update_de_expression_constants!(expr, value_fn.(ps))
-    y, Jₚ, _ = eval_grad_tree_array(
+    y, Jₚ,
+    _ = eval_grad_tree_array(
         expr, x, operator_enum; variable=Val(false), de.eval_options.turbo)
     partials = ntuple(
         i -> dropdims(sum(partials_fn.(ps, i) .* Jₚ; dims=1); dims=1), N)
@@ -147,9 +151,11 @@ function Layers.apply_dynamic_expression(
     x_value = value_fn.(x)
 
     Layers.update_de_expression_constants!(expr, ps_value)
-    _, Jₓ, _ = eval_grad_tree_array(
+    _, Jₓ,
+    _ = eval_grad_tree_array(
         expr, x_value, operator_enum; variable=Val(true), de.eval_options.turbo)
-    y, Jₚ, _ = eval_grad_tree_array(
+    y, Jₚ,
+    _ = eval_grad_tree_array(
         expr, x_value, operator_enum; variable=Val(false), de.eval_options.turbo)
     partials = ntuple(
         i -> dropdims(sum(partials_fn.(x, i) .* Jₓ; dims=1); dims=1) .+

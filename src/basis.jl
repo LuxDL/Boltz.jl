@@ -25,7 +25,7 @@ function Base.show(
     print(io, "Basis.$(name)(order=$(basis.n))")
 end
 
-function (basis::GeneralBasisFunction{name, F})(x::AbstractArray,
+function (basis::GeneralBasisFunction{name, F})(x::AbstractArray;
         grid::Union{AbstractRange, AbstractVector}=1:1:(basis.n)) where {name, F}
     @argcheck length(grid) == basis.n
     if basis.dim == 1 # Fast path where we don't need to materialize the range
