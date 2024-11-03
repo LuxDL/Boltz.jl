@@ -46,7 +46,7 @@ BoltzZygoteExt = "Zygote"
 [compat]
 ADTypes = "1.5"
 ArgCheck = "2.3"
-Artifacts = "1.10"
+Artifacts = "1.10, 1"
 ChainRulesCore = "1.24"
 Compat = "4.15"
 ConcreteStructs = "0.2.3"
