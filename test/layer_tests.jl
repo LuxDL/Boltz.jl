@@ -22,8 +22,8 @@
                 @jet model(x, ps, st)
 
                 __f = (x, ps) -> sum(abs2, first(model(x, ps, st)))
-                test_gradients(
-                    __f, x, ps; atol=1e-3, rtol=1e-3, soft_fail=[AutoFiniteDiff()])
+                @test_gradients(__f, x, ps; atol=1e-3, rtol=1e-3,
+                    soft_fail=[AutoFiniteDiff()])
             end
         end
     end
@@ -111,7 +111,7 @@ end
             @jet tensor_project(x, ps, st)
 
             __f = (x, ps) -> sum(abs2, first(tensor_project(x, ps, st)))
-            test_gradients(__f, x, ps; atol=1e-3, rtol=1e-3,
+            @test_gradients(__f, x, ps; atol=1e-3, rtol=1e-3,
                 skip_backends=[AutoTracker(), AutoEnzyme()])
         end
     end
@@ -216,7 +216,7 @@ end
         @jet layer(x, ps, st)
 
         __f = x -> sum(first(layer(x, ps, st)))
-        test_gradients(__f, x; atol=1.0f-3, rtol=1.0f-3)
+        @test_gradients(__f, x; atol=1.0f-3, rtol=1.0f-3, enzyme_set_runtime_activity=true)
     end
 end
 
@@ -244,7 +244,7 @@ end
         y, st_ = layer(x, ps, st)
         @test eltype(y) == Float32
         __f = (x, p) -> sum(abs2, first(layer(x, p, st)))
-        test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, skip_backends=[AutoEnzyme()])
+        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, skip_backends=[AutoEnzyme()])
 
         # Particular ForwardDiff dispatches
         ps_ca = ComponentArray(ps)
@@ -265,7 +265,7 @@ end
         y, st_ = layer(x, ps, st)
         @test eltype(y) == Float64
         __f = (x, p) -> sum(abs2, first(layer(x, p, st)))
-        test_gradients(__f, x, ps; atol=1.0e-3, rtol=1.0e-3, skip_backends=[AutoEnzyme()])
+        @test_gradients(__f, x, ps; atol=1.0e-3, rtol=1.0e-3, skip_backends=[AutoEnzyme()])
     end
 
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
