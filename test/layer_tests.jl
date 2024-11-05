@@ -221,7 +221,7 @@ end
 end
 
 @testitem "Dynamic Expressions Layer" setup=[SharedTestSetup] tags=[:layers] begin
-    using DynamicExpressions, ForwardDiff, ComponentArrays, Bumper
+    using DynamicExpressions, ForwardDiff, ComponentArrays, Bumper, LoopVectorization
 
     operators = OperatorEnum(; binary_operators=[+, -, *], unary_operators=[cos])
 
