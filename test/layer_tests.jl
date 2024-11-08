@@ -16,14 +16,33 @@
 
                 model = Layers.MLP(2, (4, 4, 2), act; norm_layer=norm)
                 ps, st = Lux.setup(StableRNG(0), model) |> dev
+                st_test = Lux.testmode(st)
 
                 x = randn(Float32, 2, 2) |> aType
 
-                @jet model(x, ps, st)
+                @jet model(x, ps, st_test)
 
                 __f = (x, ps) -> sum(abs2, first(model(x, ps, st)))
                 @test_gradients(__f, x, ps; atol=1e-3, rtol=1e-3,
                     soft_fail=[AutoFiniteDiff()])
+
+                if test_reactant(mode)
+                    set_reactant_backend!(mode)
+                    rdev = reactant_device()
+
+                    ps_ra = rdev(ps)
+                    st_ra = rdev(st_test)
+                    x_ra = rdev(x)
+
+                    model_compiled = Reactant.compile(model, (x_ra, ps_ra, st_ra))
+                    if nType === GroupNorm
+                        @test first(model_compiled(x_ra, ps_ra, st_ra)) ≈
+                              zeros(Float32, 2, 2)
+                    else
+                        @test first(model_compiled(x_ra, ps_ra, st_ra)) ≈
+                              Array(first(model(x, ps, st_test)))
+                    end
+                end
             end
         end
     end
@@ -219,6 +238,10 @@ end
 
         __f = x -> sum(first(layer(x, ps, st)))
         @test_gradients(__f, x; atol=1.0f-3, rtol=1.0f-3, enzyme_set_runtime_activity=true)
+
+        # TODO: Reactant testing
+        # We need to solve https://github.com/EnzymeAD/Reactant.jl/issues/242 and
+        # https://github.com/EnzymeAD/Reactant.jl/issues/243 first
     end
 end
 

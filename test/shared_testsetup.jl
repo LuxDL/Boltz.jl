@@ -18,6 +18,24 @@ if BACKEND_GROUP == "all" || BACKEND_GROUP == "amdgpu"
     using AMDGPU
 end
 
+@static if !Sys.iswindows()
+    @reexport using Reactant
+    test_reactant(mode) = mode != "amdgpu"
+    function set_reactant_backend!(mode)
+        if mode == "cuda"
+            Reactant.set_default_backend("gpu")
+        elseif mode == "cpu"
+            Reactant.set_default_backend("cpu")
+        end
+    end
+else
+    test_reactant(::Any) = true
+    set_reactant_backend!(::Any) = nothing
+    macro compile(expr)
+        return :()
+    end
+end
+
 cpu_testing() = BACKEND_GROUP == "all" || BACKEND_GROUP == "cpu"
 function cuda_testing()
     return (BACKEND_GROUP == "all" || BACKEND_GROUP == "cuda") &&
@@ -37,5 +55,7 @@ const MODES = begin
 end
 
 export MODES, BACKEND_GROUP
+export test_reactant, set_reactant_backend!
+export @compile
 
 end
