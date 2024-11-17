@@ -1,8 +1,8 @@
 module BoltzDynamicExpressionsExt
 
 using ChainRulesCore: NoTangent
-using DynamicExpressions: DynamicExpressions, Node, OperatorEnum, eval_grad_tree_array,
-                          eval_tree_array
+using DynamicExpressions: DynamicExpressions, Node, OperatorEnum, EvalOptions, Expression,
+                          eval_grad_tree_array, eval_tree_array
 using ForwardDiff: ForwardDiff
 
 using Lux: Lux, Chain, Parallel, WrappedFunction
@@ -10,13 +10,7 @@ using MLDataDevices: CPUDevice
 
 using Boltz: Layers, Utils
 
-@static if pkgversion(DynamicExpressions) ≥ v"0.19"
-    using DynamicExpressions: EvalOptions
-
-    const EvalOptionsTypes = Union{Missing, EvalOptions, NamedTuple}
-else
-    const EvalOptionsTypes = Union{Missing, NamedTuple}
-end
+const EvalOptionsTypes = Union{Missing, EvalOptions, NamedTuple}
 
 Utils.is_extension_loaded(::Val{:DynamicExpressions}) = true
 
@@ -45,11 +39,13 @@ function construct_eval_options(::EvalOptionsTypes, ::EvalOptionsTypes)
 end
 
 function Layers.DynamicExpressionsLayer(
-        operator_enum::OperatorEnum, expressions::AbstractVector{<:Node}; kwargs...)
+        operator_enum::OperatorEnum, expressions::AbstractVector{<:Union{Node, Expression}};
+        kwargs...)
     return Layers.DynamicExpressionsLayer(operator_enum, expressions...; kwargs...)
 end
 
-function Layers.DynamicExpressionsLayer(operator_enum::OperatorEnum, expressions::Node...;
+function Layers.DynamicExpressionsLayer(operator_enum::OperatorEnum,
+        expressions::Union{Node, Expression}...;
         eval_options::EvalOptionsTypes=missing, turbo::Union{Bool, Val, Missing}=missing,
         bumper::Union{Bool, Val, Missing}=missing)
     eval_options = construct_eval_options(
@@ -160,5 +156,8 @@ function Layers.apply_dynamic_expression(
     partials_y = ForwardDiff.Partials{N, fT}.(tuple.(partials...))
     return ForwardDiff.Dual{Tag, fT, N}.(y, partials_y)
 end
+
+Layers.dynamic_expression_get_node(expr::Expression) = expr.tree
+Layers.dynamic_expression_get_node(expr::Node) = expr
 
 end
