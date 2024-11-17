@@ -85,14 +85,21 @@ end
 
 function LuxCore.initialparameters(::AbstractRNG, layer::InternalDynamicExpressionWrapper)
     params = map(Base.Fix2(getproperty, :val),
-        filter(node -> node.degree == 0 && node.constant, layer.expression))
+        filter(
+            node -> node.degree == 0 && node.constant,
+            dynamic_expression_get_node(layer.expression)
+        )
+    )
     return (; params)
 end
 
 function update_de_expression_constants!(expression, ps)
     # Don't use `set_constant_refs!` here, since it requires the types to match. In our
     # case we just warn the user
-    params = filter(node -> node.degree == 0 && node.constant, expression)
+    params = filter(
+        node -> node.degree == 0 && node.constant,
+        dynamic_expression_get_node(expression)
+    )
     foreach(enumerate(params)) do (i, node)
         (node.val isa typeof(ps[i])) ||
             @warn lazy"node.val::$(typeof(node.val)) != ps[$i]::$(typeof(ps[i])). Type of node.val takes precedence. Fix the input expression if this is unintended." maxlog=1
@@ -142,3 +149,5 @@ end
 function apply_dynamic_expression_internal end
 
 function ∇apply_dynamic_expression end
+
+function dynamic_expression_get_node end
