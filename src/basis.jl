@@ -77,7 +77,9 @@ Constructs a sine basis of the form $[\sin(x), \sin(2x), \dots, \sin(nx)]$.
 
   - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
-Sin(n; dim::Int=1) = GeneralBasisFunction{:Sin}(@fastmath(sin∘*), n, dim)
+Sin(n; dim::Int=1) = GeneralBasisFunction{:Sin}(sin_mul, n, dim)
+
+sin_mul(x, y) = @fastmath(sin(x * y))
 
 @doc doc"""
     Cos(n; dim::Int=1)
@@ -92,7 +94,9 @@ Constructs a cosine basis of the form $[\cos(x), \cos(2x), \dots, \cos(nx)]$.
 
   - `dim::Int=1`: The dimension along which the basis functions are applied.
 """
-Cos(n; dim::Int=1) = GeneralBasisFunction{:Cos}(@fastmath(cos∘*), n, dim)
+Cos(n; dim::Int=1) = GeneralBasisFunction{:Cos}(cos_mul, n, dim)
+
+cos_mul(x, y) = @fastmath(cos(x * y))
 
 @doc doc"""
     Fourier(n; dim=1)
