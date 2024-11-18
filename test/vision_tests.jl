@@ -2,6 +2,10 @@
 
 using Lux, Downloads, JLD2
 
+@static if !Sys.iswindows()
+    using Reactant
+end
+
 function normalize_imagenet(data)
     cmean = reshape(Float32[0.485, 0.456, 0.406], (1, 1, 3, 1))
     cstd = reshape(Float32[0.229, 0.224, 0.225], (1, 1, 3, 1))
@@ -23,7 +27,12 @@ function imagenet_acctest(model, ps, st, dev; size=224)
     TEST_X = size == 224 ? MONARCH_224 :
              (size == 256 ? MONARCH_256 : error("size must be 224 or 256"))
     x = TEST_X |> dev
-    ypred = first(model(x, ps, st)) |> collect |> vec
+
+    if dev isa MLDataDevices.ReactantDevice
+        model = Reactant.compile(model, (x, ps, st))
+    end
+
+    ypred = first(model(x, ps, st)) |> cpu_device() |> collect |> vec
     top5 = TEST_LBLS[sortperm(ypred; rev=true)]
     return "monarch" in top5
 end
@@ -48,6 +57,23 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+                rdev = reactant_device()
+
+                ps_ra = rdev(ps)
+                st_ra = rdev(st)
+                img_ra = rdev(img)
+
+                model_compiled = Reactant.compile(model, (img_ra, ps_ra, st_ra))
+                @test first(model_compiled(
+                    img_ra, ps_ra, st_ra))≈Array(first(model(img, ps, st))) atol=1e-3 rtol=1e-3
+
+                if pretrained
+                    @test imagenet_acctest(model, ps_ra, st_ra, rdev)
+                end
+            end
         end
     end
 end
@@ -63,6 +89,19 @@ end
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+            rdev = reactant_device()
+
+            ps_ra = rdev(ps)
+            st_ra = rdev(st)
+            img_ra = rdev(img)
+
+            model_compiled = Reactant.compile(model, (img_ra, ps_ra, st_ra))
+            @test first(model_compiled(
+                img_ra, ps_ra, st_ra))≈Array(first(model(img, ps, st))) atol=1e-3 rtol=1e-3
+        end
     end
 end
 
@@ -77,6 +116,19 @@ end
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+            rdev = reactant_device()
+
+            ps_ra = rdev(ps)
+            st_ra = rdev(st)
+            img_ra = rdev(img)
+
+            model_compiled = Reactant.compile(model, (img_ra, ps_ra, st_ra))
+            @test first(model_compiled(
+                img_ra, ps_ra, st_ra))≈Array(first(model(img, ps, st))) atol=1e-3 rtol=1e-3
+        end
     end
 end
 
@@ -91,6 +143,19 @@ end
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+            rdev = reactant_device()
+
+            ps_ra = rdev(ps)
+            st_ra = rdev(st)
+            img_ra = rdev(img)
+
+            model_compiled = Reactant.compile(model, (img_ra, ps_ra, st_ra))
+            @test first(model_compiled(
+                img_ra, ps_ra, st_ra))≈Array(first(model(img, ps, st))) atol=1e-3 rtol=1e-3
+        end
     end
 end
 
@@ -110,6 +175,23 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+                rdev = reactant_device()
+
+                ps_ra = rdev(ps)
+                st_ra = rdev(st)
+                img_ra = rdev(img)
+
+                model_compiled = Reactant.compile(model, (img_ra, ps_ra, st_ra))
+                @test first(model_compiled(
+                    img_ra, ps_ra, st_ra))≈Array(first(model(img, ps, st))) atol=1e-3 rtol=1e-3
+
+                if pretrained
+                    @test imagenet_acctest(model, ps_ra, st_ra, rdev)
+                end
+            end
         end
     end
 end
@@ -134,6 +216,23 @@ end
                 end
 
                 GC.gc(true)
+
+                if test_reactant(mode)
+                    set_reactant_backend!(mode)
+                    rdev = reactant_device()
+
+                    ps_ra = rdev(ps)
+                    st_ra = rdev(st)
+                    img_ra = rdev(img)
+
+                    model_compiled = Reactant.compile(model, (img_ra, ps_ra, st_ra))
+                    @test first(model_compiled(
+                        img_ra, ps_ra, st_ra))≈Array(first(model(img, ps, st))) atol=1e-3 rtol=1e-3
+
+                    if pretrained
+                        @test imagenet_acctest(model, ps_ra, st_ra, rdev)
+                    end
+                end
             end
         end
     end
@@ -157,6 +256,23 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+                rdev = reactant_device()
+
+                ps_ra = rdev(ps)
+                st_ra = rdev(st)
+                img_ra = rdev(img)
+
+                model_compiled = Reactant.compile(model, (img_ra, ps_ra, st_ra))
+                @test first(model_compiled(
+                    img_ra, ps_ra, st_ra))≈Array(first(model(img, ps, st))) atol=1e-3 rtol=1e-3
+
+                if pretrained
+                    @test imagenet_acctest(model, ps_ra, st_ra, rdev)
+                end
+            end
         end
     end
 end
@@ -177,6 +293,23 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+                rdev = reactant_device()
+
+                ps_ra = rdev(ps)
+                st_ra = rdev(st)
+                img_ra = rdev(img)
+
+                model_compiled = Reactant.compile(model, (img_ra, ps_ra, st_ra))
+                @test first(model_compiled(
+                    img_ra, ps_ra, st_ra))≈Array(first(model(img, ps, st))) atol=1e-3 rtol=1e-3
+
+                if pretrained
+                    @test imagenet_acctest(model, ps_ra, st_ra, rdev)
+                end
+            end
         end
     end
 end
@@ -197,6 +330,23 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+                rdev = reactant_device()
+
+                ps_ra = rdev(ps)
+                st_ra = rdev(st)
+                img_ra = rdev(img)
+
+                model_compiled = Reactant.compile(model, (img_ra, ps_ra, st_ra))
+                @test first(model_compiled(
+                    img_ra, ps_ra, st_ra))≈Array(first(model(img, ps, st))) atol=1e-3 rtol=1e-3
+
+                if pretrained
+                    @test imagenet_acctest(model, ps_ra, st_ra, rdev)
+                end
+            end
         end
     end
 end
@@ -221,5 +371,18 @@ end
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+            rdev = reactant_device()
+
+            ps_ra = rdev(ps)
+            st_ra = rdev(st)
+            img_ra = rdev(img)
+
+            model_compiled = Reactant.compile(model, (img_ra, ps_ra, st_ra))
+            @test first(model_compiled(
+                img_ra, ps_ra, st_ra))≈Array(first(model(img, ps, st))) atol=1e-3 rtol=1e-3
+        end
     end
 end
