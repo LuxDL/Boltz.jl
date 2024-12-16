@@ -1,27 +1,16 @@
 import{_ as a,c as n,a2 as p,o as l}from"./chunks/framework.Brfltvkk.js";const k=JSON.parse('{"title":"Getting Started","description":"","frontmatter":{},"headers":[],"relativePath":"tutorials/1_GettingStarted.md","filePath":"tutorials/1_GettingStarted.md","lastUpdated":null}'),e={name:"tutorials/1_GettingStarted.md"};function i(t,s,r,c,o,h){return l(),n("div",null,s[0]||(s[0]=[p(`<h1 id="Getting-Started" tabindex="-1">Getting Started <a class="header-anchor" href="#Getting-Started" aria-label="Permalink to &quot;Getting Started {#Getting-Started}&quot;">​</a></h1><div class="tip custom-block"><p class="custom-block-title">Prerequisites</p><p>Here we assume that you are familiar with <a href="https://lux.csail.mit.edu/stable/" target="_blank" rel="noreferrer"><code>Lux.jl</code></a>. If not please take a look at the <a href="https://lux.csail.mit.edu/stable/tutorials/" target="_blank" rel="noreferrer">Lux.jl tutoials</a>.</p></div><p><code>Boltz.jl</code> is just like <code>Lux.jl</code> but comes with more &quot;batteries included&quot;. Let&#39;s start by defining an MLP model.</p><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">using</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> Lux, Boltz, Random</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>Precompiling Lux...</span></span>
-<span class="line"><span>    550.3 ms  ✓ GPUArraysCore</span></span>
-<span class="line"><span>    976.0 ms  ✓ Functors</span></span>
-<span class="line"><span>    660.4 ms  ✓ ArrayInterface → ArrayInterfaceGPUArraysCoreExt</span></span>
-<span class="line"><span>   1554.3 ms  ✓ LuxCore</span></span>
-<span class="line"><span>   1129.3 ms  ✓ MLDataDevices</span></span>
-<span class="line"><span>   1046.6 ms  ✓ LuxCore → LuxCoreChainRulesCoreExt</span></span>
-<span class="line"><span>   1555.3 ms  ✓ Optimisers</span></span>
-<span class="line"><span>    835.1 ms  ✓ LuxCore → LuxCoreFunctorsExt</span></span>
-<span class="line"><span>    796.1 ms  ✓ LuxCore → LuxCoreEnzymeCoreExt</span></span>
-<span class="line"><span>    642.5 ms  ✓ LuxCore → LuxCoreSetfieldExt</span></span>
-<span class="line"><span>    885.8 ms  ✓ MLDataDevices → MLDataDevicesChainRulesCoreExt</span></span>
-<span class="line"><span>    503.1 ms  ✓ LuxCore → LuxCoreMLDataDevicesExt</span></span>
-<span class="line"><span>   4046.5 ms  ✓ WeightInitializers</span></span>
-<span class="line"><span>    902.4 ms  ✓ WeightInitializers → WeightInitializersChainRulesCoreExt</span></span>
-<span class="line"><span>   7140.7 ms  ✓ NNlib</span></span>
-<span class="line"><span>   1550.5 ms  ✓ NNlib → NNlibEnzymeCoreExt</span></span>
-<span class="line"><span>   1564.3 ms  ✓ NNlib → NNlibForwardDiffExt</span></span>
-<span class="line"><span>   5799.1 ms  ✓ LuxLib</span></span>
-<span class="line"><span>   8839.4 ms  ✓ Lux</span></span>
-<span class="line"><span>  19 dependencies successfully precompiled in 24 seconds. 103 already precompiled.</span></span>
+<span class="line"><span>    484.2 ms  ✓ ArrayInterface → ArrayInterfaceGPUArraysCoreExt</span></span>
+<span class="line"><span>   2570.1 ms  ✓ WeightInitializers</span></span>
+<span class="line"><span>    851.0 ms  ✓ WeightInitializers → WeightInitializersChainRulesCoreExt</span></span>
+<span class="line"><span>   5186.4 ms  ✓ NNlib</span></span>
+<span class="line"><span>    745.5 ms  ✓ NNlib → NNlibEnzymeCoreExt</span></span>
+<span class="line"><span>    839.8 ms  ✓ NNlib → NNlibForwardDiffExt</span></span>
+<span class="line"><span>   5281.0 ms  ✓ LuxLib</span></span>
+<span class="line"><span>   8569.6 ms  ✓ Lux</span></span>
+<span class="line"><span>  8 dependencies successfully precompiled in 20 seconds. 110 already precompiled.</span></span>
 <span class="line"><span>Precompiling Boltz...</span></span>
-<span class="line"><span>   5031.9 ms  ✓ Boltz</span></span>
-<span class="line"><span>  1 dependency successfully precompiled in 5 seconds. 122 already precompiled.</span></span></code></pre></div><h2 id="Multi-Layer-Perceptron" tabindex="-1">Multi-Layer Perceptron <a class="header-anchor" href="#Multi-Layer-Perceptron" aria-label="Permalink to &quot;Multi-Layer Perceptron {#Multi-Layer-Perceptron}&quot;">​</a></h2><p>If we were to do this in <code>Lux.jl</code> we would write the following:</p><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">model </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> Chain</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span></span>
+<span class="line"><span>   5194.7 ms  ✓ Boltz</span></span>
+<span class="line"><span>  1 dependency successfully precompiled in 5 seconds. 119 already precompiled.</span></span></code></pre></div><h2 id="Multi-Layer-Perceptron" tabindex="-1">Multi-Layer Perceptron <a class="header-anchor" href="#Multi-Layer-Perceptron" aria-label="Permalink to &quot;Multi-Layer Perceptron {#Multi-Layer-Perceptron}&quot;">​</a></h2><p>If we were to do this in <code>Lux.jl</code> we would write the following:</p><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">model </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> Chain</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span></span>
 <span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">    Dense</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">784</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">256</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, relu),</span></span>
 <span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">    Dense</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">256</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span>
 <span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>Chain(</span></span>
