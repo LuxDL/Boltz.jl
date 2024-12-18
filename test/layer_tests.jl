@@ -282,3 +282,25 @@ end
         end
     end
 end
+
+@testitem "Positive Definite Container" setup=[SharedTestSetup] tags=[:layers] begin
+    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+        model = Layers.MLP(2, (4, 4, 2), NNlib.gelu)
+        pd = Layers.PositiveDefinite(model, 2)
+        ps, st = Lux.setup(StableRNG(0), pd) |> dev
+
+        x = randn(StableRNG(0), Float32, 2, 2) |> aType
+        x0 = zeros(Float32, 2) |> aType
+
+        y, _ = pd(x, ps, st)
+        z, _ = model(x, ps, st.model)
+        z0, _ = model(x0, ps, st.model)
+        y2 = sum(abs2, z .- z0; dims = 1) .+ sum(abs2, x .- x0; dims = 1)
+        @test all(y .== y2)
+
+        @jet pd(x, ps, st)
+
+        __f = (x, ps) -> sum(first(pd(x, ps, st)))
+        @test_gradients(__f, x, ps; atol=1.0fe-3, rtol=1.0fe-3)
+    end
+end
