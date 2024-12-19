@@ -288,7 +288,7 @@ end
 
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
         model = Layers.MLP(2, (4, 4, 2), NNlib.gelu)
-        pd = Layers.PositiveDefinite(model, 2)
+        pd = Layers.PositiveDefinite(model; in_dims=2)
         ps, st = Lux.setup(StableRNG(0), pd) |> dev
 
         x = randn(StableRNG(0), Float32, 2, 2) |> aType
