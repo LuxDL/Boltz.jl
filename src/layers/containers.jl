@@ -46,11 +46,11 @@ inputs.
 
     function PositiveDefinite(model, x0::AbstractVector; ψ = Base.Fix1(sum, abs2),
         r = Base.Fix1(sum, abs2) ∘ -)
-        return new(model, x0, ψ, r)
+        return PositiveDefinite(model, x0, ψ, r)
     end
     function PositiveDefinite(model; in_dims::Integer, ψ = Base.Fix1(sum, abs2),
         r = Base.Fix1(sum, abs2) ∘ -)
-        return new(model, zeros(in_dims), ψ, r)
+        return PositiveDefinite(model, zeros(in_dims), ψ, r)
     end
 end
 
