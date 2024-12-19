@@ -31,6 +31,7 @@ const NORM_LAYER_DOC = "Function with signature `f(i::Integer, dims::Integer, ac
 
 include("attention.jl")
 include("conv_norm_act.jl")
+include("containers.jl")
 include("dynamic_expressions.jl")
 include("encoder.jl")
 include("embeddings.jl")
@@ -42,6 +43,7 @@ include("tensor_product.jl")
 @compat(public,
     (ClassTokens, ConvBatchNormActivation, ConvNormActivation, DynamicExpressionsLayer,
         HamiltonianNN, MultiHeadSelfAttention, MLP, PatchEmbedding, PeriodicEmbedding,
-        SplineLayer, TensorProductLayer, ViPosEmbedding, VisionTransformerEncoder))
+        PositiveDefinite, SplineLayer, TensorProductLayer, ViPosEmbedding,
+        VisionTransformerEncoder))
 
 end
