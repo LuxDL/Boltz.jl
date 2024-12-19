@@ -284,6 +284,8 @@ end
 end
 
 @testitem "Positive Definite Container" setup=[SharedTestSetup] tags=[:layers] begin
+    using NNlib
+
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
         model = Layers.MLP(2, (4, 4, 2), NNlib.gelu)
         pd = Layers.PositiveDefinite(model, 2)
