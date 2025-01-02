@@ -29,8 +29,9 @@ inputs.
 
 ## Returns
   - The output of the positive definite model
-  - The unchanged state of the positive definite model. This will contain the state of
-    the underlying `model` as well as the `x0` value.
+  - The state of the positive definite model. If the underlying model changes it state, the
+    state will be updated according to the call with the input `x`, not with the call using
+    `x0`.
 
 ## States
   - `st`: a `NamedTuple` containing the state of the underlying `model` and the `x0` value
@@ -65,11 +66,11 @@ function (pd::PositiveDefinite)(x::AbstractVector, ps, st)
 end
 
 function (pd::PositiveDefinite)(x::AbstractMatrix, ps, st)
-    ϕ0 = pd.model(st.x0, ps, st.model)
-    ϕx = pd.model(x, ps, st.model)
+    ϕ0, _ = pd.model(st.x0, ps, st.model)
+    ϕx, new_model_st = pd.model(x, ps, st.model)
     return (
         mapslices(ϕ -> pd.ψ(ϕ - ϕ0), ϕx; dims=[1]) +
                 mapslices(Base.Fix2(pd.r, st.x0), x; dims=[1]),
-        st
+        merge(st, (; model = new_model_st))
     )
 end
