@@ -1,9 +1,26 @@
-using ReTestItems, Pkg, InteractiveUtils, Hwloc
+using ReTestItems, Pkg, Hwloc, Test
 
-@info sprint(versioninfo)
+const ALL_BOTLZ_TEST_GROUPS = [
+    "layers", "others", "vision", "vision_metalhead", "integration"]
+
+INPUT_TEST_GROUP = lowercase(get(ENV, "BOLTZ_TEST_GROUP", "all"))
+const BOLTZ_TEST_GROUP = if startswith("!", INPUT_TEST_GROUP[1])
+    exclude_group = lowercase.(split(INPUT_TEST_GROUP[2:end], ","))
+    filter(x -> x ∉ exclude_group, ALL_BOTLZ_TEST_GROUPS)
+else
+    [INPUT_TEST_GROUP]
+end
 
 const BACKEND_GROUP = lowercase(get(ENV, "BACKEND_GROUP", "all"))
 const EXTRA_PKGS = String[]
+
+if "all" ∈ BOLTZ_TEST_GROUP || "integration" ∈ BOLTZ_TEST_GROUP
+    append!(EXTRA_PKGS,
+        ["DataInterpolations", "DynamicExpressions", "Bumper", "LoopVectorization"])
+end
+if "all" ∈ BOLTZ_TEST_GROUP || "vision_metalhead" ∈ BOLTZ_TEST_GROUP
+    push!(EXTRA_PKGS, "Metalhead")
+end
 
 (BACKEND_GROUP == "all" || BACKEND_GROUP == "cuda") && push!(EXTRA_PKGS, "LuxCUDA")
 (BACKEND_GROUP == "all" || BACKEND_GROUP == "amdgpu") && push!(EXTRA_PKGS, "AMDGPU")
@@ -18,16 +35,20 @@ end
 
 using Boltz
 
-const BOLTZ_TEST_GROUP = get(ENV, "BOLTZ_TEST_GROUP", "all")
 const RETESTITEMS_NWORKERS = parse(
     Int, get(ENV, "RETESTITEMS_NWORKERS", string(min(Hwloc.num_physical_cores(), 4))))
-const RETESTITEMS_NWORKER_THREADS = parse(Int,
-    get(ENV, "RETESTITEMS_NWORKER_THREADS",
-        string(max(Hwloc.num_virtual_cores() ÷ RETESTITEMS_NWORKERS, 1))))
 
-@info "Running tests for group: $BOLTZ_TEST_GROUP with $RETESTITEMS_NWORKERS workers"
+@testset "Boltz.jl Tests" begin
+    @testset "[$(tag)] [$(i)/$(length(BOLTZ_TEST_GROUP))]" for (i, tag) in enumerate(BOLTZ_TEST_GROUP)
+        nworkers = ifelse(
+            BACKEND_GROUP ∈ ("cuda", "amdgpu") &&
+            (tag == "vision" || tag == "vision_metalhead"),
+            0, RETESTITEMS_NWORKERS)
+        nworker_threads = parse(Int,
+            get(ENV, "RETESTITEMS_NWORKER_THREADS",
+                string(max(Hwloc.num_virtual_cores() ÷ max(nworkers, 1), 1))))
 
-ReTestItems.runtests(
-    Boltz; tags=(BOLTZ_TEST_GROUP == "all" ? nothing : [Symbol(BOLTZ_TEST_GROUP)]),
-    nworkers=ifelse(BACKEND_GROUP ∈ ("cuda", "amdgpu"), 0, RETESTITEMS_NWORKERS),
-    nworker_threads=RETESTITEMS_NWORKER_THREADS, testitem_timeout=3600)
+        ReTestItems.runtests(Boltz; tags=(tag == "all" ? nothing : [Symbol(tag)]),
+            testitem_timeout=2400, nworkers, nworker_threads)
+    end
+end

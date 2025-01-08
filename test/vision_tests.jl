@@ -52,7 +52,9 @@ end
     end
 end
 
-@testitem "ConvMixer" setup=[SharedTestSetup] tags=[:vision] begin
+@testitem "ConvMixer" setup=[SharedTestSetup] tags=[:vision_metalhead] begin
+    import Metalhead
+
     for (mode, aType, dev, ongpu) in MODES, name in [:small, :base, :large]
         model = Vision.ConvMixer(name; pretrained=false)
         ps, st = Lux.setup(Random.default_rng(), model) |> dev
@@ -66,7 +68,9 @@ end
     end
 end
 
-@testitem "GoogLeNet" setup=[SharedTestSetup] tags=[:vision] begin
+@testitem "GoogLeNet" setup=[SharedTestSetup] tags=[:vision_metalhead] begin
+    import Metalhead
+
     for (mode, aType, dev, ongpu) in MODES
         model = Vision.GoogLeNet(; pretrained=false)
         ps, st = Lux.setup(Random.default_rng(), model) |> dev
@@ -80,7 +84,9 @@ end
     end
 end
 
-@testitem "MobileNet" setup=[SharedTestSetup] tags=[:vision] begin
+@testitem "MobileNet" setup=[SharedTestSetup] tags=[:vision_metalhead] begin
+    import Metalhead
+
     for (mode, aType, dev, ongpu) in MODES, name in [:v1, :v2, :v3_small, :v3_large]
         model = Vision.MobileNet(name; pretrained=false)
         ps, st = Lux.setup(Random.default_rng(), model) |> dev
@@ -94,7 +100,9 @@ end
     end
 end
 
-@testitem "ResNet" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision] begin
+@testitem "ResNet" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision_metalhead] begin
+    import Metalhead
+
     for (mode, aType, dev, ongpu) in MODES, depth in [18, 34, 50, 101, 152]
         @testset for pretrained in [false, true]
             model = Vision.ResNet(depth; pretrained)
@@ -114,7 +122,9 @@ end
     end
 end
 
-@testitem "ResNeXt" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision] begin
+@testitem "ResNeXt" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision_metalhead] begin
+    import Metalhead
+
     for (mode, aType, dev, ongpu) in MODES
         @testset for (depth, cardinality, base_width) in [
             (50, 32, 4), (101, 32, 8), (101, 64, 4), (152, 64, 4)]
@@ -139,7 +149,9 @@ end
     end
 end
 
-@testitem "WideResNet" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision] begin
+@testitem "WideResNet" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision_metalhead] begin
+    import Metalhead
+
     for (mode, aType, dev, ongpu) in MODES, depth in [50, 101, 152]
         @testset for pretrained in [false, true]
             depth == 152 && pretrained && continue
@@ -161,7 +173,9 @@ end
     end
 end
 
-@testitem "SqueezeNet" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision] begin
+@testitem "SqueezeNet" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision_metalhead] begin
+    import Metalhead
+
     for (mode, aType, dev, ongpu) in MODES
         @testset for pretrained in [false, true]
             model = Vision.SqueezeNet(; pretrained)

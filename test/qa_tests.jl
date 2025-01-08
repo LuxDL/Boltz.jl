@@ -6,7 +6,7 @@
 end
 
 @testitem "Explicit Imports: Quality Assurance" tags=[:others] begin
-    import Lux, Metalhead, Zygote # Load all trigger packages
+    import Lux, Zygote # Load all trigger packages
     using ExplicitImports
 
     @test check_no_implicit_imports(Boltz; skip=(Base, Core, Lux)) === nothing

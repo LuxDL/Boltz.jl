@@ -1,7 +1,7 @@
 steps:
   - group: ":julia: CUDA GPU"
     steps:
-      - label: ":julia: Julia {{matrix.julia}} + CUDA GPU"
+      - label: ":julia: Julia {{matrix.julia}} + CUDA GPU + {{matrix.group}}"
         plugins:
           - JuliaCI/julia#v1:
               version: "{{matrix.julia}}"
@@ -17,17 +17,23 @@ steps:
           cuda: "*"
         env:
           BACKEND_GROUP: "CUDA"
+          BOLTZ_TEST_GROUP: "{{matrix.group}}"
         if: build.message !~ /\[skip tests\]/ && build.message !~ /\[skip ci\]/
         timeout_in_minutes: 60
         matrix:
           setup:
             julia:
-              - "1.10"
               - "1"
+            group:
+              - "layers"
+              - "others"
+              - "vision"
+              - "vision_metalhead"
+              - "integration"
 
   - group: ":julia: AMD GPU"
     steps:
-      - label: ":julia: Julia: {{matrix.julia}} + AMD GPU"
+      - label: ":julia: Julia: {{matrix.julia}} + AMD GPU + {{matrix.group}}"
         plugins:
           - JuliaCI/julia#v1:
               version: "{{matrix.julia}}"
@@ -43,6 +49,7 @@ steps:
           JULIA_AMDGPU_HIP_MUST_LOAD: "1"
           JULIA_AMDGPU_DISABLE_ARTIFACTS: "1"
           BACKEND_GROUP: "AMDGPU"
+          BOLTZ_TEST_GROUP: "{{matrix.group}}"
         agents:
           queue: "juliagpu"
           rocm: "*"
@@ -52,8 +59,13 @@ steps:
         matrix:
           setup:
             julia:
-              - "1.10"
               - "1"
+            group:
+              - "layers"
+              - "others"
+              - "vision"
+              - "vision_metalhead"
+              - "integration"
 
 env:
   SECRET_CODECOV_TOKEN: "gZlC/IAmeUJehhP5mP2QuUV5a1qV61cvo4PUCLkA9vVkt3x6wgD6fTZmCm+f+gHkmkssFxX+q2h1Ud00XXc75H2LrjyR/cDTIthcO46BBOidYocv/U0gfhp6uT2IZ9fi+ryFfTVVpZ0RIUGmDTj0O/b5qt4oaTriAArLAq6mMipbIR9YCz7ZD/hWQXx8oDeAbnDpwQaddwPyhJhz95nayknOpuJj+ClaVOxgsLGZc3ZWiTj1QxkXBNwxLD2ALeG16Qxs9h7eK87sdcbWeTihvJ6OooARgpoVJAa2pJCFYOGy4Bh07c0VTZmicN2M3GIi74Y5T1PWNaz7nGeANO5Pow==;U2FsdGVkX1843DHkbGWCV9PArLBw0rNqmdy56VOTRNTifBSpkC796Oez1lMFU+yDtkElbcrRSIlS5hRFqpsaFA=="
