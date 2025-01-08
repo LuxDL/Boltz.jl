@@ -151,7 +151,7 @@ end
     end
 end
 
-@testitem "Spline Layer" setup=[SharedTestSetup] tags=[:layers] begin
+@testitem "Spline Layer" setup=[SharedTestSetup] tags=[:integration] begin
     using ComponentArrays, DataInterpolations, ForwardDiff, Zygote, MLDataDevices
 
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
@@ -222,7 +222,7 @@ end
     end
 end
 
-@testitem "Dynamic Expressions Layer" setup=[SharedTestSetup] tags=[:layers] begin
+@testitem "Dynamic Expressions Layer" setup=[SharedTestSetup] tags=[:integration] begin
     using DynamicExpressions, ForwardDiff, ComponentArrays, Bumper, LoopVectorization
 
     operators = OperatorEnum(; binary_operators=[+, -, *], unary_operators=[cos])
