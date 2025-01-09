@@ -69,8 +69,11 @@ function (pd::PositiveDefinite)(x::AbstractMatrix, ps, st)
     ϕ0, _ = pd.model(st.x0, ps, st.model)
     ϕx, new_model_st = pd.model(x, ps, st.model)
     return (
-        mapslices(ϕ -> pd.ψ(ϕ - ϕ0), ϕx; dims=[1]) +
-                mapslices(Base.Fix2(pd.r, st.x0), x; dims=[1]),
+        mapreduce(
+            (_x, ϕ) -> pd.ψ(ϕ - ϕ0) + pd.r(_x, st.x0),
+            hcat,
+            zip(eachcol(x), eachcol(ϕx))
+        ),
         merge(st, (; model = new_model_st))
     )
 end
