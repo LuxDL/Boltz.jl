@@ -298,11 +298,11 @@ end
         z, _ = model(x, ps, st.model)
         z0, _ = model(x0, ps, st.model)
         y2 = sum(abs2, z .- z0; dims = 1) .+ sum(abs2, x .- x0; dims = 1)
-        @test all(y .== y2)
+        @test maximum(abs, y - y2) < 1.0f-8
 
         @jet pd(x, ps, st)
 
         __f = (x, ps) -> sum(first(pd(x, ps, st)))
-        @test_gradients(__f, x, ps; atol=1.0fe-3, rtol=1.0fe-3)
+        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3)
     end
 end
