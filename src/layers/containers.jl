@@ -55,8 +55,6 @@ inputs.
     end
 end
 
-norm2(x) = sum(abs2, x)
-
 function LuxCore.initialstates(rng::AbstractRNG, pd::PositiveDefinite)
     return (; model=LuxCore.initialstates(rng, pd.model), x0=pd.x0)
 end
