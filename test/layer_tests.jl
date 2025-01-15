@@ -306,3 +306,23 @@ end
         @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3)
     end
 end
+
+@testitem "ShiftTo Container" setup=[SharedTestSetup] tags=[:layers] begin
+    using NNlib
+
+    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+        model = Layers.MLP(2, (4, 4, 2), NNlib.gelu)
+        s = Layers.ShiftTo(model, ones(2), zeros(2))
+        ps, st = Lux.setup(StableRNG(0), s) |> dev
+
+        x0 = ones(Float32, 2) |> aType
+        y0, _ = model(x0, ps, st.model)
+        @test maximum(abs, y0) < 1.0f-8
+
+        x = randn(StableRNG(0), Float32, 2, 2) |> aType
+        @jet s(x, ps, st)
+
+        __f = (x, ps) -> sum(first(s(x, ps, st)))
+        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3)
+    end
+end
