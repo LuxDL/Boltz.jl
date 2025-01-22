@@ -41,22 +41,22 @@ inputs.
 """
 @concrete struct PositiveDefinite <: AbstractLuxWrapperLayer{:model}
     model <: AbstractLuxLayer
-    x0 <: AbstractVector
+    init_x0 <: Function
     ψ <: Function
     r <: Function
 
     function PositiveDefinite(model, x0::AbstractVector; ψ = Base.Fix1(sum, abs2),
         r = Base.Fix1(sum, abs2) ∘ -)
-        return PositiveDefinite(model, x0, ψ, r)
+        return PositiveDefinite(model, () -> copy(x0), ψ, r)
     end
     function PositiveDefinite(model; in_dims::Integer, ψ = Base.Fix1(sum, abs2),
         r = Base.Fix1(sum, abs2) ∘ -)
-        return PositiveDefinite(model, zeros(in_dims), ψ, r)
+        return PositiveDefinite(model, () -> zeros(in_dims), ψ, r)
     end
 end
 
 function LuxCore.initialstates(rng::AbstractRNG, pd::PositiveDefinite)
-    return (; model=LuxCore.initialstates(rng, pd.model), x0=pd.x0)
+    return (; model=LuxCore.initialstates(rng, pd.model), x0=pd.init_x0())
 end
 
 function (pd::PositiveDefinite)(x::AbstractVector, ps, st)
@@ -107,15 +107,18 @@ where `Δϕ = out_val - ϕ(in_val, ps, st)`.
 """
 @concrete struct ShiftTo <: AbstractLuxWrapperLayer{:model}
     model <: AbstractLuxLayer
-    in_val <: AbstractVector
-    out_val <: AbstractVector
+    init_in_val <: Function
+    init_out_val <: Function
+    function ShiftTo(model, in_val::AbstractVector, out_val::AbstractVector)
+        return ShiftTo(model, () -> copy(in_val), () -> copy(out_val))
+    end
 end
 
 function LuxCore.initialstates(rng::AbstractRNG, s::ShiftTo)
     return (;
         model=LuxCore.initialstates(rng, s.model),
-        in_val=s.in_val,
-        out_val=s.out_val
+        in_val=s.init_in_val(),
+        out_val=s.init_out_val()
     )
 end
 
