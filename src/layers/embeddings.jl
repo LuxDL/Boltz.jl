@@ -102,7 +102,7 @@ end
 
 function (p::PeriodicEmbedding)(x::AbstractMatrix, _, st::NamedTuple)
     idxs = st.idxs.val
-    other_idxs = @ignore_derivatives @allowscalar setdiff(axes(x, 1), idxs)
+    other_idxs = @ignore_derivatives setdiff(axes(x, 1), idxs)
     y = vcat(x[other_idxs, :], sinpi.(st.k .* x[idxs, :]), cospi.(st.k .* x[idxs, :]))
     return y, st
 end

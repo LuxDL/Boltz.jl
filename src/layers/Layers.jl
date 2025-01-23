@@ -5,7 +5,6 @@ using ADTypes: AutoForwardDiff, AutoZygote
 using Compat: @compat
 using ConcreteStructs: @concrete
 using ChainRulesCore: ChainRulesCore, @non_differentiable, @ignore_derivatives
-using GPUArraysCore: @allowscalar
 using Markdown: @doc_str
 using Random: AbstractRNG
 using Static: Static
