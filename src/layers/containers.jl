@@ -52,7 +52,7 @@ inputs.
     end
     function PositiveDefinite(model; in_dims::Integer, ψ=Base.Fix1(sum, abs2),
         r=Base.Fix1(sum, abs2) ∘ -)
-        return PositiveDefinite(model, WeightInitializers.zeros32, in_dims, ψ, r)
+        return PositiveDefinite(model, zeros32, in_dims, ψ, r)
     end
 end
 
