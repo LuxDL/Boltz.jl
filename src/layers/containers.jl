@@ -112,7 +112,9 @@ where `Δϕ = out_val - ϕ(in_val, ps, st)`.
     init_in_val <: Function
     init_out_val <: Function
     function ShiftTo(model, in_val::AbstractVector, out_val::AbstractVector)
-        return ShiftTo(model, () -> copy(in_val), () -> copy(out_val))
+        _in_val = copy(in_val)
+        _out_val = copy(out_val)
+        return ShiftTo(model, () -> _in_val, () -> _out_val)
     end
 end
 
