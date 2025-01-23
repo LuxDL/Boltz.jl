@@ -68,9 +68,11 @@ function (pd::PositiveDefinite)(x::AbstractMatrix, ps, st)
     ϕ0, _ = pd.model(st.x0, ps, st.model)
     ϕx, new_model_st = pd.model(x, ps, st.model)
     return (
-        mapreduce(hcat, zip(eachcol(x), eachcol(ϕx))) do (x, ϕx)
-            pd.ψ(ϕx - ϕ0) + pd.r(x, st.x0)
-        end,
+        permutedims(
+            mapreduce(vcat, zip(eachcol(x), eachcol(ϕx)); init=empty(ϕ0)) do (x, ϕx)
+                pd.ψ(ϕx - ϕ0) + pd.r(x, st.x0)
+            end
+        ),
         merge(st, (; model = new_model_st))
     )
 end
