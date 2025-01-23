@@ -11,7 +11,7 @@ using Static: Static
 
 using ForwardDiff: ForwardDiff
 
-using Lux: Lux, LuxOps, StatefulLuxLayer
+using Lux: Lux, LuxOps, StatefulLuxLayer, WeightInitializers
 using LuxCore: LuxCore, AbstractLuxLayer, AbstractLuxContainerLayer, AbstractLuxWrapperLayer
 using MLDataDevices: get_device, CPUDevice
 using NNlib: NNlib
