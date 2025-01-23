@@ -45,12 +45,12 @@ inputs.
     ψ <: Function
     r <: Function
 
-    function PositiveDefinite(model, x0::AbstractVector; ψ = Base.Fix1(sum, abs2),
-        r = Base.Fix1(sum, abs2) ∘ -)
+    function PositiveDefinite(model, x0::AbstractVector; ψ=Base.Fix1(sum, abs2),
+        r=Base.Fix1(sum, abs2) ∘ -)
         return PositiveDefinite(model, () -> copy(x0), ψ, r)
     end
-    function PositiveDefinite(model; in_dims::Integer, ψ = Base.Fix1(sum, abs2),
-        r = Base.Fix1(sum, abs2) ∘ -)
+    function PositiveDefinite(model; in_dims::Integer, ψ=Base.Fix1(sum, abs2),
+        r=Base.Fix1(sum, abs2) ∘ -)
         return PositiveDefinite(model, () -> zeros(in_dims), ψ, r)
     end
 end
@@ -73,14 +73,14 @@ function (pd::PositiveDefinite)(x::AbstractMatrix, ps, st)
                 pd.ψ(ϕx - ϕ0) + pd.r(x, st.x0)
             end
         ),
-        merge(st, (; model = new_model_st))
+        merge(st, (; model=new_model_st))
     )
 end
 
 """
     ShiftTo(model, in_val, out_val)
 
-Vertically shifts the output of `model` to otuput `out_val` when the input is `in_val`.
+Vertically shifts the output of `model` to output `out_val` when the input is `in_val`.
 
 For a model `ϕ`, `ShiftTo(ϕ, in_val, out_val)(x, ps, st) = ϕ(x, ps, st) + Δϕ`,
 where `Δϕ = out_val - ϕ(in_val, ps, st)`.
@@ -137,6 +137,6 @@ function (s::ShiftTo)(x::AbstractMatrix, ps, st)
     ϕx, new_model_st = s.model(x, ps, st.model)
     return (
         ϕx .+ Δϕ,
-        merge(st, (; model = new_model_st))
+        merge(st, (; model=new_model_st))
     )
 end
