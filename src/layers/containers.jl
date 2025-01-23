@@ -42,21 +42,22 @@ inputs.
 @concrete struct PositiveDefinite <: AbstractLuxWrapperLayer{:model}
     model <: AbstractLuxLayer
     init_x0 <: Function
+    in_dims::Integer
     ψ <: Function
     r <: Function
 
     function PositiveDefinite(model, x0::AbstractVector; ψ=Base.Fix1(sum, abs2),
         r=Base.Fix1(sum, abs2) ∘ -)
-        return PositiveDefinite(model, () -> copy(x0), ψ, r)
+        return PositiveDefinite(model, (rng, in_dims) -> copy(x0), length(x0), ψ, r)
     end
     function PositiveDefinite(model; in_dims::Integer, ψ=Base.Fix1(sum, abs2),
         r=Base.Fix1(sum, abs2) ∘ -)
-        return PositiveDefinite(model, () -> zeros(in_dims), ψ, r)
+        return PositiveDefinite(model, WeightInitializers.zeros32, in_dims, ψ, r)
     end
 end
 
 function LuxCore.initialstates(rng::AbstractRNG, pd::PositiveDefinite)
-    return (; model=LuxCore.initialstates(rng, pd.model), x0=pd.init_x0())
+    return (; model=LuxCore.initialstates(rng, pd.model), x0=pd.init_x0(rng, pd.in_dims))
 end
 
 function (pd::PositiveDefinite)(x::AbstractVector, ps, st)
