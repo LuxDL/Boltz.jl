@@ -297,8 +297,9 @@ end
         y, _ = pd(x, ps, st)
         z, _ = model(x, ps, st.model)
         z0, _ = model(x0, ps, st.model)
-        y2 = sum(abs2, z .- z0; dims = 1) .+ sum(abs2, x .- x0; dims = 1)
-        @test maximum(abs, y - y2) < 1.0f-8
+        y_by_hand = sum(abs2, z .- z0; dims = 1) .+ sum(abs2, x .- x0; dims = 1)
+
+        @test maximum(abs, y - y_by_hand) < 1.0f-8
 
         @jet pd(x, ps, st)
 
