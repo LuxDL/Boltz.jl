@@ -316,8 +316,7 @@ end
         s = Layers.ShiftTo(model, ones(2), zeros(2))
         ps, st = Lux.setup(StableRNG(0), s) |> dev
 
-        x0 = ones(Float32, 2) |> aType
-        y0, _ = model(x0, ps, st.model)
+        y0, _ = s(st.in_val, ps, st)
         @test maximum(abs, y0) < 1.0f-8
 
         x = randn(StableRNG(0), Float32, 2, 2) |> aType
