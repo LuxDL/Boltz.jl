@@ -95,7 +95,12 @@ end
             @test ∂ps_zyg ≈ ∂ps_fd atol = 1e-3 rtol = 1e-3
         end
 
+<<<<<<< HEAD
         st = dev(Lux.initialstates(StableRNG(0), hnn))
+=======
+        st = Lux.initialstates(StableRNG(0), hnn) |> dev
+        st_test = Lux.testmode(st)
+>>>>>>> bdd67b2 (feat: support HNN via reactant)
 
         @test st.first_call
         y, st = hnn(x, ps_ca, st)
@@ -115,6 +120,25 @@ end
 
             @test ∂x_zyg ≈ ∂x_fd atol = 1e-3 rtol = 1e-3
             @test ∂ps_zyg ≈ ∂ps_fd atol = 1e-3 rtol = 1e-3
+        end
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+
+            rdev = reactant_device(; force=true)
+
+            ps_ra, st_ra, x_ra = rdev((ps, st, x))
+            st_ra_test = Lux.testmode(st_ra)
+
+            @test @jit(hnn(x_ra, ps_ra, st_ra_test))[1]≈hnn(x, ps, st_test)[1] atol=1e-3 rtol=1e-3
+
+            ∂x_ra, ∂ps_ra = @jit(compute_reactant_gradient(
+                hnn, x_ra, ps_ra, st_ra)) |> cpu_device()
+            ∂x_zyg, ∂ps_zyg = compute_zygote_gradient(hnn, x, ps, st) |>
+                              cpu_device()
+
+            @test check_approx(∂x_ra, ∂x_zyg; atol=1e-3, rtol=1e-3)
+            @test check_approx(∂ps_ra, ∂ps_zyg; atol=1e-3, rtol=1e-3)
         end
     end
 end
@@ -142,6 +166,7 @@ end
             @test size(y) == (2, 4, 5)
 
             __f = (x, ps) -> sum(abs2, first(tensor_project(x, ps, st)))
+<<<<<<< HEAD
             @test_gradients(
                 __f,
                 x,
@@ -150,6 +175,12 @@ end
                 rtol=1e-3,
                 skip_backends=[AutoTracker(), AutoEnzyme()]
             )
+=======
+            @test_gradients(__f, x, ps; atol=1e-3, rtol=1e-3,
+                skip_backends=[AutoTracker(), AutoEnzyme()])
+
+            # TODO: Not yet supported nicely by Reactant
+>>>>>>> bdd67b2 (feat: support HNN via reactant)
         end
     end
 end

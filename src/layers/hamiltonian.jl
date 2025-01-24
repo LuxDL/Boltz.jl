@@ -29,6 +29,7 @@ returns the time derivatives for position and momentum.
 |:----------------- |:-------------- |:---------------------------------------------------------------------------- |
 | `AutoZygote`      | `Zygote.jl`    | Preferred Backend. Chosen if `Zygote` is loaded and `autodiff` is `nothing`. |
 | `AutoForwardDiff` |                | Chosen if `Zygote` is not loaded and `autodiff` is `nothing`.                |
+| `AutoEnzyme`      | `Enzyme.jl`    | This is the only backend that works with Reactant. `mode` is ignored for now |
 
 !!! note
 
@@ -77,19 +78,25 @@ function (hnn::HamiltonianNN)(x::AbstractArray{T,N}, ps, st) where {T,N}
 
     st.first_call && check_hamiltonian_layer(hnn.model, x, ps, st.model)
 
+    autodiff = get_hamiltonian_autodiff(hnn.autodiff, x)
     if should_type_assert(x) && should_type_assert(ps)
-        H = hamiltonian_forward(hnn.autodiff, model, x)::typeof(x)
+        H = hamiltonian_forward(autodiff, model, x)::typeof(x)
     else
-        H = hamiltonian_forward(hnn.autodiff, model, x)
+        H = hamiltonian_forward(autodiff, model, x)
     end
+
     n = size(H, N - 1) ÷ 2
     return (
         cat(selectdim(H, N - 1, (n + 1):(2n)), selectdim(H, N - 1, 1:n); dims=Val(N - 1)),
-        (; model=model.st, first_call=false),
+        (; model=model.st, first_call=false)
     )
 end
 
-function check_hamiltonian_layer(model, x::AbstractArray{T,N}, ps, st) where {T,N}
+get_hamiltonian_autodiff(autodiff, ::AbstractArray) = autodiff
+
+@non_differentiable get_hamiltonian_autodiff(::Any...)
+
+function check_hamiltonian_layer(model, x::AbstractArray{T, N}, ps, st) where {T, N}
     y = first(model(x, ps, st))
     @argcheck all(isone, size(y)[1:(end - 1)]) && size(y, ndims(y)) == size(x, N)
 end
