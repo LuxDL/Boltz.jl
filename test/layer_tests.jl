@@ -15,9 +15,10 @@
                 end
 
                 model = Layers.MLP(2, (4, 4, 2), act; norm_layer=norm)
-                ps, st = dev(Lux.setup(StableRNG(0), model))
+                ps, st = Lux.setup(StableRNG(0), model) |> dev
+                st_test = Lux.testmode(st)
 
-                x = aType(randn(Float32, 2, 2))
+                x = randn(Float32, 2, 2) |> aType
 
                 __f = (x, ps) -> sum(abs2, first(model(x, ps, st)))
                 @test_gradients(
@@ -29,6 +30,25 @@
                     soft_fail=[AutoFiniteDiff()],
                     enzyme_set_runtime_activity=true
                 )
+
+                if test_reactant(mode)
+                    set_reactant_backend!(mode)
+                    rdev = reactant_device(; force=true)
+
+                    ps_ra, st_ra, x_ra = rdev((ps, st, x))
+                    st_ra_test = Lux.testmode(st_ra)
+
+                    @test @jit(model(x_ra, ps_ra, st_ra_test))[1] ≈ model(x, ps, st_test)[1] atol =
+                        1e-3 rtol = 1e-3
+
+                    ∂x_ra, ∂ps_ra =
+                        @jit(compute_reactant_gradient(model, x_ra, ps_ra, st_ra)) |>
+                        cpu_device()
+                    ∂x_zyg, ∂ps_zyg =
+                        compute_zygote_gradient(model, x, ps, st) |> cpu_device()
+                    @test check_approx(∂x_ra, ∂x_zyg; atol=1e-3, rtol=1e-3)
+                    @test check_approx(∂ps_ra, ∂ps_zyg; atol=1e-3, rtol=1e-3)
+                end
             end
         end
     end
