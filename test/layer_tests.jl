@@ -23,7 +23,7 @@
 
                 __f = (x, ps) -> sum(abs2, first(model(x, ps, st)))
                 @test_gradients(__f, x, ps; atol=1e-3, rtol=1e-3,
-                    soft_fail=[AutoFiniteDiff()])
+                    soft_fail=[AutoFiniteDiff()], enzyme_set_runtime_activity=true)
             end
         end
     end

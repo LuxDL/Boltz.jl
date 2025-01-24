@@ -105,6 +105,8 @@ end
 
     for (mode, aType, dev, ongpu) in MODES, depth in [18, 34, 50, 101, 152]
         @testset for pretrained in [false, true]
+            pretrained && pkgversion(Metalhead) > v"0.9.4" && continue
+
             model = Vision.ResNet(depth; pretrained)
             ps, st = Lux.setup(Random.default_rng(), model) |> dev
             st = Lux.testmode(st)
@@ -130,6 +132,7 @@ end
             (50, 32, 4), (101, 32, 8), (101, 64, 4), (152, 64, 4)]
             @testset for pretrained in [false, true]
                 depth == 152 && pretrained && continue
+                pretrained && pkgversion(Metalhead) > v"0.9.4" && continue
 
                 model = Vision.ResNeXt(depth; pretrained, cardinality, base_width)
                 ps, st = Lux.setup(Random.default_rng(), model) |> dev
@@ -155,6 +158,7 @@ end
     for (mode, aType, dev, ongpu) in MODES, depth in [50, 101, 152]
         @testset for pretrained in [false, true]
             depth == 152 && pretrained && continue
+            pretrained && pkgversion(Metalhead) > v"0.9.4" && continue
 
             model = Vision.WideResNet(depth; pretrained)
             ps, st = Lux.setup(Random.default_rng(), model) |> dev

@@ -4,7 +4,7 @@ using ForwardDiff: ForwardDiff
 using GPUArraysCore: AnyGPUArray
 using Statistics: mean
 
-using MLDataDevices: get_device_type, get_device, CPUDevice, CUDADevice
+using MLDataDevices: MLDataDevices, get_device_type, get_device, CPUDevice, CUDADevice
 
 is_extension_loaded(::Val) = false
 
@@ -87,5 +87,7 @@ end
 struct DataTransferBarrier{V}
     val::V
 end
+
+MLDataDevices.isleaf(::DataTransferBarrier) = true
 
 end
