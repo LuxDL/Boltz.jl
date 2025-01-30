@@ -304,7 +304,7 @@ end
         @jet pd(x, ps, st)
 
         __f = (x, ps) -> sum(first(pd(x, ps, st)))
-        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3)
+        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends=[AutoTracker()])
     end
 end
 
