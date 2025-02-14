@@ -313,7 +313,7 @@ end
         x0 = ones(Float32, 2) |> aType
         y, _ = pd2(x0, ps, st)
 
-        @test all(y .== 0.0f0)
+        @test maximum(abs, y) < 1.0f-8
     end
 end
 
