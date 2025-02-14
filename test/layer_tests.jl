@@ -304,7 +304,7 @@ end
         @jet pd(x, ps, st)
 
         __f = (x, ps) -> sum(first(pd(x, ps, st)))
-        broken_backends = ongpu ? [AutoTracker()] : [AutoEnzyme()]
+        broken_backends = ongpu ? [AutoTracker()] : [AutoReverseDiff(), AutoEnzyme()]
         @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
 
         pd2 = Layers.PositiveDefinite(model, ones(2))
