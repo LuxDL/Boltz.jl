@@ -282,3 +282,57 @@ end
         end
     end
 end
+
+@testitem "Positive Definite Container" setup=[SharedTestSetup] tags=[:layers] begin
+    using NNlib
+
+    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+        model = Layers.MLP(2, (4, 4, 2), NNlib.gelu)
+        pd = Layers.PositiveDefinite(model; in_dims=2)
+        ps, st = Lux.setup(StableRNG(0), pd) |> dev
+
+        x = randn(StableRNG(0), Float32, 2, 2) |> aType
+        x0 = zeros(Float32, 2) |> aType
+
+        y, _ = pd(x, ps, st)
+        z, _ = model(x, ps, st.model)
+        z0, _ = model(x0, ps, st.model)
+        y_by_hand = sum(abs2, z .- z0; dims=1) .+ sum(abs2, x .- x0; dims=1)
+
+        @test maximum(abs, y - y_by_hand) < 1.0f-8
+
+        @jet pd(x, ps, st)
+
+        __f = (x, ps) -> sum(first(pd(x, ps, st)))
+        broken_backends = ongpu ? [AutoTracker()] : [AutoReverseDiff(), AutoEnzyme()]
+        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
+
+        pd2 = Layers.PositiveDefinite(model, ones(2))
+        ps, st = Lux.setup(StableRNG(0), pd2) |> dev
+
+        x0 = ones(Float32, 2) |> aType
+        y, _ = pd2(x0, ps, st)
+
+        @test maximum(abs, y) < 1.0f-8
+    end
+end
+
+@testitem "ShiftTo Container" setup=[SharedTestSetup] tags=[:layers] begin
+    using NNlib
+
+    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+        model = Layers.MLP(2, (4, 4, 2), NNlib.gelu)
+        s = Layers.ShiftTo(model, ones(2), zeros(2))
+        ps, st = Lux.setup(StableRNG(0), s) |> dev
+
+        y0, _ = s(st.in_val, ps, st)
+        @test maximum(abs, y0) < 1.0f-8
+
+        x = randn(StableRNG(0), Float32, 2, 2) |> aType
+        @jet s(x, ps, st)
+
+        __f = (x, ps) -> sum(first(s(x, ps, st)))
+        broken_backends = ongpu ? [] : [AutoEnzyme()]
+        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
+    end
+end
