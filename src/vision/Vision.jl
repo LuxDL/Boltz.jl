@@ -34,6 +34,7 @@ include("extensions.jl")
 include("alexnet.jl")
 include("vit.jl")
 include("vgg.jl")
+include("efficientnet.jl")
 
 @compat(public,
     (AlexNet, ConvMixer, DenseNet, MobileNet, ResNet, ResNeXt,
