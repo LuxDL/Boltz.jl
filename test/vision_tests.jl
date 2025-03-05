@@ -29,7 +29,7 @@ function imagenet_acctest(model, ps, st, dev; size=224)
     end
     x = dev(TEST_X)
     ypred = vec(collect(first(model(x, ps, st))))
-    top5 = TEST_LBLS[sortperm(ypred; rev=true)]
+    top5 = TEST_LBLS[sortperm(ypred; rev=true)][1:5]
     return "monarch" in top5
 end
 
@@ -222,6 +222,39 @@ end
 
             @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
+
+            if pretrained
+                @test imagenet_acctest(model, ps, st, dev)
+            end
+
+            GC.gc(true)
+        end
+    end
+end
+
+@testitem "EfficientNet" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [
+    :vision
+] begin
+    for (mode, aType, dev, ongpu) in MODES,
+        model_name in [
+            "efficientnet-b0",
+            "efficientnet-b1",
+            "efficientnet-b2",
+            "efficientnet-b3",
+            "efficientnet-b4",
+            "efficientnet-b5",
+            "efficientnet-b6",
+            "efficientnet-b7",
+        ]
+
+        @testset for pretrained in [false, true]
+            model = Boltz.Vision.EfficientNet(model_name; pretrained)
+            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            st = Lux.testmode(st)
+            img = randn(Float32, 224, 224, 3, 2) |> aType
+
+            @test size(first(model(img, ps, st))) == (1000, 2)
+            @jet model(img, ps, st)
 
             if pretrained
                 @test imagenet_acctest(model, ps, st, dev)

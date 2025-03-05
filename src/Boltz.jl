@@ -3,6 +3,7 @@ module Boltz
 # Utility Functions
 include("utils.jl")
 include("initialize.jl")
+include("pytorch_load_utils.jl")
 
 # Basis Functions
 include("basis.jl")
