@@ -13,10 +13,12 @@ about zero and `r` returns a positive number for any non-equal inputs and zero f
 inputs.
 
 ## Arguments
+
   - `model`: the underlying model being transformed into a positive definite function
   - `x0`: The unique input that will be mapped to zero instead of a positive number
 
 ## Keyword Arguments
+
   - `in_dims`: the number of input dimensions if `x0` is not provided; uses
     `x0 = zeros(in_dims)`
   - `ψ`: a positive definite function (about zero); defaults to ``ψ(x) = ||x||^2``
@@ -24,19 +26,23 @@ inputs.
     `r(x, x0) > 0` whenever `x ≠ x0`; defaults to ``r(x, y) = ||x - y||^2``
 
 ## Inputs
+
   - `x`: will be passed directly into `model`, so must meet the input requirements of that
     argument
 
 ## Returns
+
   - The output of the positive definite model
   - The state of the positive definite model. If the underlying model changes it state, the
     state will be updated first according to the call with the input `x0`, then according to
     the call with the input `x`.
 
 ## States
+
   - `st`: a `NamedTuple` containing the state of the underlying `model` and the `x0` value
 
 ## Parameters
+
   - Same as the underlying `model`
 """
 @concrete struct PositiveDefinite <: AbstractLuxWrapperLayer{:model}
@@ -48,7 +54,7 @@ inputs.
 
     function PositiveDefinite(model, x0::AbstractVector; ψ=Base.Fix1(sum, abs2),
             r=Base.Fix1(sum, abs2) ∘ -)
-        return PositiveDefinite(model, (rng, in_dims) -> copy(x0), length(x0), ψ, r)
+        return PositiveDefinite(model, Returns(copy(x0)), length(x0), ψ, r)
     end
     function PositiveDefinite(model; in_dims::Integer, ψ=Base.Fix1(sum, abs2),
             r=Base.Fix1(sum, abs2) ∘ -)
@@ -86,35 +92,39 @@ For a model `ϕ`, `ShiftTo(ϕ, in_val, out_val)(x, ps, st) = ϕ(x, ps, st) + Δ�
 where `Δϕ = out_val - ϕ(in_val, ps, st)`.
 
 ## Arguments
+
   - `model`: the underlying model being transformed into a positive definite function
   - `in_val`: The input that will be mapped to `out_val`
   - `out_val`: The value that the output will be shifted to when the input is `in_val`
 
 ## Inputs
+
   - `x`: will be passed directly into `model`, so must meet the input requirements of that
     argument
 
 ## Returns
+
   - The output of the shifted model
   - The state of the shifted model. If the underlying model changes it state, the
     state will be updated first according to the call with the input `in_val`, then
     according to the call with the input `x`.
 
 ## States
+
   - `st`: a `NamedTuple` containing the state of the underlying `model` and the `in_val` and
     `out_val` values
 
 ## Parameters
+
   - Same as the underlying `model`
 """
 @concrete struct ShiftTo <: AbstractLuxWrapperLayer{:model}
     model <: AbstractLuxLayer
     init_in_val <: Function
     init_out_val <: Function
+
     function ShiftTo(model, in_val::AbstractVector, out_val::AbstractVector)
-        _in_val = copy(in_val)
-        _out_val = copy(out_val)
-        return ShiftTo(model, () -> _in_val, () -> _out_val)
+        return ShiftTo(model, Returns(copy(in_val)), Returns(copy(out_val)))
     end
 end
 

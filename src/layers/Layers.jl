@@ -31,11 +31,11 @@ const NORM_LAYER_DOC = "Function with signature `f(i::Integer, dims::Integer, ac
 
 include("attention.jl")
 include("conv_norm_act.jl")
-include("containers.jl")
 include("dynamic_expressions.jl")
 include("encoder.jl")
 include("embeddings.jl")
 include("hamiltonian.jl")
+include("lyapunov_net.jl")
 include("mlp.jl")
 include("spline.jl")
 include("tensor_product.jl")
