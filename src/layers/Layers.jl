@@ -35,6 +35,7 @@ include("dynamic_expressions.jl")
 include("encoder.jl")
 include("embeddings.jl")
 include("hamiltonian.jl")
+include("lyapunov_net.jl")
 include("mlp.jl")
 include("spline.jl")
 include("tensor_product.jl")
@@ -42,6 +43,7 @@ include("tensor_product.jl")
 @compat(public,
     (ClassTokens, ConvBatchNormActivation, ConvNormActivation, DynamicExpressionsLayer,
         HamiltonianNN, MultiHeadSelfAttention, MLP, PatchEmbedding, PeriodicEmbedding,
-        SplineLayer, TensorProductLayer, ViPosEmbedding, VisionTransformerEncoder))
+        PositiveDefinite, ShiftTo, SplineLayer, TensorProductLayer, ViPosEmbedding,
+        VisionTransformerEncoder))
 
 end
