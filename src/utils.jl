@@ -4,7 +4,8 @@ using ForwardDiff: ForwardDiff
 using GPUArraysCore: AnyGPUArray
 using Statistics: mean
 
-using MLDataDevices: MLDataDevices, get_device_type, get_device, CPUDevice, CUDADevice
+using MLDataDevices: MLDataDevices, get_device_type, get_device, CPUDevice, CUDADevice,
+                     ReactantDevice
 
 is_extension_loaded(::Val) = false
 
@@ -74,6 +75,9 @@ function safe_kron_internal(a::AbstractVector, b::AbstractVector)
 end
 
 safe_kron_internal(::Type{CPUDevice}, a::AbstractVector, b::AbstractVector) = kron(a, b)
+function safe_kron_internal(::Type{ReactantDevice}, a::AbstractVector, b::AbstractVector)
+    return kron(a, b)
+end
 function safe_kron_internal(::Type{CUDADevice}, a::AbstractVector, b::AbstractVector)
     return vec(kron(reshape(a, :, 1), reshape(b, 1, :)))
 end
