@@ -1,3 +1,7 @@
+```@meta
+CollapsedDocStrings = true
+```
+
 # Computer Vision Models (`Vision` API)
 
 ## Native Lux Models
@@ -68,8 +72,3 @@ Vision.WideResNet
 
 All the pretrained models require that the images be normalized with the parameters
 `mean = [0.485f0, 0.456f0, 0.406f0]` and `std = [0.229f0, 0.224f0, 0.225f0]`.
-
-```@bibliography
-Pages = [@__FILE__]
-Style = :authoryear
-```
