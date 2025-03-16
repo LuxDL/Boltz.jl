@@ -13,17 +13,22 @@ end
 const MONARCH_224 = monarch_color_224
 const MONARCH_256 = monarch_color_256
 
-const TEST_LBLS = readlines(Downloads.download(
-    "https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt"
-))
+const TEST_LBLS = readlines(
+    Downloads.download(
+        "https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt"
+    ),
+)
 
 function imagenet_acctest(model, ps, st, dev; size=224)
-    ps = ps |> dev
-    st = Lux.testmode(st) |> dev
-    TEST_X = size == 224 ? MONARCH_224 :
-             (size == 256 ? MONARCH_256 : error("size must be 224 or 256"))
-    x = TEST_X |> dev
-    ypred = first(model(x, ps, st)) |> collect |> vec
+    ps = dev(ps)
+    st = dev(Lux.testmode(st))
+    TEST_X = if size == 224
+        MONARCH_224
+    else
+        (size == 256 ? MONARCH_256 : error("size must be 224 or 256"))
+    end
+    x = dev(TEST_X)
+    ypred = vec(collect(first(model(x, ps, st))))
     top5 = TEST_LBLS[sortperm(ypred; rev=true)]
     return "monarch" in top5
 end
@@ -32,13 +37,13 @@ export imagenet_acctest
 
 end
 
-@testitem "AlexNet" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision] begin
+@testitem "AlexNet" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [:vision] begin
     for (mode, aType, dev, ongpu) in MODES
         @testset "pretrained: $(pretrained)" for pretrained in [true, false]
             model = Vision.AlexNet(; pretrained)
-            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            ps, st = dev(Lux.setup(Random.default_rng(), model))
             st = Lux.testmode(st)
-            img = randn(Float32, 224, 224, 3, 2) |> aType
+            img = aType(randn(Float32, 224, 224, 3, 2))
 
             @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
@@ -52,14 +57,14 @@ end
     end
 end
 
-@testitem "ConvMixer" setup=[SharedTestSetup] tags=[:vision_metalhead] begin
-    import Metalhead
+@testitem "ConvMixer" setup = [SharedTestSetup] tags = [:vision_metalhead] begin
+    using Metalhead: Metalhead
 
     for (mode, aType, dev, ongpu) in MODES, name in [:small, :base, :large]
         model = Vision.ConvMixer(name; pretrained=false)
-        ps, st = Lux.setup(Random.default_rng(), model) |> dev
+        ps, st = dev(Lux.setup(Random.default_rng(), model))
         st = Lux.testmode(st)
-        img = randn(Float32, 256, 256, 3, 2) |> aType
+        img = aType(randn(Float32, 256, 256, 3, 2))
 
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
@@ -68,14 +73,14 @@ end
     end
 end
 
-@testitem "GoogLeNet" setup=[SharedTestSetup] tags=[:vision_metalhead] begin
-    import Metalhead
+@testitem "GoogLeNet" setup = [SharedTestSetup] tags = [:vision_metalhead] begin
+    using Metalhead: Metalhead
 
     for (mode, aType, dev, ongpu) in MODES
         model = Vision.GoogLeNet(; pretrained=false)
-        ps, st = Lux.setup(Random.default_rng(), model) |> dev
+        ps, st = dev(Lux.setup(Random.default_rng(), model))
         st = Lux.testmode(st)
-        img = randn(Float32, 224, 224, 3, 2) |> aType
+        img = aType(randn(Float32, 224, 224, 3, 2))
 
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
@@ -84,14 +89,14 @@ end
     end
 end
 
-@testitem "MobileNet" setup=[SharedTestSetup] tags=[:vision_metalhead] begin
-    import Metalhead
+@testitem "MobileNet" setup = [SharedTestSetup] tags = [:vision_metalhead] begin
+    using Metalhead: Metalhead
 
     for (mode, aType, dev, ongpu) in MODES, name in [:v1, :v2, :v3_small, :v3_large]
         model = Vision.MobileNet(name; pretrained=false)
-        ps, st = Lux.setup(Random.default_rng(), model) |> dev
+        ps, st = dev(Lux.setup(Random.default_rng(), model))
         st = Lux.testmode(st)
-        img = randn(Float32, 224, 224, 3, 2) |> aType
+        img = aType(randn(Float32, 224, 224, 3, 2))
 
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
@@ -100,17 +105,19 @@ end
     end
 end
 
-@testitem "ResNet" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision_metalhead] begin
-    import Metalhead
+@testitem "ResNet" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [
+    :vision_metalhead
+] begin
+    using Metalhead: Metalhead
 
     for (mode, aType, dev, ongpu) in MODES, depth in [18, 34, 50, 101, 152]
         @testset for pretrained in [false, true]
             pretrained && pkgversion(Metalhead) > v"0.9.4" && continue
 
             model = Vision.ResNet(depth; pretrained)
-            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            ps, st = dev(Lux.setup(Random.default_rng(), model))
             st = Lux.testmode(st)
-            img = randn(Float32, 224, 224, 3, 2) |> aType
+            img = aType(randn(Float32, 224, 224, 3, 2))
 
             @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
@@ -124,20 +131,22 @@ end
     end
 end
 
-@testitem "ResNeXt" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision_metalhead] begin
-    import Metalhead
+@testitem "ResNeXt" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [
+    :vision_metalhead
+] begin
+    using Metalhead: Metalhead
 
     for (mode, aType, dev, ongpu) in MODES
-        @testset for (depth, cardinality, base_width) in [
-            (50, 32, 4), (101, 32, 8), (101, 64, 4), (152, 64, 4)]
+        @testset for (depth, cardinality, base_width) in
+                     [(50, 32, 4), (101, 32, 8), (101, 64, 4), (152, 64, 4)]
             @testset for pretrained in [false, true]
                 depth == 152 && pretrained && continue
                 pretrained && pkgversion(Metalhead) > v"0.9.4" && continue
 
                 model = Vision.ResNeXt(depth; pretrained, cardinality, base_width)
-                ps, st = Lux.setup(Random.default_rng(), model) |> dev
+                ps, st = dev(Lux.setup(Random.default_rng(), model))
                 st = Lux.testmode(st)
-                img = randn(Float32, 224, 224, 3, 2) |> aType
+                img = aType(randn(Float32, 224, 224, 3, 2))
 
                 @jet model(img, ps, st)
                 @test size(first(model(img, ps, st))) == (1000, 2)
@@ -152,8 +161,10 @@ end
     end
 end
 
-@testitem "WideResNet" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision_metalhead] begin
-    import Metalhead
+@testitem "WideResNet" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [
+    :vision_metalhead
+] begin
+    using Metalhead: Metalhead
 
     for (mode, aType, dev, ongpu) in MODES, depth in [50, 101, 152]
         @testset for pretrained in [false, true]
@@ -161,9 +172,9 @@ end
             pretrained && pkgversion(Metalhead) > v"0.9.4" && continue
 
             model = Vision.WideResNet(depth; pretrained)
-            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            ps, st = dev(Lux.setup(Random.default_rng(), model))
             st = Lux.testmode(st)
-            img = randn(Float32, 224, 224, 3, 2) |> aType
+            img = aType(randn(Float32, 224, 224, 3, 2))
 
             @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
@@ -177,15 +188,17 @@ end
     end
 end
 
-@testitem "SqueezeNet" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision_metalhead] begin
-    import Metalhead
+@testitem "SqueezeNet" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [
+    :vision_metalhead
+] begin
+    using Metalhead: Metalhead
 
     for (mode, aType, dev, ongpu) in MODES
         @testset for pretrained in [false, true]
             model = Vision.SqueezeNet(; pretrained)
-            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            ps, st = dev(Lux.setup(Random.default_rng(), model))
             st = Lux.testmode(st)
-            img = randn(Float32, 224, 224, 3, 2) |> aType
+            img = aType(randn(Float32, 224, 224, 3, 2))
 
             @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
@@ -199,13 +212,13 @@ end
     end
 end
 
-@testitem "VGG" setup=[SharedTestSetup, PretrainedWeightsTestSetup] tags=[:vision] begin
+@testitem "VGG" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [:vision] begin
     for (mode, aType, dev, ongpu) in MODES, depth in [11, 13, 16, 19]
         @testset for pretrained in [false, true], batchnorm in [false, true]
             model = Vision.VGG(depth; batchnorm, pretrained)
-            ps, st = Lux.setup(Random.default_rng(), model) |> dev
+            ps, st = dev(Lux.setup(Random.default_rng(), model))
             st = Lux.testmode(st)
-            img = randn(Float32, 224, 224, 3, 2) |> aType
+            img = aType(randn(Float32, 224, 224, 3, 2))
 
             @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
@@ -219,21 +232,21 @@ end
     end
 end
 
-@testitem "VisionTransformer" setup=[SharedTestSetup] tags=[:vision] begin
+@testitem "VisionTransformer" setup = [SharedTestSetup] tags = [:vision] begin
     for (mode, aType, dev, ongpu) in MODES, name in [:tiny, :small, :base]
         # :large, :huge, :giant, :gigantic --> too large for CI
         model = Vision.VisionTransformer(name; pretrained=false)
-        ps, st = Lux.setup(Random.default_rng(), model) |> dev
+        ps, st = dev(Lux.setup(Random.default_rng(), model))
         st = Lux.testmode(st)
-        img = randn(Float32, 256, 256, 3, 2) |> aType
+        img = aType(randn(Float32, 256, 256, 3, 2))
 
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         model = Vision.VisionTransformer(name; pretrained=false)
-        ps, st = Lux.setup(Random.default_rng(), model) |> dev
+        ps, st = dev(Lux.setup(Random.default_rng(), model))
         st = Lux.testmode(st)
-        img = randn(Float32, 256, 256, 3, 2) |> aType
+        img = aType(randn(Float32, 256, 256, 3, 2))
 
         @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)

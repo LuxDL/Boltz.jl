@@ -43,7 +43,7 @@ returns the time derivatives for position and momentum.
 end
 
 function HamiltonianNN{FST}(model; autodiff=nothing) where {FST}
-    @argcheck autodiff isa Union{Nothing, AutoForwardDiff, AutoZygote}
+    @argcheck autodiff isa Union{Nothing,AutoForwardDiff,AutoZygote}
 
     zygote_loaded = is_extension_loaded(Val(:Zygote))
 
@@ -51,8 +51,10 @@ function HamiltonianNN{FST}(model; autodiff=nothing) where {FST}
         autodiff = ifelse(zygote_loaded, AutoZygote(), AutoForwardDiff())
     else
         if autodiff isa AutoZygote && !zygote_loaded
-            throw(ArgumentError("`autodiff` cannot be `AutoZygote` when `Zygote.jl` is not \
-                                 loaded."))
+            throw(
+                ArgumentError("`autodiff` cannot be `AutoZygote` when `Zygote.jl` is not \
+                               loaded.")
+            )
         end
     end
 
@@ -70,7 +72,7 @@ function (hnn::HamiltonianNN)(x::AbstractVector, ps, st)
     return vec(y), stₙ
 end
 
-function (hnn::HamiltonianNN)(x::AbstractArray{T, N}, ps, st) where {T, N}
+function (hnn::HamiltonianNN)(x::AbstractArray{T,N}, ps, st) where {T,N}
     model = StatefulLuxLayer{Static.known(hnn.fixed_state_type)}(hnn.model, ps, st.model)
 
     st.first_call && check_hamiltonian_layer(hnn.model, x, ps, st.model)
@@ -83,10 +85,11 @@ function (hnn::HamiltonianNN)(x::AbstractArray{T, N}, ps, st) where {T, N}
     n = size(H, N - 1) ÷ 2
     return (
         cat(selectdim(H, N - 1, (n + 1):(2n)), selectdim(H, N - 1, 1:n); dims=Val(N - 1)),
-        (; model=model.st, first_call=false))
+        (; model=model.st, first_call=false),
+    )
 end
 
-function check_hamiltonian_layer(model, x::AbstractArray{T, N}, ps, st) where {T, N}
+function check_hamiltonian_layer(model, x::AbstractArray{T,N}, ps, st) where {T,N}
     y = first(model(x, ps, st))
     @argcheck all(isone, size(y)[1:(end - 1)]) && size(y, ndims(y)) == size(x, N)
 end

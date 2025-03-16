@@ -44,9 +44,16 @@ end
 # For displaying generated Latex
 function postprocess(path, str)
     return replace(
-        str, "````\n__REPLACEME__\$" => "\$\$", "\$__REPLACEME__\n````" => "\$\$")
+        str, "````\n__REPLACEME__\$" => "\$\$", "\$__REPLACEME__\n````" => "\$\$"
+    )
 end
 
 Literate.markdown(
-    path, output_directory; execute=true, name, flavor=Literate.DocumenterFlavor(),
-    preprocess=Base.Fix1(preprocess, path), postprocess=Base.Fix1(postprocess, path))
+    path,
+    output_directory;
+    execute=true,
+    name,
+    flavor=Literate.DocumenterFlavor(),
+    preprocess=Base.Fix1(preprocess, path),
+    postprocess=Base.Fix1(postprocess, path),
+)

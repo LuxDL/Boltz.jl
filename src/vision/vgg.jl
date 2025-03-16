@@ -7,8 +7,14 @@ function VGGFeatureExtractor(config, batchnorm, inchannels)
     input_filters = inchannels
     for (i, (chs, depth)) in enumerate(config)
         layers[2i - 1] = ConvBatchNormActivation(
-            (3, 3), input_filters => chs, depth, relu; last_layer_activation=true,
-            conv_kwargs=(; pad=(1, 1)), use_norm=batchnorm)
+            (3, 3),
+            input_filters => chs,
+            depth,
+            relu;
+            last_layer_activation=true,
+            conv_kwargs=(; pad=(1, 1)),
+            use_norm=batchnorm,
+        )
         layers[2i] = Lux.MaxPool((2, 2))
         input_filters = chs
     end
@@ -20,10 +26,16 @@ end
 end
 
 function VGGClassifier(imsize, nclasses, fcsize, dropout)
-    return VGGClassifier(Lux.Chain(
-        Lux.FlattenLayer(), Lux.Dense(Int(prod(imsize)) => fcsize, relu),
-        Lux.Dropout(dropout), Lux.Dense(fcsize => fcsize, relu),
-        Lux.Dropout(dropout), Lux.Dense(fcsize => nclasses)))
+    return VGGClassifier(
+        Lux.Chain(
+            Lux.FlattenLayer(),
+            Lux.Dense(Int(prod(imsize)) => fcsize, relu),
+            Lux.Dropout(dropout),
+            Lux.Dense(fcsize => fcsize, relu),
+            Lux.Dropout(dropout),
+            Lux.Dense(fcsize => nclasses),
+        ),
+    )
 end
 
 @concrete struct VGG <: AbstractLuxVisionLayer
@@ -59,7 +71,7 @@ const VGG_CONFIG = Dict(
     11 => [(64, 1), (128, 1), (256, 2), (512, 2), (512, 2)],
     13 => [(64, 2), (128, 2), (256, 2), (512, 2), (512, 2)],
     16 => [(64, 2), (128, 2), (256, 3), (512, 3), (512, 3)],
-    19 => [(64, 2), (128, 2), (256, 4), (512, 4), (512, 4)]
+    19 => [(64, 2), (128, 2), (256, 4), (512, 4), (512, 4)],
 )
 
 """

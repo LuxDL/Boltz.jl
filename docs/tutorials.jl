@@ -1,24 +1,26 @@
-const ALL_TUTORIALS = [
-    "GettingStarted/main.jl",
-    "SymbolicOptimalControl/main.jl"
-]
+const ALL_TUTORIALS = ["GettingStarted/main.jl", "SymbolicOptimalControl/main.jl"]
 
 const TUTORIALS = collect(enumerate(ALL_TUTORIALS))
 
 const BUILDKITE_PARALLEL_JOB_COUNT = parse(
-    Int, get(ENV, "BUILDKITE_PARALLEL_JOB_COUNT", "-1"))
+    Int, get(ENV, "BUILDKITE_PARALLEL_JOB_COUNT", "-1")
+)
 
 const TUTORIALS_BUILDING = if BUILDKITE_PARALLEL_JOB_COUNT > 0
     id = parse(Int, ENV["BUILDKITE_PARALLEL_JOB"]) + 1 # Index starts from 0
-    splits = collect(Iterators.partition(
-        TUTORIALS, cld(length(TUTORIALS), BUILDKITE_PARALLEL_JOB_COUNT)))
+    splits = collect(
+        Iterators.partition(
+            TUTORIALS, cld(length(TUTORIALS), BUILDKITE_PARALLEL_JOB_COUNT)
+        ),
+    )
     id > length(splits) ? [] : splits[id]
 else
     TUTORIALS
 end
 
 const NTASKS = min(
-    parse(Int, get(ENV, "LUXLIB_DOCUMENTATION_NTASKS", "1")), length(TUTORIALS_BUILDING))
+    parse(Int, get(ENV, "LUXLIB_DOCUMENTATION_NTASKS", "1")), length(TUTORIALS_BUILDING)
+)
 
 @info "Building Tutorials:" TUTORIALS_BUILDING
 
@@ -32,12 +34,15 @@ asyncmap(TUTORIALS_BUILDING; ntasks=NTASKS) do (i, p)
     tutorial_proj = dirname(path)
     file = joinpath(dirname(@__FILE__), "run_single_tutorial.jl")
 
-    withenv("JULIA_NUM_THREADS" => "$(Threads.nthreads())",
+    withenv(
+        "JULIA_NUM_THREADS" => "$(Threads.nthreads())",
         "JULIA_CUDA_HARD_MEMORY_LIMIT" => "$(100 ÷ NTASKS)%",
-        "JULIA_PKG_PRECOMPILE_AUTO" => "0", "JULIA_DEBUG" => "Literate") do
+        "JULIA_PKG_PRECOMPILE_AUTO" => "0",
+        "JULIA_DEBUG" => "Literate",
+    ) do
         cmd = `$(Base.julia_cmd()) --color=yes --code-coverage=user --threads=$(Threads.nthreads()) --project=$(tutorial_proj) "$(file)" "$(name)" "$(output_directory)" "$(path)"`
         run(cmd)
     end
 
-    return
+    return nothing
 end

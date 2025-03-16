@@ -21,12 +21,14 @@ const ∂∅ = CRC.NoTangent()
 end
 
 function Base.show(
-        io::IO, ::MIME"text/plain", basis::GeneralBasisFunction{name}) where {name}
-    print(io, "Basis.$(name)(order=$(basis.n))")
+    io::IO, ::MIME"text/plain", basis::GeneralBasisFunction{name}
+) where {name}
+    return print(io, "Basis.$(name)(order=$(basis.n))")
 end
 
-function (basis::GeneralBasisFunction{name, F})(x::AbstractArray,
-        grid::Union{AbstractRange, AbstractVector}=1:1:(basis.n)) where {name, F}
+function (basis::GeneralBasisFunction{name,F})(
+    x::AbstractArray, grid::Union{AbstractRange,AbstractVector}=1:1:(basis.n)
+) where {name,F}
     @argcheck length(grid) == basis.n
     if basis.dim == 1 # Fast path where we don't need to materialize the range
         return basis.f.(grid, unsqueeze1(x))
@@ -35,7 +37,8 @@ function (basis::GeneralBasisFunction{name, F})(x::AbstractArray,
     @argcheck ndims(x) + 1 ≥ basis.dim
     new_x_size = ntuple(
         i -> i == basis.dim ? 1 : (i < basis.dim ? size(x, i) : size(x, i - 1)),
-        ndims(x) + 1)
+        ndims(x) + 1,
+    )
     x_new = reshape(x, new_x_size)
     if grid isa AbstractRange
         dev = get_device(x)
@@ -130,8 +133,12 @@ function CRC.rrule(::typeof(Broadcast.broadcasted), ::typeof(fourier), i, x)
     y = @. ifelse(iseven(i), c, s)
 
     ∇fourier = let s = s, c = c, i = i
-        Δ -> (∂∅, ∂∅, ∂∅,
-            dropdims(sum((i / 2) .* ifelse.(iseven.(i), -s, c) .* Δ; dims=1); dims=1))
+        Δ -> (
+            ∂∅,
+            ∂∅,
+            ∂∅,
+            dropdims(sum((i / 2) .* ifelse.(iseven.(i), -s, c) .* Δ; dims=1); dims=1),
+        )
     end
 
     return y, ∇fourier
@@ -163,7 +170,7 @@ function legendre_poly(i, x)
     p == 1 && return b
 
     for j in 2:p
-        a, b = b, @fastmath(((2j - 1) * x * b - (j - 1) * a)/j)
+        a, b = b, @fastmath(((2j - 1) * x * b - (j - 1) * a) / j)
     end
 
     return b

@@ -35,7 +35,7 @@ Constructs a spline layer with the given basis function.
     work with GPU arrays. This will be fixed in the future by extending support to different
     basis functions.
 """
-@concrete struct SplineLayer{TG, B, T} <: AbstractLuxLayer
+@concrete struct SplineLayer{TG,B,T} <: AbstractLuxLayer
     grid_min::T
     grid_max::T
     grid_step::T
@@ -44,24 +44,39 @@ Constructs a spline layer with the given basis function.
     init_saved_points
 end
 
-function SplineLayer(in_dims::Dims, grid_min, grid_max, grid_step, basis::Type{Basis};
-        train_grid::Union{Val, Bool}=Val(false), init_saved_points=nothing) where {Basis}
-    return SplineLayer{unwrap_val(train_grid), Basis}(
-        grid_min, grid_max, grid_step, basis, in_dims, init_saved_points)
+function SplineLayer(
+    in_dims::Dims,
+    grid_min,
+    grid_max,
+    grid_step,
+    basis::Type{Basis};
+    train_grid::Union{Val,Bool}=Val(false),
+    init_saved_points=nothing,
+) where {Basis}
+    return SplineLayer{unwrap_val(train_grid),Basis}(
+        grid_min, grid_max, grid_step, basis, in_dims, init_saved_points
+    )
 end
 
 function LuxCore.initialparameters(
-        rng::AbstractRNG, layer::SplineLayer{TG, B, T}) where {TG, B, T}
+    rng::AbstractRNG, layer::SplineLayer{TG,B,T}
+) where {TG,B,T}
     if layer.init_saved_points === nothing
-        saved_points = rand(rng, T, layer.in_dims...,
-            length((layer.grid_min):(layer.grid_step):(layer.grid_max)))
+        saved_points = rand(
+            rng,
+            T,
+            layer.in_dims...,
+            length((layer.grid_min):(layer.grid_step):(layer.grid_max)),
+        )
     else
         saved_points = layer.init_saved_points(
-            rng, in_dims, layer.grid_min, layer.grid_max, layer.grid_step)
+            rng, in_dims, layer.grid_min, layer.grid_max, layer.grid_step
+        )
     end
     TG || return (; saved_points)
     return (;
-        saved_points, grid=collect((layer.grid_min):(layer.grid_step):(layer.grid_max)))
+        saved_points, grid=collect((layer.grid_min):(layer.grid_step):(layer.grid_max))
+    )
 end
 
 function LuxCore.initialstates(::AbstractRNG, layer::SplineLayer{false})

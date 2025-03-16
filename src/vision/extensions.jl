@@ -130,8 +130,16 @@ function WideResNet end
     pretrained::Bool
 end
 
-for f in [:ResNet, :ResNeXt, :GoogLeNet, :DenseNet,
-    :MobileNet, :ConvMixer, :SqueezeNet, :WideResNet]
+for f in [
+    :ResNet,
+    :ResNeXt,
+    :GoogLeNet,
+    :DenseNet,
+    :MobileNet,
+    :ConvMixer,
+    :SqueezeNet,
+    :WideResNet,
+]
     f_metalhead = Symbol(f, :Metalhead)
     @eval begin
         function $(f_metalhead) end

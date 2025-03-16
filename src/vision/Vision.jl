@@ -10,8 +10,13 @@ using LuxCore: LuxCore, AbstractLuxLayer, AbstractLuxWrapperLayer
 using NNlib: relu
 
 using ..InitializeModels: InitializeModels
-using ..Layers: Layers, ConvBatchNormActivation, ClassTokens, PatchEmbedding,
-                ViPosEmbedding, VisionTransformerEncoder
+using ..Layers:
+    Layers,
+    ConvBatchNormActivation,
+    ClassTokens,
+    PatchEmbedding,
+    ViPosEmbedding,
+    VisionTransformerEncoder
 using ..Utils: second_dim_mean, is_extension_loaded
 
 abstract type AbstractLuxVisionLayer <: AbstractLuxWrapperLayer{:layer} end
@@ -23,7 +28,8 @@ for op in (:states, :parameters)
         if hasfield(typeof(model), :pretrained) && model.pretrained
             path = InitializeModels.get_pretrained_weights_path(model.pretrained_name)
             jld2_loaded_obj = InitializeModels.load_using_jld2(
-                joinpath(path, "$(model.pretrained_name).jld2"), $(string(op)))
+                joinpath(path, "$(model.pretrained_name).jld2"), $(string(op))
+            )
             return InitializeModels.$(fname_load)(jld2_loaded_obj)
         end
         return LuxCore.$(fname)(rng, model.layer)
@@ -35,8 +41,22 @@ include("alexnet.jl")
 include("vit.jl")
 include("vgg.jl")
 
-@compat(public,
-    (AlexNet, ConvMixer, DenseNet, MobileNet, ResNet, ResNeXt,
-        SqueezeNet, GoogLeNet, ViT, VisionTransformer, VGG, WideResNet))
+@compat(
+    public,
+    (
+        AlexNet,
+        ConvMixer,
+        DenseNet,
+        MobileNet,
+        ResNet,
+        ResNeXt,
+        SqueezeNet,
+        GoogLeNet,
+        ViT,
+        VisionTransformer,
+        VGG,
+        WideResNet,
+    )
+)
 
 end

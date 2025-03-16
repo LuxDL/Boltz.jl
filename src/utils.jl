@@ -20,7 +20,7 @@ end
 function fast_chunk(x::AnyGPUArray, h::Int, n::Int, ::Val{dim}) where {dim}
     return copy(selectdim(x, dim, fast_chunk(h, n)))
 end
-function fast_chunk(x::AbstractArray, ::Val{N}, d::Val{D}) where {N, D}
+function fast_chunk(x::AbstractArray, ::Val{N}, d::Val{D}) where {N,D}
     return fast_chunk.((x,), size(x, D) ÷ N, 1:N, d)
 end
 
@@ -29,7 +29,7 @@ end
 
 Flattens the first 2 dimensions of `x`, and permutes the remaining dimensions to (2, 1, 3).
 """
-function flatten_spatial(x::AbstractArray{T, 4}) where {T}
+function flatten_spatial(x::AbstractArray{T,4}) where {T}
     # TODO: Should we do lazy permutedims for non-GPU arrays?
     return permutedims(reshape(x, (:, size(x, 3), size(x, 4))), (2, 1, 3))
 end
@@ -56,7 +56,7 @@ should_type_assert(x) = true
 unsqueeze1(x::AbstractArray) = reshape(x, 1, size(x)...)
 unsqueezeN(x::AbstractArray) = reshape(x, size(x)..., 1)
 
-catN(x::AbstractArray{T, N}, y::AbstractArray{T, N}) where {T, N} = cat(x, y; dims=Val(N))
+catN(x::AbstractArray{T,N}, y::AbstractArray{T,N}) where {T,N} = cat(x, y; dims=Val(N))
 
 mapreduce_stack(xs) = mapreduce(unsqueezeN, catN, xs)
 
@@ -64,8 +64,8 @@ unwrap_val(x) = x
 unwrap_val(::Val{T}) where {T} = T
 
 function safe_warning(msg::AbstractString)
-    @warn msg maxlog=1
-    return
+    @warn msg maxlog = 1
+    return nothing
 end
 
 safe_kron(a, b) = map(safe_kron_internal, a, b)
@@ -79,9 +79,9 @@ function safe_kron_internal(::Type{CUDADevice}, a::AbstractVector, b::AbstractVe
 end
 function safe_kron_internal(::Type{D}, a::AbstractVector, b::AbstractVector) where {D}
     safe_warning("`kron` is not supported on $(D). Falling back to `kron` on CPU.")
-    a_cpu = a |> CPUDevice()
-    b_cpu = b |> CPUDevice()
-    return safe_kron_internal(CPUDevice, a_cpu, b_cpu) |> get_device((a, b))
+    a_cpu = CPUDevice()(a)
+    b_cpu = CPUDevice()(b)
+    return get_device((a, b))(safe_kron_internal(CPUDevice, a_cpu, b_cpu))
 end
 
 struct DataTransferBarrier{V}

@@ -78,17 +78,20 @@ end
 end
 
 function Base.show(io::IO, l::InternalDynamicExpressionWrapper)
-    print(io,
+    return print(
+        io,
         "InternalDynamicExpressionWrapper($(l.operator_enum), $(l.expression); \
-         eval_options=$(l.eval_options))")
+         eval_options=$(l.eval_options))",
+    )
 end
 
 function LuxCore.initialparameters(::AbstractRNG, layer::InternalDynamicExpressionWrapper)
-    params = map(Base.Fix2(getproperty, :val),
+    params = map(
+        Base.Fix2(getproperty, :val),
         filter(
             node -> node.degree == 0 && node.constant,
-            dynamic_expression_get_node(layer.expression)
-        )
+            dynamic_expression_get_node(layer.expression),
+        ),
     )
     return (; params)
 end
@@ -97,15 +100,15 @@ function update_de_expression_constants!(expression, ps)
     # Don't use `set_constant_refs!` here, since it requires the types to match. In our
     # case we just warn the user
     params = filter(
-        node -> node.degree == 0 && node.constant,
-        dynamic_expression_get_node(expression)
+        node -> node.degree == 0 && node.constant, dynamic_expression_get_node(expression)
     )
     foreach(enumerate(params)) do (i, node)
         (node.val isa typeof(ps[i])) ||
-            @warn lazy"node.val::$(typeof(node.val)) != ps[$i]::$(typeof(ps[i])). Type of node.val takes precedence. Fix the input expression if this is unintended." maxlog=1
+            @warn lazy"node.val::$(typeof(node.val)) != ps[$i]::$(typeof(ps[i])). Type of node.val takes precedence. Fix the input expression if this is unintended." maxlog =
+                1
         return node.val = ps[i]
     end
-    return
+    return nothing
 end
 
 function (de::InternalDynamicExpressionWrapper)(x::AbstractVector, ps, st)
@@ -115,13 +118,20 @@ end
 
 # NOTE: Can't use `get_device_type` since it causes problems with ReverseDiff
 function (de::InternalDynamicExpressionWrapper)(x::AbstractMatrix, ps, st)
-    y = apply_dynamic_expression(de, de.expression, de.operator_enum,
-        Lux.match_eltype(de, ps, st, x), ps.params, get_device(x))
+    y = apply_dynamic_expression(
+        de,
+        de.expression,
+        de.operator_enum,
+        Lux.match_eltype(de, ps, st, x),
+        ps.params,
+        get_device(x),
+    )
     return y, st
 end
 
 function apply_dynamic_expression(
-        de::InternalDynamicExpressionWrapper, expr, operator_enum, x, ps, ::CPUDevice)
+    de::InternalDynamicExpressionWrapper, expr, operator_enum, x, ps, ::CPUDevice
+)
     if !is_extension_loaded(Val(:DynamicExpressions))
         error("`DynamicExpressions.jl` is not loaded. Please load it before using \
                `DynamicExpressionsLayer`.")
@@ -137,8 +147,14 @@ function apply_dynamic_expression(de, expr, operator_enum, x, ps, dev)
 end
 
 function CRC.rrule(
-        ::typeof(apply_dynamic_expression), de::InternalDynamicExpressionWrapper,
-        expr, operator_enum, x, ps, ::CPUDevice)
+    ::typeof(apply_dynamic_expression),
+    de::InternalDynamicExpressionWrapper,
+    expr,
+    operator_enum,
+    x,
+    ps,
+    ::CPUDevice,
+)
     if !is_extension_loaded(Val(:DynamicExpressions))
         error("`DynamicExpressions.jl` is not loaded. Please load it before using \
                `DynamicExpressionsLayer`.")

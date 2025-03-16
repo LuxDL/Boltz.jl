@@ -15,10 +15,7 @@ using Lux, Boltz, Random
 #
 # If we were to do this in `Lux.jl` we would write the following:
 
-model = Chain(
-    Dense(784, 256, relu),
-    Dense(256, 10)
-)
+model = Chain(Dense(784, 256, relu), Dense(256, 10))
 
 # But in `Boltz.jl` we can do this:
 

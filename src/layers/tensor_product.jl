@@ -31,7 +31,8 @@ end
 
 function TensorProductLayer(basis_fns, out_dim::Int; init_weight::F=randn32) where {F}
     dense = Lux.Dense(
-        prod(Base.Fix2(getproperty, :n), basis_fns) => out_dim; use_bias=false, init_weight)
+        prod(Base.Fix2(getproperty, :n), basis_fns) => out_dim; use_bias=false, init_weight
+    )
     return TensorProductLayer(Tuple(basis_fns), dense, out_dim)
 end
 
@@ -40,7 +41,7 @@ function (tp::TensorProductLayer)(x::AbstractVector, ps, st)
     return vec(y), stₙ
 end
 
-function (tp::TensorProductLayer)(x::AbstractArray{T, N}, ps, st) where {T, N}
+function (tp::TensorProductLayer)(x::AbstractArray{T,N}, ps, st) where {T,N}
     x′ = LuxOps.eachslice(x, Val(N - 1))                           # [I1, I2, ..., B] × T
     @argcheck length(x′) == length(tp.basis_fns)
 
