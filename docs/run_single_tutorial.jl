@@ -51,7 +51,7 @@ end
 Literate.markdown(
     path,
     output_directory;
-    execute=false,
+    execute=true,
     name,
     flavor=Literate.DocumenterFlavor(),
     preprocess=Base.Fix1(preprocess, path),
