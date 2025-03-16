@@ -67,9 +67,7 @@ end
         @test ∂x_zyg !== nothing
         @test ∂ps_zyg !== nothing
         if !ongpu
-            ∂ps_zyg = _remove_nothing(
-                getdata(dev(ComponentArray(cpu_device()(∂ps_zyg))))
-            )
+            ∂ps_zyg = _remove_nothing(getdata(dev(ComponentArray(cpu_device()(∂ps_zyg)))))
             ∂x_fd = ForwardDiff.gradient(x -> sum(abs2, first(hnn(x, ps, st))), x)
             ∂ps_fd = getdata(
                 ForwardDiff.gradient(ps -> sum(abs2, first(hnn(x, ps, st))), ps_ca)
@@ -91,9 +89,7 @@ end
         @test ∂x_zyg !== nothing
         @test ∂ps_zyg !== nothing
         if !ongpu
-            ∂ps_zyg = _remove_nothing(
-                getdata(dev(ComponentArray(cpu_device()(∂ps_zyg))))
-            )
+            ∂ps_zyg = _remove_nothing(getdata(dev(ComponentArray(cpu_device()(∂ps_zyg)))))
             ∂x_fd = ForwardDiff.gradient(x -> sum(abs2, first(hnn(x, ps_ca, st))), x)
             ∂ps_fd = getdata(
                 ForwardDiff.gradient(ps -> sum(abs2, first(hnn(x, ps, st))), ps_ca)
