@@ -7,7 +7,6 @@ pages = [
         "Symbolic Optimal Control" => "tutorials/2_SymbolicOptimalControl.md",
     ],
     "API Reference" => [
-        "Index" => "api/index.md",
         "Basis Functions" => "api/basis.md",
         "Layers API" => "api/layers.md",
         "Vision Models" => "api/vision.md",
@@ -41,7 +40,6 @@ makedocs(;
     format=DocumenterVitepress.MarkdownVitepress(;
         repo="github.com/LuxDL/Boltz.jl", devbranch="main", devurl="dev", deploy_decision
     ),
-    draft=false,
     plugins=[CitationBibliography(joinpath(@__DIR__, "ref.bib"))],
     pages,
 )

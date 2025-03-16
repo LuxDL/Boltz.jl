@@ -25,11 +25,7 @@ steps:
             julia:
               - "1"
             group:
-              - "layers"
-              - "others"
-              - "vision"
-              - "vision_metalhead"
-              - "integration"
+              - "all"
 
   - group: ":julia: AMD GPU"
     steps:
@@ -61,11 +57,7 @@ steps:
             julia:
               - "1"
             group:
-              - "layers"
-              - "others"
-              - "vision"
-              - "vision_metalhead"
-              - "integration"
+              - "all"
 
 env:
   SECRET_CODECOV_TOKEN: "gZlC/IAmeUJehhP5mP2QuUV5a1qV61cvo4PUCLkA9vVkt3x6wgD6fTZmCm+f+gHkmkssFxX+q2h1Ud00XXc75H2LrjyR/cDTIthcO46BBOidYocv/U0gfhp6uT2IZ9fi+ryFfTVVpZ0RIUGmDTj0O/b5qt4oaTriAArLAq6mMipbIR9YCz7ZD/hWQXx8oDeAbnDpwQaddwPyhJhz95nayknOpuJj+ClaVOxgsLGZc3ZWiTj1QxkXBNwxLD2ALeG16Qxs9h7eK87sdcbWeTihvJ6OooARgpoVJAa2pJCFYOGy4Bh07c0VTZmicN2M3GIi74Y5T1PWNaz7nGeANO5Pow==;U2FsdGVkX1843DHkbGWCV9PArLBw0rNqmdy56VOTRNTifBSpkC796Oez1lMFU+yDtkElbcrRSIlS5hRFqpsaFA=="

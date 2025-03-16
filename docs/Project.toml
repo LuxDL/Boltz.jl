@@ -19,3 +19,6 @@ Literate = "2"
 Lux = "1"
 Random = "1.10"
 Zygote = "0.6.70, 0.7"
+
+[sources]
+Boltz = { path = ".." }
