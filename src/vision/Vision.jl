@@ -5,7 +5,7 @@ using Compat: @compat
 using ConcreteStructs: @concrete
 using Random: Random, AbstractRNG
 
-using Lux: Lux
+using Lux: Lux, Chain, Conv, BatchNorm, AdaptiveMeanPool, NoOpLayer
 using LuxCore: LuxCore, AbstractLuxLayer, AbstractLuxWrapperLayer
 using NNlib: relu
 

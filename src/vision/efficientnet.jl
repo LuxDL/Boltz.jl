@@ -1,10 +1,3 @@
-# 
-# This code is adapted from https://github.com/pxl-th/EfficientNet.jl
-# The adaptation is done by Pevnak (pevnak@protonmail.ch)
-# 
-using Lux
-using Pickle
-
 struct BlockParams
     repeat::Int
     kernel::Tuple{Int,Int}
@@ -19,7 +12,7 @@ end
 struct GlobalParams
     width_coef::Real
     depth_coef::Real
-    image_size::Tuple{Int,Int}
+    image_size::Dims{2}
 
     n_classes::Int
 
@@ -29,20 +22,18 @@ struct GlobalParams
 end
 
 # (width_coefficient, depth_coefficient, resolution)
-function get_efficientnet_params(model_name::String)
-    return Dict(
-        "efficientnet-b0" => (1.0, 1.0, 224),
-        "efficientnet-b1" => (1.0, 1.1, 240),
-        "efficientnet-b2" => (1.1, 1.2, 260),
-        "efficientnet-b3" => (1.2, 1.4, 300),
-        "efficientnet-b4" => (1.4, 1.8, 380),
-        "efficientnet-b5" => (1.6, 2.2, 456),
-        "efficientnet-b6" => (1.8, 2.6, 528),
-        "efficientnet-b7" => (2.0, 3.1, 600),
-        "efficientnet-b8" => (2.2, 3.6, 672),
-        "efficientnet-l2" => (4.3, 5.3, 800),
-    )[model_name]
-end
+const EFFICIENTNET_CONFIG = Dict(
+    "efficientnet-b0" => (1.0, 1.0, 224),
+    "efficientnet-b1" => (1.0, 1.1, 240),
+    "efficientnet-b2" => (1.1, 1.2, 260),
+    "efficientnet-b3" => (1.2, 1.4, 300),
+    "efficientnet-b4" => (1.4, 1.8, 380),
+    "efficientnet-b5" => (1.6, 2.2, 456),
+    "efficientnet-b6" => (1.8, 2.6, 528),
+    "efficientnet-b7" => (2.0, 3.1, 600),
+    "efficientnet-b8" => (2.2, 3.6, 672),
+    "efficientnet-l2" => (4.3, 5.3, 800),
+)
 
 function get_model_params(model_name; n_classes=1000, include_top=true, kwargs...)
     block_params = [
@@ -55,7 +46,7 @@ function get_model_params(model_name; n_classes=1000, include_top=true, kwargs..
         BlockParams(1, (3, 3), 1, 6, 192, 320, 0.25, true),
     ]
 
-    wc, dc, res = get_efficientnet_params(model_name)
+    wc, dc, res = EFFICIENTNET_CONFIG[model_name]
     global_params = GlobalParams(wc, dc, (res, res), n_classes, 8, nothing, include_top)
     return block_params, global_params
 end
@@ -75,35 +66,14 @@ function round_filter(filters, global_params::GlobalParams)
     return new_filters
 end
 
-struct MBConv{E,D,X,P} <: Lux.AbstractLuxLayer
-    expansion::E
-    depthwise::D
-    excitation::X
-    projection::P
-
-    do_expansion::Bool
-    do_excitation::Bool
+@concrete struct MBConv <: AbstractLuxContainerLayer{(
+    :expansion, :depthwise, :excitation, :projection
+)}
+    expansion
+    depthwise
+    excitation
+    projection
     do_skip::Bool
-end
-
-function LuxCore.initialparameters(rng::AbstractRNG, l::MBConv)
-    ps = (
-        expansion=Lux.initialparameters(rng, l.expansion),
-        depthwise=Lux.initialparameters(rng, l.depthwise),
-        excitation=Lux.initialparameters(rng, l.excitation),
-        projection=Lux.initialparameters(rng, l.projection),
-    )
-    return (ps)
-end
-
-function LuxCore.initialstates(rng::AbstractRNG, l::MBConv)
-    st = (
-        expansion=Lux.initialstates(rng, l.expansion),
-        depthwise=Lux.initialstates(rng, l.depthwise),
-        excitation=Lux.initialstates(rng, l.excitation),
-        projection=Lux.initialstates(rng, l.projection),
-    )
-    return (st)
 end
 
 """
@@ -126,18 +96,20 @@ Args:
 function MBConv(
     in_channels, out_channels, kernel, stride; expansion_ratio, se_ratio, skip_connection
 )
+    @assert 0 < se_ratio ≤ 1
+
     do_skip = skip_connection && stride == 1 && in_channels == out_channels
-    do_expansion, do_excitation = expansion_ratio != 1, 0 < se_ratio ≤ 1
+    do_expansion = expansion_ratio != 1
     pad, use_bias = SamePad(), false
 
     mid_channels = ceil(Int, in_channels * expansion_ratio)
     expansion = if do_expansion
         Chain(
-        Conv((1, 1), in_channels => mid_channels; use_bias, pad),
-        BatchNorm(mid_channels, swish),
-    )
+            Conv((1, 1), in_channels => mid_channels; use_bias, pad),
+            BatchNorm(mid_channels, swish),
+        )
     else
-        nothing
+        NoOpLayer()
     end
 
     depthwise = Chain(
@@ -147,87 +119,39 @@ function MBConv(
         BatchNorm(mid_channels, swish),
     )
 
-    !do_excitation && error("We always do excitation")
-    excitation = nothing
-    if do_excitation
-        n_squeezed_channels = max(1, ceil(Int, in_channels * se_ratio))
-        excitation = Chain(
-            AdaptiveMeanPool((1, 1)),
-            Conv((1, 1), mid_channels => n_squeezed_channels, swish; pad),
-            Conv((1, 1), n_squeezed_channels => mid_channels; pad),
-        )
-    end
+    n_squeezed_channels = max(1, ceil(Int, in_channels * se_ratio))
+    excitation = Chain(
+        AdaptiveMeanPool((1, 1)),
+        Conv((1, 1), mid_channels => n_squeezed_channels, swish; pad),
+        Conv((1, 1), n_squeezed_channels => mid_channels; pad),
+    )
     projection = Chain(
         Conv((1, 1), mid_channels => out_channels; pad, use_bias), BatchNorm(out_channels)
     )
+
     return MBConv(
         expansion, depthwise, excitation, projection, do_expansion, do_excitation, do_skip
     )
-end
-
-# here we do not do the expansion phase
-function (m::MBConv{<:Nothing})(x, ps, st)
-    st_expansion = st.expansion
-    o, st_depthwise = m.depthwise(x, ps.depthwise, st.depthwise)
-
-    oe, st_excitation = m.excitation(o, ps.excitation, st.excitation)
-    o = σ.(oe) .* o
-    o, st_projection = m.projection(o, ps.projection, st.projection)
-    if m.do_skip
-        o = o + x
-    end
-    new_st = (
-        expansion=st_expansion,
-        depthwise=st_depthwise,
-        excitation=st_excitation,
-        projection=st_projection,
-    )
-    return (o, new_st)
 end
 
 function (m::MBConv)(x, ps, st)
     o, st_expansion = m.expansion(x, ps.expansion, st.expansion)
     o, st_depthwise = m.depthwise(o, ps.depthwise, st.depthwise)
     oe, st_excitation = m.excitation(o, ps.excitation, st.excitation)
+
     o = σ.(oe) .* o
     o, st_projection = m.projection(o, ps.projection, st.projection)
-    if m.do_skip
-        o = o + x
-    end
-    new_st = (
-        expansion=st_expansion,
-        depthwise=st_depthwise,
-        excitation=st_excitation,
-        projection=st_projection,
-    )
-    return (o, new_st)
-end
 
-function Base.show(io::IO, m::MBConv{E,D,X,P}) where {E,D,X,P}
-    return print(
-        io,
-        "MBConv:\n",
-        "- expansion: ",
-        E,
-        "\n",
-        "- depthwise: ",
-        D,
-        "\n",
-        "- excitation: ",
-        X,
-        "\n",
-        "- projection: ",
-        P,
-        "\n",
-        "- do expansion: ",
-        m.do_expansion,
-        "\n",
-        "- do excitation: ",
-        m.do_excitation,
-        "\n",
-        "- do skip: ",
-        m.do_skip,
-        "\n",
+    m.do_skip && (o = o .+ x)
+
+    return (
+        o,
+        (;
+            expansion=st_expansion,
+            depthwise=st_depthwise,
+            projection=st_projection,
+            excitation=st_excitation,
+        ),
     )
 end
 
