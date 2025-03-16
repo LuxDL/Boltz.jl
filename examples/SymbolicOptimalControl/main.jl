@@ -32,8 +32,17 @@
 
 # ## Package Imports
 
-using Lux, Boltz, ComponentArrays, OrdinaryDiffEqVerner, Optimization, OptimizationOptimJL,
-      OptimizationOptimisers, SciMLSensitivity, Statistics, Printf, Random
+using Lux,
+    Boltz,
+    ComponentArrays,
+    OrdinaryDiffEqVerner,
+    Optimization,
+    OptimizationOptimJL,
+    OptimizationOptimisers,
+    SciMLSensitivity,
+    Statistics,
+    Printf,
+    Random
 using DynamicExpressions, SymbolicRegression, MLJ, SymbolicUtils, Latexify
 using CairoMakie
 
@@ -72,13 +81,18 @@ function construct_ude(mlp, solver; kwargs...)
             u₁, u₂ = u
             du[1] = u₂
             du[2] = mlp([t], p)[1]^3
-            return
+            return nothing
         end
 
         prob = ODEProblem{true}(dudt, x, extrema(ts), ps.mlp)
 
-        sol = solve(prob, solver; saveat=ts,
-            sensealg=QuadratureAdjoint(; autojacvec=ReverseDiffVJP(true)), kwargs...)
+        sol = solve(
+            prob,
+            solver;
+            saveat=ts,
+            sensealg=QuadratureAdjoint(; autojacvec=ReverseDiffVJP(true)),
+            kwargs...,
+        )
 
         us = mlp(reshape(ts, 1, :), ps.mlp)
         ret_sol === Val(true) && @return sol, us
@@ -181,7 +195,8 @@ Y_train = mlp[2](X_train, trained_ude.ps.mlp.layer_2, trained_ude.st.mlp.layer_2
 # to fit the symbolic expression.
 
 srmodel = MultitargetSRRegressor(;
-    binary_operators=[+, -, *, /], niterations=100, save_to_file=false);
+    binary_operators=[+, -, *, /], niterations=100, save_to_file=false
+);
 
 # One important note here is to transpose the data because that is how MLJ expects the data
 # to be structured (this is in contrast to how Lux or SymbolicRegression expects the data)
@@ -189,8 +204,12 @@ srmodel = MultitargetSRRegressor(;
 mach = machine(srmodel, X_train', Y_train')
 fit!(mach; verbosity=0)
 r = report(mach)
-best_eq = [r.equations[1][r.best_idx[1]], r.equations[2][r.best_idx[2]],
-    r.equations[3][r.best_idx[3]], r.equations[4][r.best_idx[4]]]
+best_eq = [
+    r.equations[1][r.best_idx[1]],
+    r.equations[2][r.best_idx[2]],
+    r.equations[3][r.best_idx[3]],
+    r.equations[4][r.best_idx[4]],
+]
 
 # Let's see the expressions that SymbolicRegression.jl found. In case you were wondering,
 # these expressions are not hardcoded, it is live updated from the output of the code above
@@ -223,9 +242,11 @@ nothing #hide
 # Now that we have the symbolic expression, we can combine it with the neural network to
 # solve the optimal control problem. but we do need to perform some finetuning.
 
-hybrid_mlp = Chain(Dense(1 => 4, gelu),
+hybrid_mlp = Chain(
+    Dense(1 => 4, gelu),
     Layers.DynamicExpressionsLayer(OperatorEnum(; binary_operators=[+, -, *, /]), best_eq),
-    Dense(4 => 1))
+    Dense(4 => 1),
+)
 
 # There you have it! It is that easy to take the fitted Symbolic Expression and combine it
 # with a neural network. Let's see how it performs before fintetuning.
@@ -236,9 +257,12 @@ hybrid_ude = construct_ude(hybrid_mlp, Vern9(); abstol=1e-10, reltol=1e-10);
 # new model
 st = Lux.initialstates(rng, hybrid_ude)
 ps = (;
-    mlp=(; layer_1=trained_ude.ps.mlp.layer_1,
+    mlp=(;
+        layer_1=trained_ude.ps.mlp.layer_1,
         layer_2=Lux.initialparameters(rng, hybrid_mlp[2]),
-        layer_3=trained_ude.ps.mlp.layer_3))
+        layer_3=trained_ude.ps.mlp.layer_3,
+    )
+)
 ps = ComponentArray(ps)
 
 sol, us = hybrid_ude(([-4.0, 0.0], 0.0:0.01:8.0, Val(true)), ps, st)[1];

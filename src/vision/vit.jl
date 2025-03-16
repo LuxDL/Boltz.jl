@@ -5,21 +5,35 @@
 end
 
 function VisionTransformer(;
-        imsize::Dims{2}=(256, 256), in_channels::Int=3, patch_size::Dims{2}=(16, 16),
-        embed_planes::Int=768, depth::Int=6, number_heads=16,
-        mlp_ratio=4.0f0, dropout_rate=0.1f0, embedding_dropout_rate=0.1f0,
-        pool::Symbol=:class, num_classes::Int=1000)
+    imsize::Dims{2}=(256, 256),
+    in_channels::Int=3,
+    patch_size::Dims{2}=(16, 16),
+    embed_planes::Int=768,
+    depth::Int=6,
+    number_heads=16,
+    mlp_ratio=4.0f0,
+    dropout_rate=0.1f0,
+    embedding_dropout_rate=0.1f0,
+    pool::Symbol=:class,
+    num_classes::Int=1000,
+)
     @argcheck pool in (:class, :mean)
     return Lux.Chain(
-        Lux.Chain(PatchEmbedding(imsize, patch_size, in_channels, embed_planes),
+        Lux.Chain(
+            PatchEmbedding(imsize, patch_size, in_channels, embed_planes),
             ClassTokens(embed_planes),
             ViPosEmbedding(embed_planes, prod(imsize .÷ patch_size) + 1),
             Lux.Dropout(embedding_dropout_rate),
             VisionTransformerEncoder(
-                embed_planes, depth, number_heads; mlp_ratio, dropout_rate),
-            Lux.WrappedFunction(ifelse(pool === :class, x -> x[:, 1, :], second_dim_mean))),
-        Lux.Chain(Lux.LayerNorm((embed_planes,); affine=true),
-            Lux.Dense(embed_planes, num_classes)))
+                embed_planes, depth, number_heads; mlp_ratio, dropout_rate
+            ),
+            Lux.WrappedFunction(ifelse(pool === :class, x -> x[:, 1, :], second_dim_mean)),
+        ),
+        Lux.Chain(
+            Lux.LayerNorm((embed_planes,); affine=true),
+            Lux.Dense(embed_planes, num_classes),
+        ),
+    )
 end
 
 #! format: off
@@ -52,7 +66,8 @@ Creates a Vision Transformer model with the specified configuration.
 function VisionTransformer(name::Symbol; pretrained=false, kwargs...)
     @argcheck name in keys(VIT_CONFIGS)
     return VisionTransformer(
-        VisionTransformer(; VIT_CONFIGS[name]..., kwargs...), name, pretrained)
+        VisionTransformer(; VIT_CONFIGS[name]..., kwargs...), name, pretrained
+    )
 end
 
 const ViT = VisionTransformer

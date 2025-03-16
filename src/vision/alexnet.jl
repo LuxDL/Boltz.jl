@@ -24,7 +24,7 @@ function AlexNet(; pretrained=false)
             Lux.Conv((3, 3), 192 => 384, relu; pad=1),
             Lux.Conv((3, 3), 384 => 256, relu; pad=1),
             Lux.Conv((3, 3), 256 => 256, relu; pad=1),
-            Lux.MaxPool((3, 3); stride=2)
+            Lux.MaxPool((3, 3); stride=2),
         ),
         classifier=Lux.Chain(
             Lux.AdaptiveMeanPool((6, 6)),
@@ -33,8 +33,8 @@ function AlexNet(; pretrained=false)
             Lux.Dense(256 * 6 * 6 => 4096, relu),
             Lux.Dropout(0.5f0),
             Lux.Dense(4096 => 4096, relu),
-            Lux.Dense(4096 => 1000)
-        )
+            Lux.Dense(4096 => 1000),
+        ),
     )
     return AlexNet(alexnet, :alexnet, pretrained)
 end

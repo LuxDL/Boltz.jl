@@ -4,21 +4,15 @@ pages = [
     "Boltz.jl" => "index.md",
     "Tutorials" => [
         "Getting Started" => "tutorials/1_GettingStarted.md",
-        "Symbolic Optimal Control" => "tutorials/2_SymbolicOptimalControl.md"
+        "Symbolic Optimal Control" => "tutorials/2_SymbolicOptimalControl.md",
     ],
     "API Reference" => [
-        "Index" => "api/index.md",
         "Basis Functions" => "api/basis.md",
         "Layers API" => "api/layers.md",
         "Vision Models" => "api/vision.md",
-        "Private API" => "api/private.md"
-    ]
+        "Private API" => "api/private.md",
+    ],
 ]
-
-bib = CitationBibliography(
-    joinpath(@__DIR__, "ref.bib");
-    style=:authoryear
-)
 
 doctestexpr = quote
     using Boltz, Random, Lux
@@ -28,20 +22,31 @@ end
 DocMeta.setdocmeta!(Boltz, :DocTestSetup, doctestexpr; recursive=true)
 
 deploy_config = Documenter.auto_detect_deploy_system()
-deploy_decision = Documenter.deploy_folder(deploy_config; repo="github.com/LuxDL/Boltz.jl",
-    devbranch="main", devurl="dev", push_preview=true)
+deploy_decision = Documenter.deploy_folder(
+    deploy_config;
+    repo="github.com/LuxDL/Boltz.jl",
+    devbranch="main",
+    devurl="dev",
+    push_preview=true,
+)
 
-makedocs(; sitename="Boltz.jl Docs",
+makedocs(;
+    sitename="Boltz.jl Docs",
     authors="Avik Pal et al.",
     clean=true,
     modules=[Boltz],
     linkcheck=true,
     repo="https://github.com/LuxDL/Boltz.jl/blob/{commit}{path}#{line}",
     format=DocumenterVitepress.MarkdownVitepress(;
-        repo="github.com/LuxDL/Boltz.jl", devbranch="main", devurl="dev", deploy_decision),
-    draft=false,
-    plugins=[bib],
-    pages)
+        repo="github.com/LuxDL/Boltz.jl", devbranch="main", devurl="dev", deploy_decision
+    ),
+    plugins=[CitationBibliography(joinpath(@__DIR__, "ref.bib"))],
+    pages,
+)
 
-deploydocs(; repo="github.com/LuxDL/Boltz.jl.git",
-    push_preview=true, target="build", devbranch="main")
+deploydocs(;
+    repo="github.com/LuxDL/Boltz.jl.git",
+    push_preview=true,
+    target="build",
+    devbranch="main",
+)

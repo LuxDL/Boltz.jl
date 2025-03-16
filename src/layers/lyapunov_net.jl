@@ -52,12 +52,14 @@ inputs.
     ψ <: Function
     r <: Function
 
-    function PositiveDefinite(model, x0::AbstractVector; ψ=Base.Fix1(sum, abs2),
-            r=Base.Fix1(sum, abs2) ∘ -)
+    function PositiveDefinite(
+        model, x0::AbstractVector; ψ=Base.Fix1(sum, abs2), r=Base.Fix1(sum, abs2) ∘ -
+    )
         return PositiveDefinite(model, Returns(copy(x0)), length(x0), ψ, r)
     end
-    function PositiveDefinite(model; in_dims::Integer, ψ=Base.Fix1(sum, abs2),
-            r=Base.Fix1(sum, abs2) ∘ -)
+    function PositiveDefinite(
+        model; in_dims::Integer, ψ=Base.Fix1(sum, abs2), r=Base.Fix1(sum, abs2) ∘ -
+    )
         return PositiveDefinite(model, zeros32, in_dims, ψ, r)
     end
 end
@@ -79,7 +81,7 @@ function (pd::PositiveDefinite)(x::AbstractMatrix, ps, st)
         mapreduce(hcat, zip(eachcol(x), eachcol(ϕx)); init=init) do (x, ϕx)
             pd.ψ(ϕx - ϕ0) + pd.r(x, st.x0)
         end,
-        merge(st, (; model=final_model_st))
+        merge(st, (; model=final_model_st)),
     )
 end
 
@@ -132,7 +134,7 @@ function LuxCore.initialstates(rng::AbstractRNG, s::ShiftTo)
     return (;
         model=LuxCore.initialstates(rng, s.model),
         in_val=s.init_in_val(),
-        out_val=s.init_out_val()
+        out_val=s.init_out_val(),
     )
 end
 
@@ -145,8 +147,5 @@ function (s::ShiftTo)(x::AbstractMatrix, ps, st)
     ϕ0, new_model_st = s.model(st.in_val, ps, st.model)
     Δϕ = st.out_val .- ϕ0
     ϕx, final_model_st = s.model(x, ps, new_model_st)
-    return (
-        ϕx .+ Δϕ,
-        merge(st, (; model=final_model_st))
-    )
+    return (ϕx .+ Δϕ, merge(st, (; model=final_model_st)))
 end

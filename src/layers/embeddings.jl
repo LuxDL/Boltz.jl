@@ -13,12 +13,12 @@ ClassTokens(dim::Int; init=zeros32) = ClassTokens(dim, init)
 
 LuxCore.initialparameters(rng::AbstractRNG, c::ClassTokens) = (; token=c.init(rng, c.dim))
 
-function (m::ClassTokens)(x::AbstractArray{T, N}, ps, st) where {T, N}
+function (m::ClassTokens)(x::AbstractArray{T,N}, ps, st) where {T,N}
     tokens = reshape(ps.token, :, ntuple(_ -> 1, N - 1)...) .* ones_batch_like(x)
     return cat(x, tokens; dims=Val(N - 1)), st
 end
 
-function ones_batch_like(x::AbstractArray{T, N}) where {T, N}
+function ones_batch_like(x::AbstractArray{T,N}) where {T,N}
     return fill!(similar(x, ntuple(_ -> 1, N - 1)..., size(x, N)), one(T))
 end
 
@@ -148,15 +148,21 @@ function (pe::PatchEmbedding)(x, ps, st)
     return y₃, (; patch=st₁, flatten=st₂, norm=st₃)
 end
 
-function PatchEmbedding(image_size::Dims{N}, patch_size::Dims{N}, in_channels::Int,
-        embed_planes::Int; norm_layer=Returns(Lux.NoOpLayer()), flatten::Bool=true) where {N}
+function PatchEmbedding(
+    image_size::Dims{N},
+    patch_size::Dims{N},
+    in_channels::Int,
+    embed_planes::Int;
+    norm_layer=Returns(Lux.NoOpLayer()),
+    flatten::Bool=true,
+) where {N}
     foreach(zip(image_size, patch_size)) do (i, p)
-        @argcheck i % p==0 "Image size ($i) must be divisible by patch size ($p)"
+        @argcheck i % p == 0 "Image size ($i) must be divisible by patch size ($p)"
     end
 
     return PatchEmbedding(
         Lux.Conv(patch_size, in_channels => embed_planes; stride=patch_size),
         ifelse(flatten, Lux.WrappedFunction(flatten_spatial), Lux.NoOpLayer()),
-        norm_layer(embed_planes)
+        norm_layer(embed_planes),
     )
 end

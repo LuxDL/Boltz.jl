@@ -21,19 +21,22 @@ Multi-head self-attention layer
 end
 
 function MultiHeadSelfAttention(
-        in_planes::Int, number_heads::Int; use_qkv_bias::Bool=false,
-        attention_dropout_rate::T=0.0f0, projection_dropout_rate::T=0.0f0) where {T}
+    in_planes::Int,
+    number_heads::Int;
+    use_qkv_bias::Bool=false,
+    attention_dropout_rate::T=0.0f0,
+    projection_dropout_rate::T=0.0f0,
+) where {T}
     @argcheck in_planes % number_heads == 0
     return MultiHeadSelfAttention(
         Lux.Dense(in_planes, in_planes * 3; use_bias=use_qkv_bias),
         Lux.Dropout(attention_dropout_rate),
-        Lux.Chain(Lux.Dense(in_planes => in_planes),
-            Lux.Dropout(projection_dropout_rate)),
-        number_heads
+        Lux.Chain(Lux.Dense(in_planes => in_planes), Lux.Dropout(projection_dropout_rate)),
+        number_heads,
     )
 end
 
-function (mhsa::MultiHeadSelfAttention)(x::AbstractArray{T, 3}, ps, st) where {T}
+function (mhsa::MultiHeadSelfAttention)(x::AbstractArray{T,3}, ps, st) where {T}
     qkv, st_qkv = mhsa.qkv_layer(x, ps.qkv_layer, st.qkv_layer)
     q, k, v = fast_chunk(qkv, Val(3), Val(1))
 

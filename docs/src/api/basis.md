@@ -1,3 +1,7 @@
+```@meta
+CollapsedDocStrings = true
+```
+
 # `Boltz.Basis` API Reference
 
 !!! warning
