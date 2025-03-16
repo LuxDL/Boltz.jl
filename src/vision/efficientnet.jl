@@ -7,7 +7,7 @@ using Pickle
 
 struct BlockParams
     repeat::Int
-    kernel::Tuple{Int, Int}
+    kernel::Tuple{Int,Int}
     stride::Int
     expand_ratio::Int
     in_channels::Int
@@ -19,18 +19,18 @@ end
 struct GlobalParams
     width_coef::Real
     depth_coef::Real
-    image_size::Tuple{Int, Int}
+    image_size::Tuple{Int,Int}
 
     n_classes::Int
 
     depth_divisor::Int
-    min_depth::Union{Nothing, Int}
+    min_depth::Union{Nothing,Int}
     include_top::Bool
 end
 
 # (width_coefficient, depth_coefficient, resolution)
-get_efficientnet_params(model_name::String) =
-    Dict(
+function get_efficientnet_params(model_name::String)
+    return Dict(
         "efficientnet-b0" => (1.0, 1.0, 224),
         "efficientnet-b1" => (1.0, 1.1, 240),
         "efficientnet-b2" => (1.1, 1.2, 260),
@@ -40,22 +40,24 @@ get_efficientnet_params(model_name::String) =
         "efficientnet-b6" => (1.8, 2.6, 528),
         "efficientnet-b7" => (2.0, 3.1, 600),
         "efficientnet-b8" => (2.2, 3.6, 672),
-        "efficientnet-l2" => (4.3, 5.3, 800))[model_name]
+        "efficientnet-l2" => (4.3, 5.3, 800),
+    )[model_name]
+end
 
-function get_model_params(model_name; n_classes = 1000, include_top = true, kwargs...)
+function get_model_params(model_name; n_classes=1000, include_top=true, kwargs...)
     block_params = [
-        BlockParams(1, (3, 3), 1, 1,  32,  16, 0.25, true),
-        BlockParams(2, (3, 3), 2, 6,  16,  24, 0.25, true),
-        BlockParams(2, (5, 5), 2, 6,  24,  40, 0.25, true),
-        BlockParams(3, (3, 3), 2, 6,  40,  80, 0.25, true),
-        BlockParams(3, (5, 5), 1, 6,  80, 112, 0.25, true),
+        BlockParams(1, (3, 3), 1, 1, 32, 16, 0.25, true),
+        BlockParams(2, (3, 3), 2, 6, 16, 24, 0.25, true),
+        BlockParams(2, (5, 5), 2, 6, 24, 40, 0.25, true),
+        BlockParams(3, (3, 3), 2, 6, 40, 80, 0.25, true),
+        BlockParams(3, (5, 5), 1, 6, 80, 112, 0.25, true),
         BlockParams(4, (5, 5), 2, 6, 112, 192, 0.25, true),
-        BlockParams(1, (3, 3), 1, 6, 192, 320, 0.25, true)]
+        BlockParams(1, (3, 3), 1, 6, 192, 320, 0.25, true),
+    ]
 
     wc, dc, res = get_efficientnet_params(model_name)
-    global_params = GlobalParams(
-        wc, dc, (res, res), n_classes, 8, nothing, include_top)
-    block_params, global_params
+    global_params = GlobalParams(wc, dc, (res, res), n_classes, 8, nothing, include_top)
+    return block_params, global_params
 end
 
 function round_filter(filters, global_params::GlobalParams)
@@ -66,12 +68,14 @@ function round_filter(filters, global_params::GlobalParams)
     min_depth = global_params.min_depth
     min_depth = min_depth ≡ nothing ? depth_divisor : min_depth
 
-    new_filters = max(min_depth, (floor(filters + depth_divisor / 2) ÷ depth_divisor) * depth_divisor)
+    new_filters = max(
+        min_depth, (floor(filters + depth_divisor / 2) ÷ depth_divisor) * depth_divisor
+    )
     new_filters < 0.9 * filters && (new_filters += global_params.depth_divisor)
-    new_filters
+    return new_filters
 end
 
-struct MBConv{E, D, X, P} <: Lux.AbstractLuxLayer
+struct MBConv{E,D,X,P} <: Lux.AbstractLuxLayer
     expansion::E
     depthwise::D
     excitation::X
@@ -89,7 +93,7 @@ function LuxCore.initialparameters(rng::AbstractRNG, l::MBConv)
         excitation=Lux.initialparameters(rng, l.excitation),
         projection=Lux.initialparameters(rng, l.projection),
     )
-    return(ps)
+    return (ps)
 end
 
 function LuxCore.initialstates(rng::AbstractRNG, l::MBConv)
@@ -99,9 +103,8 @@ function LuxCore.initialstates(rng::AbstractRNG, l::MBConv)
         excitation=Lux.initialstates(rng, l.excitation),
         projection=Lux.initialstates(rng, l.projection),
     )
-    return(st)
+    return (st)
 end
-
 
 """
 Mobile Inverted Residual Bottleneck Block.
@@ -121,23 +124,28 @@ Args:
     skip_connection: Whether to use skip connection and drop connect.
 """
 function MBConv(
-    in_channels, out_channels, kernel, stride;
-    expansion_ratio, se_ratio, skip_connection,
+    in_channels, out_channels, kernel, stride; expansion_ratio, se_ratio, skip_connection
 )
     do_skip = skip_connection && stride == 1 && in_channels == out_channels
     do_expansion, do_excitation = expansion_ratio != 1, 0 < se_ratio ≤ 1
     pad, use_bias = SamePad(), false
 
     mid_channels = ceil(Int, in_channels * expansion_ratio)
-    expansion = do_expansion ?
+    expansion = if do_expansion
         Chain(
-            Conv((1, 1), in_channels=>mid_channels; use_bias, pad),
-            BatchNorm(mid_channels, swish)) :
+        Conv((1, 1), in_channels => mid_channels; use_bias, pad),
+        BatchNorm(mid_channels, swish),
+    )
+    else
         nothing
+    end
 
     depthwise = Chain(
-        Conv(kernel, mid_channels=>mid_channels; use_bias, stride, pad, groups=mid_channels),
-        BatchNorm(mid_channels, swish))
+        Conv(
+            kernel, mid_channels => mid_channels; use_bias, stride, pad, groups=mid_channels
+        ),
+        BatchNorm(mid_channels, swish),
+    )
 
     !do_excitation && error("We always do excitation")
     excitation = nothing
@@ -145,15 +153,16 @@ function MBConv(
         n_squeezed_channels = max(1, ceil(Int, in_channels * se_ratio))
         excitation = Chain(
             AdaptiveMeanPool((1, 1)),
-            Conv((1, 1), mid_channels=>n_squeezed_channels, swish; pad),
-            Conv((1, 1), n_squeezed_channels=>mid_channels; pad))
+            Conv((1, 1), mid_channels => n_squeezed_channels, swish; pad),
+            Conv((1, 1), n_squeezed_channels => mid_channels; pad),
+        )
     end
     projection = Chain(
-        Conv((1, 1), mid_channels=>out_channels; pad, use_bias),
-        BatchNorm(out_channels))
-    MBConv(
-        expansion, depthwise, excitation, projection, do_expansion,
-        do_excitation, do_skip)
+        Conv((1, 1), mid_channels => out_channels; pad, use_bias), BatchNorm(out_channels)
+    )
+    return MBConv(
+        expansion, depthwise, excitation, projection, do_expansion, do_excitation, do_skip
+    )
 end
 
 # here we do not do the expansion phase
@@ -167,8 +176,13 @@ function (m::MBConv{<:Nothing})(x, ps, st)
     if m.do_skip
         o = o + x
     end
-    new_st=(expansion=st_expansion, depthwise=st_depthwise, excitation=st_excitation, projection=st_projection)
-    return(o, new_st)
+    new_st = (
+        expansion=st_expansion,
+        depthwise=st_depthwise,
+        excitation=st_excitation,
+        projection=st_projection,
+    )
+    return (o, new_st)
 end
 
 function (m::MBConv)(x, ps, st)
@@ -180,22 +194,44 @@ function (m::MBConv)(x, ps, st)
     if m.do_skip
         o = o + x
     end
-    new_st=(expansion=st_expansion, depthwise=st_depthwise, excitation=st_excitation, projection=st_projection)
-    return(o, new_st)
+    new_st = (
+        expansion=st_expansion,
+        depthwise=st_depthwise,
+        excitation=st_excitation,
+        projection=st_projection,
+    )
+    return (o, new_st)
 end
 
-function Base.show(io::IO, m::MBConv{E, D, X, P}) where {E, D, X, P}
-    print(io, "MBConv:\n",
-        "- expansion: ", E, "\n",
-        "- depthwise: ", D, "\n",
-        "- excitation: ", X, "\n",
-        "- projection: ", P, "\n",
-        "- do expansion: ", m.do_expansion, "\n",
-        "- do excitation: ", m.do_excitation, "\n",
-        "- do skip: ", m.do_skip, "\n")
+function Base.show(io::IO, m::MBConv{E,D,X,P}) where {E,D,X,P}
+    return print(
+        io,
+        "MBConv:\n",
+        "- expansion: ",
+        E,
+        "\n",
+        "- depthwise: ",
+        D,
+        "\n",
+        "- excitation: ",
+        X,
+        "\n",
+        "- projection: ",
+        P,
+        "\n",
+        "- do expansion: ",
+        m.do_expansion,
+        "\n",
+        "- do excitation: ",
+        m.do_excitation,
+        "\n",
+        "- do skip: ",
+        m.do_skip,
+        "\n",
+    )
 end
 
-struct EfficientNet{H, F, S, B, P, FL} <: Lux.AbstractLuxLayer
+struct EfficientNet{H,F,S,B,P,FL} <: Lux.AbstractLuxLayer
     stem::S
     blocks::B
 
@@ -205,8 +241,8 @@ struct EfficientNet{H, F, S, B, P, FL} <: Lux.AbstractLuxLayer
 
     flatten::FL
 
-    stages::NTuple{4, Int}
-    stages_channels::NTuple{5, Int}
+    stages::NTuple{4,Int}
+    stages_channels::NTuple{5,Int}
     pretrained_name::String
     pretrained::Bool
 end
@@ -225,7 +261,7 @@ function LuxCore.initialparameters(rng::AbstractRNG, l::EfficientNet)
         _load_params!(l, ps, params)
     end
 
-    return(ps)
+    return (ps)
 end
 
 function LuxCore.initialstates(rng::AbstractRNG, l::EfficientNet)
@@ -242,29 +278,62 @@ function LuxCore.initialstates(rng::AbstractRNG, l::EfficientNet)
         _load_states!(l, st, params)
     end
 
-    return(st)
+    return (st)
 end
 
-function EfficientNet(model_name, block_params, global_params; pretrained = false, include_head = true, in_channels = 3)
+function EfficientNet(
+    model_name,
+    block_params,
+    global_params;
+    pretrained=false,
+    include_head=true,
+    in_channels=3,
+)
     pad, use_bias = SamePad(), false
     out_channels = round_filter(32, global_params)
-    stem = Chain(Conv((3, 3), in_channels=>out_channels; use_bias, stride=2, pad), BatchNorm(out_channels, swish))
+    stem = Chain(
+        Conv((3, 3), in_channels => out_channels; use_bias, stride=2, pad),
+        BatchNorm(out_channels, swish),
+    )
 
     blocks = MBConv[]
     for bp in block_params
         in_channels = round_filter(bp.in_channels, global_params)
         out_channels = round_filter(bp.out_channels, global_params)
-        repeat = global_params.depth_coef ≈ 1 ?
-            bp.repeat : ceil(Int64, global_params.depth_coef * bp.repeat)
+        repeat = if global_params.depth_coef ≈ 1
+            bp.repeat
+        else
+            ceil(Int64, global_params.depth_coef * bp.repeat)
+        end
 
-        expansion_ratio, se_ratio, skip_connection = bp.expand_ratio, bp.se_ratio, bp.skip_connection
-        push!(blocks, MBConv(
-            in_channels, out_channels, bp.kernel, bp.stride;
-            expansion_ratio, se_ratio, skip_connection))
+        expansion_ratio, se_ratio, skip_connection = bp.expand_ratio,
+        bp.se_ratio,
+        bp.skip_connection
+        push!(
+            blocks,
+            MBConv(
+                in_channels,
+                out_channels,
+                bp.kernel,
+                bp.stride;
+                expansion_ratio,
+                se_ratio,
+                skip_connection,
+            ),
+        )
         for _ in 1:(repeat - 1)
-            push!(blocks, MBConv(
-                out_channels, out_channels, bp.kernel, 1;
-                expansion_ratio, se_ratio, skip_connection))
+            push!(
+                blocks,
+                MBConv(
+                    out_channels,
+                    out_channels,
+                    bp.kernel,
+                    1;
+                    expansion_ratio,
+                    se_ratio,
+                    skip_connection,
+                ),
+            )
         end
     end
     blocks = Chain(blocks...)
@@ -273,53 +342,81 @@ function EfficientNet(model_name, block_params, global_params; pretrained = fals
     channels = stages_channels(model_name)
     flatten = FlattenLayer()
     include_head || return EfficientNet(
-        stem, blocks, nothing, nothing, nothing, flatten, stages, channels)
+        stem, blocks, nothing, nothing, nothing, flatten, stages, channels
+    )
 
     head_out_channels = round_filter(1280, global_params)
     head = Chain(
-        Conv((1, 1), out_channels=>head_out_channels; use_bias, pad),
-        BatchNorm(head_out_channels, swish))
+        Conv((1, 1), out_channels => head_out_channels; use_bias, pad),
+        BatchNorm(head_out_channels, swish),
+    )
 
-    top = global_params.include_top ?
-        Dense(head_out_channels, global_params.n_classes) : nothing
-    EfficientNet(stem, blocks, head, AdaptiveMeanPool((1, 1)), top, flatten, stages, channels, model_name, pretrained)
+    top = if global_params.include_top
+        Dense(head_out_channels, global_params.n_classes)
+    else
+        nothing
+    end
+    return EfficientNet(
+        stem,
+        blocks,
+        head,
+        AdaptiveMeanPool((1, 1)),
+        top,
+        flatten,
+        stages,
+        channels,
+        model_name,
+        pretrained,
+    )
 end
 
-EfficientNet(model_name::String; kwargs...) =
-    EfficientNet(model_name, get_model_params(model_name; kwargs...)...; kwargs...)
+function EfficientNet(model_name::String; kwargs...)
+    return EfficientNet(model_name, get_model_params(model_name; kwargs...)...; kwargs...)
+end
 
 function (m::EfficientNet{Nothing})(x, ps, st)
     o, st_stem = m.stem(x, ps.stem, st.stem)
-    o, st_blocks= m.blocks(o, ps.blocks, st.blocks)
-    new_st = (;stem = st_stem, blocks = st_blocks, head = st.head, pooling = st.pooling, top = st.top)
-    return (o, new_st) 
-end
-
-function (m::EfficientNet{H, Nothing})(x, ps, st) where {H}
-    o, st_stem = m.stem(x, ps.stem, st.stem)
-    o, st_blocks= m.blocks(o, ps.blocks, st.blocks)
-
-    o, st_head = m.head(o, ps.head, st.head)
-    o, st_pooling = m.pooling(o, ps.pooling, st.pooling)
-    new_st = (;stem = st_stem, blocks = st_blocks, head = st_head, pooling = st_pooling, top = st.top)
+    o, st_blocks = m.blocks(o, ps.blocks, st.blocks)
+    new_st = (;
+        stem=st_stem, blocks=st_blocks, head=st.head, pooling=st.pooling, top=st.top
+    )
     return (o, new_st)
 end
 
-function (m::EfficientNet{H, F})(x, ps, st) where {H, F}
+function (m::EfficientNet{H,Nothing})(x, ps, st) where {H}
     o, st_stem = m.stem(x, ps.stem, st.stem)
-    o, st_blocks= m.blocks(o, ps.blocks, st.blocks)
+    o, st_blocks = m.blocks(o, ps.blocks, st.blocks)
+
+    o, st_head = m.head(o, ps.head, st.head)
+    o, st_pooling = m.pooling(o, ps.pooling, st.pooling)
+    new_st = (;
+        stem=st_stem, blocks=st_blocks, head=st_head, pooling=st_pooling, top=st.top
+    )
+    return (o, new_st)
+end
+
+function (m::EfficientNet{H,F})(x, ps, st) where {H,F}
+    o, st_stem = m.stem(x, ps.stem, st.stem)
+    o, st_blocks = m.blocks(o, ps.blocks, st.blocks)
 
     o, st_head = m.head(o, ps.head, st.head)
     o, st_pooling = m.pooling(o, ps.pooling, st.pooling)
 
     o, st_flatten = m.flatten(o, ps.flatten, st.flatten)
     o, st_top = m.top(o, ps.top, st.top)
-    new_st = (;stem = st_stem, blocks = st_blocks, head = st_head, pooling = st_pooling, top = st_top, flatten = st_flatten)
+    new_st = (;
+        stem=st_stem,
+        blocks=st_blocks,
+        head=st_head,
+        pooling=st_pooling,
+        top=st_top,
+        flatten=st_flatten,
+    )
     return (o, new_st)
 end
 
-get_stages(model_name) =
-    Dict(
+function get_stages(model_name)
+    return Dict(
         "efficientnet-b0" => (3, 5, 9, 16),
         "efficientnet-b1" => (5, 8, 16, 23),
         "efficientnet-b2" => (5, 8, 16, 23),
@@ -327,9 +424,11 @@ get_stages(model_name) =
         "efficientnet-b4" => (6, 10, 22, 32),
         "efficientnet-b5" => (8, 13, 27, 39),
         "efficientnet-b6" => (9, 15, 31, 45),
-        "efficientnet-b7" => (11, 18, 38, 55))[model_name]
-stages_channels(model_name) =
-    Dict(
+        "efficientnet-b7" => (11, 18, 38, 55),
+    )[model_name]
+end
+function stages_channels(model_name)
+    return Dict(
         "efficientnet-b0" => (32, 24, 40, 112, 320),
         "efficientnet-b1" => (32, 24, 40, 112, 320),
         "efficientnet-b2" => (32, 24, 48, 120, 352),
@@ -337,9 +436,9 @@ stages_channels(model_name) =
         "efficientnet-b4" => (48, 32, 56, 160, 448),
         "efficientnet-b5" => (48, 40, 64, 176, 512),
         "efficientnet-b6" => (56, 40, 72, 200, 576),
-        "efficientnet-b7" => (64, 48, 80, 224, 640))[model_name]
-
-
+        "efficientnet-b7" => (64, 48, 80, 224, 640),
+    )[model_name]
+end
 
 # Pytorch loading utils.
 function rebuild_conv!(dst, src)
@@ -353,12 +452,12 @@ end
 function _load_params_stem!(model::EfficientNet, ps, params)
     rebuild_conv!(ps.stem[1].weight, params["_conv_stem.weight"])
     copyto!(ps.stem[2].scale, params["_bn0.weight"])
-    copyto!(ps.stem[2].bias, params["_bn0.bias"])
+    return copyto!(ps.stem[2].bias, params["_bn0.bias"])
 end
 
 function _load_states_stem!(model::EfficientNet, st, params)
     copyto!(st.stem[2].running_mean, params["_bn0.running_mean"])
-    copyto!(st.stem[2].running_var, params["_bn0.running_var"])
+    return copyto!(st.stem[2].running_var, params["_bn0.running_var"])
 end
 
 function _load_params_block!(block::MBConv, ps, params, base)
@@ -381,7 +480,7 @@ function _load_params_block!(block::MBConv, ps, params, base)
 
     rebuild_conv!(ps.projection[1].weight, params[base * "._project_conv.weight"])
     copyto!(ps.projection[2].scale, params[base * "._bn2.weight"])
-    copyto!(ps.projection[2].bias, params[base * "._bn2.bias"])
+    return copyto!(ps.projection[2].bias, params[base * "._bn2.bias"])
 end
 
 function _load_states_block!(block::MBConv, st, params, base)
@@ -393,7 +492,7 @@ function _load_states_block!(block::MBConv, st, params, base)
     copyto!(st.depthwise[2].running_mean, params[base * "._bn1.running_mean"])
     copyto!(st.depthwise[2].running_var, params[base * "._bn1.running_var"])
     copyto!(st.projection[2].running_mean, params[base * "._bn2.running_mean"])
-    copyto!(st.projection[2].running_var, params[base * "._bn2.running_var"])
+    return copyto!(st.projection[2].running_var, params[base * "._bn2.running_var"])
 end
 
 function _load_params_blocks!(model::EfficientNet, ps, params)
@@ -408,7 +507,7 @@ function _load_states_blocks!(model::EfficientNet, st, params)
     end
 end
 
-function _load_params_head!(model::EfficientNet, ps,  params)
+function _load_params_head!(model::EfficientNet, ps, params)
     if model.head ≢ nothing
         rebuild_conv!(ps.head[1].weight, params["_conv_head.weight"])
         copyto!(ps.head[2].scale, params["_bn1.weight"])
@@ -421,7 +520,7 @@ function _load_params_head!(model::EfficientNet, ps,  params)
     end
 end
 
-function _load_states_head!(model::EfficientNet, st,  params)
+function _load_states_head!(model::EfficientNet, st, params)
     if model.head ≢ nothing
         copyto!(st.head[2].running_mean, params["_bn1.running_mean"])
         copyto!(st.head[2].running_var, params["_bn1.running_var"])
@@ -431,16 +530,16 @@ end
 @inline function _load_params!(model::EfficientNet, ps, params)
     _load_params_stem!(model, ps, params)
     _load_params_blocks!(model, ps, params)
-    _load_params_head!(model, ps, params)
+    return _load_params_head!(model, ps, params)
 end
 
 @inline function _load_states!(model::EfficientNet, st, params)
     _load_states_stem!(model, st, params)
     _load_states_blocks!(model, st, params)
-    _load_states_head!(model, st, params)
+    return _load_states_head!(model, st, params)
 end
 
-function download_params(model::EfficientNet, model_name; cache_dir = nothing)
+function download_params(model::EfficientNet, model_name; cache_dir=nothing)
     url_base = "https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/"
     params_file = Dict(
         "efficientnet-b0" => "efficientnet-b0-355c32eb.pth",
@@ -450,7 +549,8 @@ function download_params(model::EfficientNet, model_name; cache_dir = nothing)
         "efficientnet-b4" => "efficientnet-b4-6ed6700e.pth",
         "efficientnet-b5" => "efficientnet-b5-b6417697.pth",
         "efficientnet-b6" => "efficientnet-b6-c76e70fd.pth",
-        "efficientnet-b7" => "efficientnet-b7-dcc49843.pth")[model_name]
+        "efficientnet-b7" => "efficientnet-b7-dcc49843.pth",
+    )[model_name]
 
     if cache_dir ≡ nothing
         cache_dir = joinpath(tempdir(), "EfficientNet.jl", ".cache")
@@ -466,5 +566,5 @@ function download_params(model::EfficientNet, model_name; cache_dir = nothing)
         @info "Finished downloading params."
     end
 
-    params = Pickle.Torch.THload(params_path)
+    return params = Pickle.Torch.THload(params_path)
 end
