@@ -32,11 +32,7 @@ jobs:
         os:
           - ubuntu-latest
         group:
-          - "layers"
-          - "others"
-          - "vision"
-          - "vision_metalhead"
-          - "integration"
+          - "all"
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
@@ -75,11 +71,7 @@ jobs:
         version:
           - "1.10"
         group:
-          - "layers"
-          - "others"
-          - "vision"
-          - "vision_metalhead"
-          - "integration"
+          - "all"
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
