@@ -67,7 +67,7 @@ function remove_rng_from_structure(x)
     end
 end
 
-load_parameters(rng, model, ps) = loadparameters_fallback(ps)
+load_parameters(rng, model, ps) = load_parameters_fallback(ps)
 
 load_parameters_fallback(ps) = ps
 

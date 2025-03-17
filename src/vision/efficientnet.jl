@@ -109,11 +109,8 @@ function EfficientNet(
         out_channels = efficient_net_round_filter(
             bp.out_channels, width_coefficient, depth_divisor, min_depth
         )
-        repeat = if depth_coefficient ≈ 1
-            bp.repeat
-        else
-            ceil(Int64, global_params.depth_coefficient * bp.repeat)
-        end
+        repeat =
+            depth_coefficient ≈ 1 ? bp.repeat : ceil(Int64, depth_coefficient * bp.repeat)
 
         push!(
             blocks,
@@ -237,7 +234,7 @@ function efficient_net_round_filter(filters, width_coefficient, depth_divisor, m
         min_depth, (floor(filters + depth_divisor / 2) ÷ depth_divisor) * depth_divisor
     )
     new_filters < 0.9 * filters && (new_filters += depth_divisor)
-    return new_filters
+    return Int(new_filters)
 end
 
 const EFFICIENTNET_PRETRAINED_BASE_URL = "https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/"
@@ -323,7 +320,7 @@ function InitializeModels.load_parameters(rng::AbstractRNG, model::EfficientNet,
         copyto!(ps.top.bias, ps_pytorch["_fc.bias"])
     end
 
-    return ps
+    return InitializeModels.load_parameters_fallback(ps)
 end
 
 function InitializeModels.load_states(rng::AbstractRNG, model::EfficientNet, st_pytorch)
@@ -360,5 +357,5 @@ function InitializeModels.load_states(rng::AbstractRNG, model::EfficientNet, st_
         copyto!(st.head[2].running_var, st_pytorch["_bn1.running_var"])
     end
 
-    return st
+    return InitializeModels.load_states_fallback(st)
 end
