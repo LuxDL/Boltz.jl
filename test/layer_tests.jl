@@ -253,7 +253,7 @@ end
 end
 
 @testitem "Dynamic Expressions Layer" setup = [SharedTestSetup] tags = [:integration] begin
-    using DynamicExpressions, ForwardDiff, ComponentArrays, Bumper, LoopVectorization
+    using DynamicExpressions, ForwardDiff, ComponentArrays
 
     operators = OperatorEnum(; binary_operators=[+, -, *], unary_operators=[cos])
 
@@ -263,11 +263,8 @@ end
     expr_1 = x1 * cos(x2 - 3.2)
     expr_2 = x2 - x1 * x2 + 2.5 - 1.0 * x1
 
-    for exprs in ((expr_1,), (expr_1, expr_2), ([expr_1, expr_2],)),
-        turbo in (Val(false), Val(true)),
-        bumper in (Val(false), Val(true))
-
-        layer = Layers.DynamicExpressionsLayer(operators, exprs...; turbo, bumper)
+    for exprs in ((expr_1,), (expr_1, expr_2), ([expr_1, expr_2],))
+        layer = Layers.DynamicExpressionsLayer(operators, exprs...)
         ps, st = Lux.setup(StableRNG(0), layer)
 
         x = [
