@@ -12,14 +12,15 @@ using LuxCore: LuxCore
 
 using ..Utils: is_extension_loaded
 
-function get_pretrained_weights_path(url, name::Symbol)
-    return get_pretrained_weights_path(url, string(name))
+get_pretrained_weights_url(_) = nothing
+
+function get_pretrained_weights_path(url, name::Symbol, ext::String)
+    return get_pretrained_weights_path(url, string(name), ext)
 end
 
-function get_pretrained_weights_path(::Nothing, name::String)
+function get_pretrained_weights_path(::Nothing, name::String, ext::String)
     try
-        dir = @artifact_str(name)
-        return joinpath(dir, "$(name).jld2")
+        return joinpath(@artifact_str(name), "$(name).$(ext)")
     catch err
         err isa ErrorException &&
             throw(ArgumentError("no pretrained weights available for `$name`"))
@@ -27,9 +28,11 @@ function get_pretrained_weights_path(::Nothing, name::String)
     end
 end
 
-function get_pretrained_weights_path(url::String, name::String)
+function get_pretrained_weights_path(url::String, name::String, ext::String)
     scratch_dir = @get_scratch!(name)
     filename = basename(url)
+    @assert endswith(filename, ext) "Mismatched pretrained weights extension. Got \
+                                     `$filename`, expected `$ext`"
     weights_path = joinpath(scratch_dir, filename)
     !isfile(weights_path) && Downloads.download(url, weights_path)
     return weights_path
@@ -64,16 +67,16 @@ function remove_rng_from_structure(x)
     end
 end
 
-loadparameters(model, x) = loadparameters_fallback(x)
+load_parameters(rng, model, ps) = loadparameters_fallback(ps)
 
-loadparameters_fallback(x) = x
+load_parameters_fallback(ps) = ps
 
-loadstates(model, x) = loadstates_fallback(x)
+load_states(rng, model, st) = load_states_fallback(st)
 
-function loadstates_fallback(x)
-    return fmap(x) do xᵢ
-        xᵢ isa SerializedRNG && return Random.default_rng()
-        return xᵢ
+function load_states_fallback(st)
+    return fmap(st) do stᵢ
+        stᵢ isa SerializedRNG && return Random.default_rng()
+        return stᵢ
     end
 end
 
