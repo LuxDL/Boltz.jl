@@ -1,21 +1,3 @@
-# TODO: Update docs to match the Lux format
-"""
-Mobile Inverted Residual Bottleneck Block.
-
-Args:
-    in_channels: Number of input channels.
-    out_channels: Number of output channels.
-    expansion_ratio:
-        Expansion ratio defines the number of output channels.
-        Set to `1` to disable expansion phase.
-        `out_channels = input_channels * expansion_ratio`.
-    kernel: Size of the kernel for the depthwise conv phase.
-    stride: Size of the stride for the depthwise conv phase.
-    se_ratio:
-        Squeeze-Excitation ratio. Should be in `(0, 1]` range.
-        Set to `-1` to disable.
-    skip_connection: Whether to use skip connection and drop connect.
-"""
 @concrete struct MBConv <: AbstractLuxWrapperLayer{:layer}
     layer
 end
@@ -73,6 +55,25 @@ function MBConv(
     )
 end
 
+"""
+    EfficientNet(variant::Union{String,Symbol}; pretrained::Bool=false, in_channels::Int=3,
+                 nclasses::Int=1000)
+
+Create an EfficientNet model [tan2019efficientnet](@citep).
+
+## Arguments
+
+  - `variant::Union{String,Symbol}`: The variant of the EfficientNet model to use. Valid
+    variants are `:b0`, `:b1`, `:b2`, `:b3`, `:b4`, `:b5`, `:b6`, `:b7`.
+
+## Keyword Arguments
+
+  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
+    called.
+  - `in_channels::Int=3`: The number of input channels. (Must be `3` for pretrained models.)
+  - `nclasses::Int=1000`: The number of output classes. (Must be `1000` for pretrained
+    models.)
+"""
 @concrete struct EfficientNet <: AbstractLuxVisionLayer
     layer
     pretrained_name::Symbol

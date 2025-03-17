@@ -30,7 +30,7 @@ Vision.SqueezeNet
 Vision.WideResNet
 ```
 
-## Pretrained Models
+## Pretrained Models (ImageNet1K)
 
 !!! tip "Load Pretrained Weights"
 
