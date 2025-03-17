@@ -18,21 +18,18 @@ function VisionTransformer(;
     num_classes::Int=1000,
 )
     @argcheck pool in (:class, :mean)
-    return Lux.Chain(
-        Lux.Chain(
+    return Chain(
+        Chain(
             PatchEmbedding(imsize, patch_size, in_channels, embed_planes),
             ClassTokens(embed_planes),
             ViPosEmbedding(embed_planes, prod(imsize .÷ patch_size) + 1),
-            Lux.Dropout(embedding_dropout_rate),
+            Dropout(embedding_dropout_rate),
             VisionTransformerEncoder(
                 embed_planes, depth, number_heads; mlp_ratio, dropout_rate
             ),
-            Lux.WrappedFunction(ifelse(pool === :class, x -> x[:, 1, :], second_dim_mean)),
+            WrappedFunction(ifelse(pool === :class, x -> x[:, 1, :], second_dim_mean)),
         ),
-        Lux.Chain(
-            Lux.LayerNorm((embed_planes,); affine=true),
-            Lux.Dense(embed_planes, num_classes),
-        ),
+        Chain(LayerNorm((embed_planes,); affine=true), Dense(embed_planes, num_classes)),
     )
 end
 

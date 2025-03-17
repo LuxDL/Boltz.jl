@@ -1,5 +1,5 @@
 @concrete struct VGGFeatureExtractor <: AbstractLuxWrapperLayer{:model}
-    model <: Lux.Chain
+    model <: Chain
 end
 
 function VGGFeatureExtractor(config, batchnorm, inchannels)
@@ -15,25 +15,25 @@ function VGGFeatureExtractor(config, batchnorm, inchannels)
             conv_kwargs=(; pad=(1, 1)),
             use_norm=batchnorm,
         )
-        layers[2i] = Lux.MaxPool((2, 2))
+        layers[2i] = MaxPool((2, 2))
         input_filters = chs
     end
-    return VGGFeatureExtractor(Lux.Chain(layers...))
+    return VGGFeatureExtractor(Chain(layers...))
 end
 
 @concrete struct VGGClassifier <: AbstractLuxWrapperLayer{:model}
-    model <: Lux.Chain
+    model <: Chain
 end
 
 function VGGClassifier(imsize, nclasses, fcsize, dropout)
     return VGGClassifier(
-        Lux.Chain(
-            Lux.FlattenLayer(),
-            Lux.Dense(Int(prod(imsize)) => fcsize, relu),
-            Lux.Dropout(dropout),
-            Lux.Dense(fcsize => fcsize, relu),
-            Lux.Dropout(dropout),
-            Lux.Dense(fcsize => nclasses),
+        Chain(
+            FlattenLayer(),
+            Dense(Int(prod(imsize)) => fcsize, relu),
+            Dropout(dropout),
+            Dense(fcsize => fcsize, relu),
+            Dropout(dropout),
+            Dense(fcsize => nclasses),
         ),
     )
 end
@@ -64,7 +64,7 @@ function VGG(imsize; config, inchannels, batchnorm=false, nclasses, fcsize, drop
     nilarray = Lux.NilSizePropagation.NilArray((imsize..., inchannels, 2))
     outsize = LuxCore.outputsize(feature_extractor, nilarray, Random.default_rng())
     classifier = VGGClassifier(outsize, nclasses, fcsize, dropout)
-    return Lux.Chain(; feature_extractor, classifier)
+    return Chain(; feature_extractor, classifier)
 end
 
 const VGG_CONFIG = Dict(

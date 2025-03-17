@@ -4,10 +4,25 @@ using ArgCheck: @argcheck
 using Compat: @compat
 using ConcreteStructs: @concrete
 using Random: Random, AbstractRNG
+using Setfield: @set!
 
-using Lux: Lux
+using Lux:
+    Lux,
+    Chain,
+    Conv,
+    Dense,
+    BatchNorm,
+    AdaptiveMeanPool,
+    NoOpLayer,
+    SamePad,
+    FlattenLayer,
+    SkipConnection,
+    Dropout,
+    WrappedFunction,
+    LayerNorm,
+    MaxPool
 using LuxCore: LuxCore, AbstractLuxLayer, AbstractLuxWrapperLayer
-using NNlib: relu
+using NNlib: relu, swish, σ
 
 using ..InitializeModels: InitializeModels
 using ..Layers:
@@ -18,19 +33,39 @@ using ..Layers:
     ViPosEmbedding,
     VisionTransformerEncoder
 using ..Utils: second_dim_mean, is_extension_loaded
+using ..PytorchLoadUtils: PytorchLoadUtils
 
 abstract type AbstractLuxVisionLayer <: AbstractLuxWrapperLayer{:layer} end
 
+function weights_load_function(m)
+    format = hasfield(typeof(m), :pretrained_format) ? m.pretrained_format : :jld2
+    if format == :jld2
+        return format, InitializeModels.load_using_jld2
+    elseif format == :pth
+        return format, InitializeModels.load_using_pickle
+    else
+        error("Unknown pretrained format: $(format)")
+    end
+end
+
 for op in (:states, :parameters)
     fname = Symbol(:initial, op)
-    fname_load = Symbol(:load, op)
+    fname_load = Symbol(:load_, op)
     @eval function LuxCore.$(fname)(rng::AbstractRNG, model::AbstractLuxVisionLayer)
         if hasfield(typeof(model), :pretrained) && model.pretrained
-            path = InitializeModels.get_pretrained_weights_path(model.pretrained_name)
-            jld2_loaded_obj = InitializeModels.load_using_jld2(
-                joinpath(path, "$(model.pretrained_name).jld2"), $(string(op))
+            ext, fn = weights_load_function(model)
+            return InitializeModels.$(fname_load)(
+                rng,
+                model,
+                fn(
+                    InitializeModels.get_pretrained_weights_path(
+                        InitializeModels.get_pretrained_weights_url(model),
+                        model.pretrained_name,
+                        string(ext),
+                    ),
+                    $(string(op)),
+                ),
             )
-            return InitializeModels.$(fname_load)(jld2_loaded_obj)
         end
         return LuxCore.$(fname)(rng, model.layer)
     end
@@ -40,6 +75,7 @@ include("extensions.jl")
 include("alexnet.jl")
 include("vit.jl")
 include("vgg.jl")
+include("efficientnet.jl")
 
 @compat(
     public,
@@ -56,6 +92,7 @@ include("vgg.jl")
         VisionTransformer,
         VGG,
         WideResNet,
+        EfficientNet,
     )
 )
 

@@ -16,10 +16,7 @@ const BACKEND_GROUP = lowercase(get(ENV, "BACKEND_GROUP", "all"))
 const EXTRA_PKGS = String[]
 
 if "all" ∈ BOLTZ_TEST_GROUP || "integration" ∈ BOLTZ_TEST_GROUP
-    append!(
-        EXTRA_PKGS,
-        ["DataInterpolations", "DynamicExpressions", "Bumper", "LoopVectorization"],
-    )
+    append!(EXTRA_PKGS, ["DataInterpolations", "DynamicExpressions"])
 end
 if "all" ∈ BOLTZ_TEST_GROUP || "vision_metalhead" ∈ BOLTZ_TEST_GROUP
     push!(EXTRA_PKGS, "Metalhead")
