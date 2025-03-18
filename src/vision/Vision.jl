@@ -36,11 +36,17 @@ using ..Layers:
 using ..Utils: second_dim_mean, is_extension_loaded
 using ..PytorchLoadUtils: PytorchLoadUtils
 
+# From Metalhead.jl
 include("extensions.jl")
+
+# 2D Classification Models
 include("alexnet.jl")
 include("vit.jl")
 include("vgg.jl")
 include("efficientnet.jl")
+
+# 3D Models
+include("point2vec.jl")
 
 @compat(
     public,
