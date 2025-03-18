@@ -74,11 +74,9 @@ Create an EfficientNet model [tan2019efficientnet](@citep).
   - `nclasses::Int=1000`: The number of output classes. (Must be `1000` for pretrained
     models.)
 """
-@concrete struct EfficientNet <: AbstractLuxVisionLayer
+@concrete struct EfficientNet <: AbstractBoltzModel
     layer
-    pretrained_name::Symbol
-    pretrained::Bool
-    pretrained_format::Symbol
+    pretrained
 end
 
 function EfficientNet(
@@ -91,7 +89,7 @@ function EfficientNet(
     include_top::Bool,
     include_head::Bool=true,
     in_channels=3,
-    pretrained::Bool=false,
+    pretrained=false,
     pretrained_name=:unknown,
 )
     out_channels = efficient_net_round_filter(
@@ -161,13 +159,11 @@ function EfficientNet(
         Chain(;
             stem, blocks, head, pool=AdaptiveMeanPool((1, 1)), flatten=FlattenLayer(), top
         ),
-        pretrained_name,
-        pretrained,
-        :pth,
+        get_efficientnet_pretrained_weights(pretrained_name, pretrained),
     )
 end
 
-function EfficientNet(variant::Union{String,Symbol}; pretrained::Bool=false, kwargs...)
+function EfficientNet(variant::Union{String,Symbol}; pretrained=false, kwargs...)
     model_name = Symbol(:efficientnet_, variant)
     @assert model_name in keys(EFFICIENTNET_CONFIG) "Unknown model name: $model_name"
     block_params, global_params = get_efficient_net_config(model_name; kwargs...)
@@ -251,14 +247,50 @@ const EFFICIENTNET_PRETRAINED_URLS = Dict(
     :efficientnet_b7 => "efficientnet-b7-dcc49843.pth",
 )
 
-function InitializeModels.get_pretrained_weights_url(model::EfficientNet)
-    return EFFICIENTNET_PRETRAINED_BASE_URL *
-           EFFICIENTNET_PRETRAINED_URLS[model.pretrained_name]
+abstract type AbstractEfficientNetWeights <: PretrainedWeights.DownloadsPretrainedWeight end
+
+PretrainedWeights.load_with(::Val{:Pickle}, ::AbstractEfficientNetWeights) = true
+
+PretrainedWeights.checkpoint_extension(::AbstractEfficientNetWeights) = ".pth"
+
+struct EfficientNet_Weights_ImageNet1K_V1 <: AbstractEfficientNetWeights
+    url::String
+end
+
+function get_efficientnet_pretrained_weights(name::Symbol, pretrained::Bool)
+    !pretrained && return nothing
+    return get_efficientnet_pretrained_weights(name, :DEFAULT)
+end
+
+function get_efficientnet_pretrained_weights(name::Symbol, pretrained::Union{String,Symbol})
+    pretrained = Symbol(pretrained)
+    @argcheck pretrained in (:DEFAULT, :ImageNet1K_V1, :ImageNet1K)
+    pretrained == :DEFAULT && (pretrained = :ImageNet1K_V1)
+    pretrained == :ImageNet1K && (pretrained = :ImageNet1K_V1)
+
+    @argcheck name in (
+        :efficientnet_b0,
+        :efficientnet_b1,
+        :efficientnet_b2,
+        :efficientnet_b3,
+        :efficientnet_b4,
+        :efficientnet_b5,
+        :efficientnet_b6,
+        :efficientnet_b7,
+    )
+
+    if pretrained == :ImageNet1K_V1
+        return EfficientNet_Weights_ImageNet1K_V1(
+            EFFICIENTNET_PRETRAINED_BASE_URL * EFFICIENTNET_PRETRAINED_URLS[name]
+        )
+    end
+
+    return error("Unknown pretrained weights name: $(pretrained))")
 end
 
 # Load the unpickled pytorch weights into the Lux model
 function InitializeModels.load_parameters(rng::AbstractRNG, model::EfficientNet, ps_pytorch)
-    @set! model.pretrained = false
+    @set! model.pretrained = nothing
     ps = LuxCore.initialparameters(rng, model)
 
     # stem
@@ -325,7 +357,7 @@ function InitializeModels.load_parameters(rng::AbstractRNG, model::EfficientNet,
 end
 
 function InitializeModels.load_states(rng::AbstractRNG, model::EfficientNet, st_pytorch)
-    @set! model.pretrained = false
+    @set! model.pretrained = nothing
     st = LuxCore.initialstates(rng, model)
 
     # stem

@@ -1,43 +1,38 @@
 module InitializeModels
 
 using ArgCheck: @argcheck
-using Artifacts: Artifacts, @artifact_str
-using Downloads: Downloads
 using Functors: fmap
-using LazyArtifacts: LazyArtifacts
-using Random: Random
-using Scratch: @get_scratch!
+using Random: Random, AbstractRNG
 
-using LuxCore: LuxCore
+using LuxCore: LuxCore, AbstractLuxWrapperLayer
 
+using ..PretrainedWeights: PretrainedWeights
 using ..Utils: is_extension_loaded
 
-get_pretrained_weights_url(_) = nothing
+abstract type AbstractBoltzModel <: AbstractLuxWrapperLayer{:layer} end
 
-function get_pretrained_weights_path(url, name::Symbol, ext::String)
-    return get_pretrained_weights_path(url, string(name), ext)
-end
-
-function get_pretrained_weights_path(::Nothing, name::String, ext::String)
-    try
-        return joinpath(@artifact_str(name), "$(name).$(ext)")
-    catch err
-        err isa ErrorException &&
-            throw(ArgumentError("no pretrained weights available for `$name`"))
-        rethrow(err)
+for op in (:states, :parameters)
+    fname = Symbol(:initial, op)
+    fname_load = Symbol(:load_, op)
+    @eval function LuxCore.$(fname)(rng::AbstractRNG, model::AbstractBoltzModel)
+        if hasfield(typeof(model), :pretrained) && model.pretrained !== nothing
+            ext = PretrainedWeights.checkpoint_extension(model.pretrained)
+            path = PretrainedWeights.download_and_get_checkpoint_path(model.pretrained)
+            loaded_weights = if PretrainedWeights.load_with(Val(:JLD2), model.pretrained)
+                load_using_jld2(path, $(string(op)))
+            elseif PretrainedWeights.load_with(Val(:Pickle), model.pretrained)
+                load_using_pickle(path)
+            else
+                error("Unknown pretrained weights format: $(ext)")
+            end
+            return $(fname_load)(rng, model, loaded_weights)
+        end
+        return LuxCore.$(fname)(rng, model.layer)
     end
 end
 
-function get_pretrained_weights_path(url::String, name::String, ext::String)
-    scratch_dir = @get_scratch!(name)
-    filename = basename(url)
-    @assert endswith(filename, ext) "Mismatched pretrained weights extension. Got \
-                                     `$filename`, expected `$ext`"
-    weights_path = joinpath(scratch_dir, filename)
-    !isfile(weights_path) && Downloads.download(url, weights_path)
-    return weights_path
-end
-
+# Formats and Packages for loading pretrained weights. These are defined in extensions
+# to avoid heavy dependencies.
 function load_using_jld2(args...; kwargs...)
     if !is_extension_loaded(Val(:JLD2))
         error("`JLD2.jl` is not loaded. Please load it before trying to load pretrained \
@@ -58,6 +53,8 @@ end
 
 function load_using_pickle_internal end
 
+# Load & Save Parameters & States. Models has overload `load_parameters` and `load_states`
+# to provide custom loaders (See EfficientNet for example).
 struct SerializedRNG end
 
 function remove_rng_from_structure(x)

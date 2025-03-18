@@ -124,10 +124,8 @@ Create a WideResNet model [zagoruyko2017wideresidualnetworks](@citep).
 """
 function WideResNet end
 
-@concrete struct MetalheadWrapperLayer <: AbstractLuxVisionLayer
+@concrete struct MetalheadWrapperLayer <: AbstractBoltzModel
     layer
-    pretrained_name::Symbol
-    pretrained::Bool
 end
 
 for f in [
@@ -143,13 +141,25 @@ for f in [
     f_metalhead = Symbol(f, :Metalhead)
     @eval begin
         function $(f_metalhead) end
-        function $(f)(args...; pretrained::Bool=false, kwargs...)
+        function $(f)(args...; pretrained=false, kwargs...)
             if !is_extension_loaded(Val(:Metalhead))
                 error("`Metalhead.jl` is not loaded. Please load `Metalhead.jl` to use \
                        this function.")
             end
-            model = $(f_metalhead)(args...; pretrained, kwargs...)
-            return MetalheadWrapperLayer(model, :metalhead, false)
+            return MetalheadWrapperLayer(
+                $(f_metalhead)(
+                    args...;
+                    pretrained=convert_metalhead_pretrained_to_bool(pretrained),
+                    kwargs...,
+                ),
+            )
         end
     end
 end
+
+function convert_metalhead_pretrained_to_bool(name::Union{String,Symbol})
+    name = Symbol(name)
+    @argcheck name in (:ImageNet1K, :DEFAULT)
+    return true
+end
+convert_metalhead_pretrained_to_bool(name::Bool) = name

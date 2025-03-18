@@ -1,17 +1,17 @@
 """
-    AlexNet(; kwargs...)
+    AlexNet(; pretrained=false)
 
 Create an AlexNet model [krizhevsky2012imagenet](@citep).
 
 ## Keyword Arguments
 
-  - `pretrained::Bool=false`: If `true`, loads pretrained weights when `LuxCore.setup` is
-    called.
+  - `pretrained`: Valid Options are `false`, `true`, `:DEFAULT`, `:ImageNet1K` or
+    `:ImageNet1K_V1`. `:DEFAULT`, `true` and `:ImageNet1K` weights _currently_
+    corresponds to `:ImageNet1K_V1`.
 """
-@concrete struct AlexNet <: AbstractLuxVisionLayer
+@concrete struct AlexNet <: AbstractBoltzModel
     layer
-    pretrained_name::Symbol
-    pretrained::Bool
+    pretrained
 end
 
 function AlexNet(; pretrained=false)
@@ -36,5 +36,29 @@ function AlexNet(; pretrained=false)
             Dense(4096 => 1000),
         ),
     )
-    return AlexNet(alexnet, :alexnet, pretrained)
+    return AlexNet(alexnet, get_alexnet_pretrained_weights(pretrained))
 end
+
+abstract type AbstractAlexNetWeights <: PretrainedWeights.ArtifactsPretrainedWeight end
+
+function get_alexnet_pretrained_weights(pretrained::Bool)
+    !pretrained && return nothing
+    return get_alexnet_pretrained_weights(:DEFAULT)
+end
+
+function get_alexnet_pretrained_weights(name::Union{String,Symbol})
+    name = Symbol(name)
+    @argcheck name in (:ImageNet1K_V1, :ImageNet1K, :DEFAULT)
+    name == :DEFAULT && (name = :ImageNet1K_V1)
+    name == :ImageNet1K && (name = :ImageNet1K_V1)
+    name == :ImageNet1K_V1 && return AlexNet_Weights_ImageNet1K_V1()
+    error("Unknown pretrained weights name: $(name))")
+end
+
+get_alexnet_pretrained_weights(W::AbstractAlexNetWeights) = W
+
+struct AlexNet_Weights_ImageNet1K_V1 <: AbstractAlexNetWeights end
+
+PretrainedWeights.load_with(::Val{:JLD2}, ::AlexNet_Weights_ImageNet1K_V1) = true
+
+PretrainedWeights.get_artifact_name(::AlexNet_Weights_ImageNet1K_V1) = "alexnet"

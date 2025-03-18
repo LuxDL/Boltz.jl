@@ -1,7 +1,6 @@
-@concrete struct VisionTransformer <: AbstractLuxVisionLayer
+@concrete struct VisionTransformer <: AbstractBoltzModel
     layer
-    pretrained_name::Symbol
-    pretrained::Bool
+    pretrained
 end
 
 function VisionTransformer(;
@@ -63,8 +62,18 @@ Creates a Vision Transformer model with the specified configuration.
 function VisionTransformer(name::Symbol; pretrained=false, kwargs...)
     @argcheck name in keys(VIT_CONFIGS)
     return VisionTransformer(
-        VisionTransformer(; VIT_CONFIGS[name]..., kwargs...), name, pretrained
+        VisionTransformer(; VIT_CONFIGS[name]..., kwargs...),
+        get_vit_pretrained_weights(name, pretrained),
     )
 end
 
 const ViT = VisionTransformer
+
+function get_vit_pretrained_weights(name::Symbol, pretrained::Bool)
+    !pretrained && return nothing
+    return get_vit_pretrained_weights(name, :DEFAULT)
+end
+
+function get_vit_pretrained_weights(::Symbol, name::Union{String,Symbol})
+    throw("ViT pretrained weights are not yet implemented")
+end
