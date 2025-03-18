@@ -28,7 +28,11 @@ Pkg.add("Boltz")
 ## Getting Started
 
 ```julia
-using Boltz, Lux, Metalhead
+using Boltz, Lux, Random
 
-model, ps, st = Vision.AlexNet(; pretrained=true)
+model = Vision.AlexNet(; pretrained=Vision.AlexNet_Weights.DEFAULT)
+ps, st = Lux.setup(Random.default_rng(), model)
+
+x = rand(Float32, 224, 224, 3, 1)
+model(x, ps, Lux.testmode(st))
 ```

@@ -38,10 +38,9 @@ function VGGClassifier(imsize, nclasses, fcsize, dropout)
     )
 end
 
-@concrete struct VGG <: AbstractLuxVisionLayer
+@concrete struct VGG <: AbstractBoltzModel
     layer
-    pretrained_name::Symbol
-    pretrained::Bool
+    pretrained
 end
 
 """
@@ -93,5 +92,29 @@ function VGG(depth::Int; batchnorm::Bool=false, pretrained::Bool=false)
     name = Symbol(:vgg, depth, ifelse(batchnorm, "_bn", ""))
     config, inchannels, nclasses, fcsize = VGG_CONFIG[depth], 3, 1000, 4096
     model = VGG((224, 224); config, inchannels, batchnorm, nclasses, fcsize, dropout=0.5f0)
-    return VGG(model, name, pretrained)
+    return VGG(model, get_vgg_pretrained_weights(name, pretrained))
 end
+
+abstract type AbstractVGGWeights <: PretrainedWeights.ArtifactsPretrainedWeight end
+
+function get_vgg_pretrained_weights(name, pretrained::Bool)
+    !pretrained && return nothing
+    return get_vgg_pretrained_weights(name, :DEFAULT)
+end
+
+function get_vgg_pretrained_weights(artifact_name, name::Union{String,Symbol})
+    name = Symbol(name)
+    @argcheck name in (:ImageNet1K_V1, :ImageNet1K, :DEFAULT)
+    name == :DEFAULT && (name = :ImageNet1K_V1)
+    name == :ImageNet1K && (name = :ImageNet1K_V1)
+    name == :ImageNet1K_V1 && return VGG_Weights_ImageNet1K_V1(string(artifact_name))
+    return error("Unknown pretrained weights name: $(name))")
+end
+
+get_vgg_pretrained_weights(W::AbstractVGGWeights) = W
+
+struct VGG_Weights_ImageNet1K_V1 <: AbstractVGGWeights
+    artifact_name::String
+end
+
+PretrainedWeights.load_with(::Val{:JLD2}, ::VGG_Weights_ImageNet1K_V1) = true
