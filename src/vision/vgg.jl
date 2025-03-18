@@ -108,7 +108,7 @@ function get_vgg_pretrained_weights(artifact_name, name::Union{String,Symbol})
     name == :DEFAULT && (name = :ImageNet1K_V1)
     name == :ImageNet1K && (name = :ImageNet1K_V1)
     name == :ImageNet1K_V1 && return VGG_Weights_ImageNet1K_V1(string(artifact_name))
-    error("Unknown pretrained weights name: $(name))")
+    return error("Unknown pretrained weights name: $(name))")
 end
 
 get_vgg_pretrained_weights(W::AbstractVGGWeights) = W

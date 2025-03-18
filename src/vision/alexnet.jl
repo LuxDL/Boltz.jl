@@ -52,7 +52,7 @@ function get_alexnet_pretrained_weights(name::Union{String,Symbol})
     name == :DEFAULT && (name = :ImageNet1K_V1)
     name == :ImageNet1K && (name = :ImageNet1K_V1)
     name == :ImageNet1K_V1 && return AlexNet_Weights_ImageNet1K_V1()
-    error("Unknown pretrained weights name: $(name))")
+    return error("Unknown pretrained weights name: $(name))")
 end
 
 get_alexnet_pretrained_weights(W::AbstractAlexNetWeights) = W
