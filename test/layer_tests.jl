@@ -198,7 +198,7 @@ end
             ps, st = dev(Lux.setup(StableRNG(0), spline))
             ps_ca = dev(ComponentArray(cpu_device()(ps)))
 
-            x = aType(tanh.(randn(Float32, 4)))
+            x = aType(rand(Float32, 4))
 
             y, st = spline(x, ps, st)
             @test size(y) == (dims..., 4)
