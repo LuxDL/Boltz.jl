@@ -1,6 +1,6 @@
 module BoltzDataInterpolationsExt
 
-using DataInterpolations: AbstractInterpolation
+using DataInterpolations: AbstractInterpolation, ExtrapolationType
 
 using Boltz: Boltz, Layers, Utils
 
@@ -11,7 +11,9 @@ for train_grid in (true, false), tType in (AbstractVector, Number)
         t::$(tType), ps, st
     ) where {Basis<:AbstractInterpolation}
         $(grid_expr)
-        interp = construct_basis(Basis, ps.saved_points, grid; extrapolate=true)
+        interp = construct_basis(
+            Basis, ps.saved_points, grid; extrapolation=ExtrapolationType.Constant
+        )
         $(sol_expr)
         spl.in_dims == () && return sol, st
         return Utils.mapreduce_stack(sol), st
@@ -19,13 +21,13 @@ for train_grid in (true, false), tType in (AbstractVector, Number)
 end
 
 function construct_basis(
-    ::Type{Basis}, saved_points::AbstractVector, grid; extrapolate=false
+    ::Type{Basis}, saved_points::AbstractVector, grid; kwargs...
 ) where {Basis}
-    return Basis(saved_points, grid; extrapolate)
+    return Basis(saved_points, grid; kwargs...)
 end
 
 function construct_basis(
-    ::Type{Basis}, saved_points::AbstractArray{T,N}, grid; extrapolate=false
+    ::Type{Basis}, saved_points::AbstractArray{T,N}, grid; kwargs...
 ) where {Basis,T,N}
     return construct_basis(
         # Unfortunately DataInterpolations.jl is not very robust to different array types
@@ -33,7 +35,7 @@ function construct_basis(
         Basis,
         [copy(selectdim(saved_points, N, i)) for i in 1:size(saved_points, N)],
         grid;
-        extrapolate,
+        kwargs...,
     )
 end
 
