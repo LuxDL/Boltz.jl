@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Getting Started | Boltz.jl Docs</title>
+    <meta name="description" content="Documentation for Boltz.jl">
+    <meta name="generator" content="VitePress v1.5.0">
+    <link rel="preload stylesheet" href="/Boltz.jl/previews/PR80/assets/style.DxIgPhg0.css" as="style">
+    <link rel="preload stylesheet" href="/Boltz.jl/previews/PR80/vp-icons.css" as="style">
+    
+    <script type="module" src="/Boltz.jl/previews/PR80/assets/app.BM_8m4yr.js"></script>
+    <link rel="preload" href="/Boltz.jl/previews/PR80/assets/inter-roman-latin.Di8DUHzh.woff2" as="font" type="font/woff2" crossorigin="">
+    <link rel="modulepreload" href="/Boltz.jl/previews/PR80/assets/chunks/theme.BAlDZPMD.js">
+    <link rel="modulepreload" href="/Boltz.jl/previews/PR80/assets/chunks/framework.Bjxu7YHf.js">
+    <link rel="modulepreload" href="/Boltz.jl/previews/PR80/assets/tutorials_1_GettingStarted.md.BP-O1k43.lean.js">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q8GYTEVTZ2"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-Q8GYTEVTZ2");</script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="manifest" href="/site.webmanifest">
+    <script id="check-dark-mode">(()=>{const e=localStorage.getItem("vitepress-theme-appearance")||"auto",a=window.matchMedia("(prefers-color-scheme: dark)").matches;(!e||e==="auto"?a:e==="dark")&&document.documentElement.classList.add("dark")})();</script>
+    <script id="check-mac-os">document.documentElement.classList.toggle("mac",/Mac|iPhone|iPod|iPad/i.test(navigator.platform));</script>
+  </head>
+  <body>
+    <div id="app"><div class="Layout" data-v-a9a9e638><!--[--><!--]--><!--[--><span tabindex="-1" data-v-c3508ec8></span><a href="#VPContent" class="VPSkipLink visually-hidden" data-v-c3508ec8> Skip to content </a><!--]--><!----><header class="VPNav" data-v-a9a9e638 data-v-f1e365da><div class="VPNavBar" data-v-f1e365da data-v-822684d1><div class="wrapper" data-v-822684d1><div class="container" data-v-822684d1><div class="title" data-v-822684d1><div class="VPNavBarTitle has-sidebar" data-v-822684d1 data-v-0f4f798b><a class="title" href="/Boltz.jl/previews/PR80/" data-v-0f4f798b><!--[--><!--]--><!--[--><!--[--><!--[--><img class="VPImage dark logo" src="/Boltz.jl/previews/PR80/lux-logo-dark.svg" alt data-v-35a7d0b8><!--]--><!--[--><img class="VPImage light logo" src="/Boltz.jl/previews/PR80/lux-logo.svg" alt data-v-35a7d0b8><!--]--><!--]--><!--]--><span data-v-0f4f798b>Boltz.jl Docs</span><!--[--><!--]--></a></div></div><div class="content" data-v-822684d1><div class="content-body" data-v-822684d1><!--[--><!--]--><div class="VPNavBarSearch search" data-v-822684d1><!--[--><!----><div id="local-search"><button type="button" class="DocSearch DocSearch-Button" aria-label="Search"><span class="DocSearch-Button-Container"><span class="vp-icon DocSearch-Search-Icon"></span><span class="DocSearch-Button-Placeholder">Search</span></span><span class="DocSearch-Button-Keys"><kbd class="DocSearch-Button-Key"></kbd><kbd class="DocSearch-Button-Key">K</kbd></span></button></div><!--]--></div><nav aria-labelledby="main-nav-aria-label" class="VPNavBarMenu menu" data-v-822684d1 data-v-e6d46098><span id="main-nav-aria-label" class="visually-hidden" data-v-e6d46098> Main Navigation </span><!--[--><!--[--><a class="VPLink link VPNavBarMenuLink" href="/Boltz.jl/previews/PR80/index" tabindex="0" data-v-e6d46098 data-v-956ec74c><!--[--><span data-v-956ec74c>Boltz.jl</span><!--]--></a><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup active" data-v-e6d46098 data-v-04f5c5e9><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-04f5c5e9><span class="text" data-v-04f5c5e9><!----><span data-v-04f5c5e9>Tutorials</span><span class="vpi-chevron-down text-icon" data-v-04f5c5e9></span></span></button><div class="menu" data-v-04f5c5e9><div class="VPMenu" data-v-04f5c5e9 data-v-7dd3104a><div class="items" data-v-7dd3104a><!--[--><!--[--><div class="VPMenuLink" data-v-7dd3104a data-v-acbfed09><a class="VPLink link active" href="/Boltz.jl/previews/PR80/tutorials/1_GettingStarted" data-v-acbfed09><!--[--><span data-v-acbfed09>Getting Started</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-7dd3104a data-v-acbfed09><a class="VPLink link" href="/Boltz.jl/previews/PR80/tutorials/2_SymbolicOptimalControl" data-v-acbfed09><!--[--><span data-v-acbfed09>Symbolic Optimal Control</span><!--]--></a></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--[--><div class="VPFlyout VPNavBarMenuGroup" data-v-e6d46098 data-v-04f5c5e9><button type="button" class="button" aria-haspopup="true" aria-expanded="false" data-v-04f5c5e9><span class="text" data-v-04f5c5e9><!----><span data-v-04f5c5e9>API Reference</span><span class="vpi-chevron-down text-icon" data-v-04f5c5e9></span></span></button><div class="menu" data-v-04f5c5e9><div class="VPMenu" data-v-04f5c5e9 data-v-7dd3104a><div class="items" data-v-7dd3104a><!--[--><!--[--><div class="VPMenuLink" data-v-7dd3104a data-v-acbfed09><a class="VPLink link" href="/Boltz.jl/previews/PR80/api/index" data-v-acbfed09><!--[--><span data-v-acbfed09>Index</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-7dd3104a data-v-acbfed09><a class="VPLink link" href="/Boltz.jl/previews/PR80/api/basis" data-v-acbfed09><!--[--><span data-v-acbfed09>Basis Functions</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-7dd3104a data-v-acbfed09><a class="VPLink link" href="/Boltz.jl/previews/PR80/api/layers" data-v-acbfed09><!--[--><span data-v-acbfed09>Layers API</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-7dd3104a data-v-acbfed09><a class="VPLink link" href="/Boltz.jl/previews/PR80/api/vision" data-v-acbfed09><!--[--><span data-v-acbfed09>Vision Models</span><!--]--></a></div><!--]--><!--[--><div class="VPMenuLink" data-v-7dd3104a data-v-acbfed09><a class="VPLink link" href="/Boltz.jl/previews/PR80/api/private" data-v-acbfed09><!--[--><span data-v-acbfed09>Private API</span><!--]--></a></div><!--]--><!--]--></div><!--[--><!--]--></div></div></div><!--]--><!--]--></nav><!----><div class="VPNavBarAppearance appearance" data-v-822684d1 data-v-af096f4a><button class="VPSwitch VPSwitchAppearance" type="button" role="switch" title aria-checked="false" data-v-af096f4a data-v-e40a8bb6 data-v-4a1c76db><span class="check" data-v-4a1c76db><span class="icon" data-v-4a1c76db><!--[--><span class="vpi-sun sun" data-v-e40a8bb6></span><span class="vpi-moon moon" data-v-e40a8bb6></span><!--]--></span></span></button></div><div class="VPSocialLinks VPNavBarSocialLinks social-links" data-v-822684d1 data-v-164c457f data-v-ee7a9424><!--[--><a class="VPSocialLink no-icon" href="https://github.com/LuxDL/Boltz.jl" aria-label="github" target="_blank" rel="noopener" data-v-ee7a9424 data-v-d26d30cb><span class="vpi-social-github"></span></a><a class="VPSocialLink no-icon" href="https://twitter.com/avikpal1410" aria-label="twitter" target="_blank" rel="noopener" data-v-ee7a9424 data-v-d26d30cb><span class="vpi-social-twitter"></span></a><a class="VPSocialLink no-icon" href="https://julialang.org/slack/" aria-label="slack" target="_blank" rel="noopener" data-v-ee7a9424 data-v-d26d30cb><span class="vpi-social-slack"></span></a><!--]--></div><div class="VPFlyout VPNavBarExtra extra" data-v-822684d1 data-v-925effce data-v-04f5c5e9><button type="button" class="button" aria-haspopup="true" aria-expanded="false" aria-label="extra navigation" data-v-04f5c5e9><span class="vpi-more-horizontal icon" data-v-04f5c5e9></span></button><div class="menu" data-v-04f5c5e9><div class="VPMenu" data-v-04f5c5e9 data-v-7dd3104a><!----><!--[--><!--[--><!----><div class="group" data-v-925effce><div class="item appearance" data-v-925effce><p class="label" data-v-925effce>Appearance</p><div class="appearance-action" data-v-925effce><button class="VPSwitch VPSwitchAppearance" type="button" role="switch" title aria-checked="false" data-v-925effce data-v-e40a8bb6 data-v-4a1c76db><span class="check" data-v-4a1c76db><span class="icon" data-v-4a1c76db><!--[--><span class="vpi-sun sun" data-v-e40a8bb6></span><span class="vpi-moon moon" data-v-e40a8bb6></span><!--]--></span></span></button></div></div></div><div class="group" data-v-925effce><div class="item social-links" data-v-925effce><div class="VPSocialLinks social-links-list" data-v-925effce data-v-ee7a9424><!--[--><a class="VPSocialLink no-icon" href="https://github.com/LuxDL/Boltz.jl" aria-label="github" target="_blank" rel="noopener" data-v-ee7a9424 data-v-d26d30cb><span class="vpi-social-github"></span></a><a class="VPSocialLink no-icon" href="https://twitter.com/avikpal1410" aria-label="twitter" target="_blank" rel="noopener" data-v-ee7a9424 data-v-d26d30cb><span class="vpi-social-twitter"></span></a><a class="VPSocialLink no-icon" href="https://julialang.org/slack/" aria-label="slack" target="_blank" rel="noopener" data-v-ee7a9424 data-v-d26d30cb><span class="vpi-social-slack"></span></a><!--]--></div></div></div><!--]--><!--]--></div></div></div><!--[--><!--]--><button type="button" class="VPNavBarHamburger hamburger" aria-label="mobile navigation" aria-expanded="false" aria-controls="VPNavScreen" data-v-822684d1 data-v-5dea55bf><span class="container" data-v-5dea55bf><span class="top" data-v-5dea55bf></span><span class="middle" data-v-5dea55bf></span><span class="bottom" data-v-5dea55bf></span></span></button></div></div></div></div><div class="divider" data-v-822684d1><div class="divider-line" data-v-822684d1></div></div></div><!----></header><div class="VPLocalNav has-sidebar empty" data-v-a9a9e638 data-v-070ab83d><div class="container" data-v-070ab83d><button class="menu" aria-expanded="false" aria-controls="VPSidebarNav" data-v-070ab83d><span class="vpi-align-left menu-icon" data-v-070ab83d></span><span class="menu-text" data-v-070ab83d>Menu</span></button><div class="VPLocalNavOutlineDropdown" style="--vp-vh:0px;" data-v-070ab83d data-v-bc9dc845><button data-v-bc9dc845>Return to top</button><!----></div></div></div><aside class="VPSidebar" data-v-a9a9e638 data-v-18756405><div class="curtain" data-v-18756405></div><nav class="nav" id="VPSidebarNav" aria-labelledby="sidebar-aria-label" tabindex="-1" data-v-18756405><span class="visually-hidden" id="sidebar-aria-label" data-v-18756405> Sidebar Navigation </span><!--[--><!--]--><!--[--><div class="no-transition group" data-v-9e426adc><section class="VPSidebarItem level-0" data-v-9e426adc data-v-196b2e5f><!----><div class="items" data-v-196b2e5f><!--[--><div class="VPSidebarItem level-1 is-link" data-v-196b2e5f data-v-196b2e5f><div class="item" data-v-196b2e5f><div class="indicator" data-v-196b2e5f></div><a class="VPLink link link" href="/Boltz.jl/previews/PR80/index" data-v-196b2e5f><!--[--><p class="text" data-v-196b2e5f>Boltz.jl</p><!--]--></a><!----></div><!----></div><!--]--></div></section></div><div class="no-transition group" data-v-9e426adc><section class="VPSidebarItem level-0 collapsible has-active" data-v-9e426adc data-v-196b2e5f><div class="item" role="button" tabindex="0" data-v-196b2e5f><div class="indicator" data-v-196b2e5f></div><h2 class="text" data-v-196b2e5f>Tutorials</h2><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-196b2e5f><span class="vpi-chevron-right caret-icon" data-v-196b2e5f></span></div></div><div class="items" data-v-196b2e5f><!--[--><div class="VPSidebarItem level-1 is-link" data-v-196b2e5f data-v-196b2e5f><div class="item" data-v-196b2e5f><div class="indicator" data-v-196b2e5f></div><a class="VPLink link link" href="/Boltz.jl/previews/PR80/tutorials/1_GettingStarted" data-v-196b2e5f><!--[--><p class="text" data-v-196b2e5f>Getting Started</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-196b2e5f data-v-196b2e5f><div class="item" data-v-196b2e5f><div class="indicator" data-v-196b2e5f></div><a class="VPLink link link" href="/Boltz.jl/previews/PR80/tutorials/2_SymbolicOptimalControl" data-v-196b2e5f><!--[--><p class="text" data-v-196b2e5f>Symbolic Optimal Control</p><!--]--></a><!----></div><!----></div><!--]--></div></section></div><div class="no-transition group" data-v-9e426adc><section class="VPSidebarItem level-0 collapsible" data-v-9e426adc data-v-196b2e5f><div class="item" role="button" tabindex="0" data-v-196b2e5f><div class="indicator" data-v-196b2e5f></div><h2 class="text" data-v-196b2e5f>API Reference</h2><div class="caret" role="button" aria-label="toggle section" tabindex="0" data-v-196b2e5f><span class="vpi-chevron-right caret-icon" data-v-196b2e5f></span></div></div><div class="items" data-v-196b2e5f><!--[--><div class="VPSidebarItem level-1 is-link" data-v-196b2e5f data-v-196b2e5f><div class="item" data-v-196b2e5f><div class="indicator" data-v-196b2e5f></div><a class="VPLink link link" href="/Boltz.jl/previews/PR80/api/index" data-v-196b2e5f><!--[--><p class="text" data-v-196b2e5f>Index</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-196b2e5f data-v-196b2e5f><div class="item" data-v-196b2e5f><div class="indicator" data-v-196b2e5f></div><a class="VPLink link link" href="/Boltz.jl/previews/PR80/api/basis" data-v-196b2e5f><!--[--><p class="text" data-v-196b2e5f>Basis Functions</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-196b2e5f data-v-196b2e5f><div class="item" data-v-196b2e5f><div class="indicator" data-v-196b2e5f></div><a class="VPLink link link" href="/Boltz.jl/previews/PR80/api/layers" data-v-196b2e5f><!--[--><p class="text" data-v-196b2e5f>Layers API</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-196b2e5f data-v-196b2e5f><div class="item" data-v-196b2e5f><div class="indicator" data-v-196b2e5f></div><a class="VPLink link link" href="/Boltz.jl/previews/PR80/api/vision" data-v-196b2e5f><!--[--><p class="text" data-v-196b2e5f>Vision Models</p><!--]--></a><!----></div><!----></div><div class="VPSidebarItem level-1 is-link" data-v-196b2e5f data-v-196b2e5f><div class="item" data-v-196b2e5f><div class="indicator" data-v-196b2e5f></div><a class="VPLink link link" href="/Boltz.jl/previews/PR80/api/private" data-v-196b2e5f><!--[--><p class="text" data-v-196b2e5f>Private API</p><!--]--></a><!----></div><!----></div><!--]--></div></section></div><!--]--><!--[--><!--]--></nav></aside><div class="VPContent has-sidebar" id="VPContent" data-v-a9a9e638 data-v-91765379><div class="VPDoc has-sidebar has-aside" data-v-91765379 data-v-83890dd9><!--[--><!--]--><div class="container" data-v-83890dd9><div class="aside" data-v-83890dd9><div class="aside-curtain" data-v-83890dd9></div><div class="aside-container" data-v-83890dd9><div class="aside-content" data-v-83890dd9><div class="VPDocAside" data-v-83890dd9 data-v-6d7b3c46><!--[--><!--]--><!--[--><!--]--><nav aria-labelledby="doc-outline-aria-label" class="VPDocAsideOutline" data-v-6d7b3c46 data-v-b38bf2ff><div class="content" data-v-b38bf2ff><div class="outline-marker" data-v-b38bf2ff></div><div aria-level="2" class="outline-title" id="doc-outline-aria-label" role="heading" data-v-b38bf2ff>On this page</div><ul class="VPDocOutlineItem root" data-v-b38bf2ff data-v-3f927ebe><!--[--><!--]--></ul></div></nav><!--[--><!--]--><div class="spacer" data-v-6d7b3c46></div><!--[--><!--[--><!--[--><!--[--><!--[--><br><h2> Trusted by </h2><a class="enjoyer" href="https://sciml.ai/" target="_blank"><img width="32" height="32" src="https://avatars.githubusercontent.com/u/21238080?v=4"><span><p class="extra-info">Scientific Computing</p><p class="heading">SciML.ai</p><p class="extra-info">Machine Learning</p></span></a><!--]--><!--]--><!--]--><!--]--><!--]--><!----><!--[--><!--]--><!--[--><!--]--></div></div></div></div><div class="content" data-v-83890dd9><div class="content-container" data-v-83890dd9><!--[--><!--]--><main class="main" data-v-83890dd9><div style="position:relative;" class="vp-doc _Boltz_jl_previews_PR80_tutorials_1_GettingStarted" data-v-83890dd9><div><h1 id="Getting-Started" tabindex="-1">Getting Started <a class="header-anchor" href="#Getting-Started" aria-label="Permalink to &quot;Getting Started {#Getting-Started}&quot;">​</a></h1><div class="tip custom-block"><p class="custom-block-title">Prerequisites</p><p>Here we assume that you are familiar with <a href="https://lux.csail.mit.edu/stable/" target="_blank" rel="noreferrer"><code>Lux.jl</code></a>. If not please take a look at the <a href="https://lux.csail.mit.edu/stable/tutorials/" target="_blank" rel="noreferrer">Lux.jl tutoials</a>.</p></div><p><code>Boltz.jl</code> is just like <code>Lux.jl</code> but comes with more &quot;batteries included&quot;. Let&#39;s start by defining an MLP model.</p><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">using</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> Lux, Boltz, Random</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>Precompiling Lux...</span></span>
+<span class="line"><span>   1028.8 ms  ✓ Functors</span></span>
+<span class="line"><span>   1301.2 ms  ✓ LuxCore</span></span>
+<span class="line"><span>    981.5 ms  ✓ LuxCore → LuxCoreFunctorsExt</span></span>
+<span class="line"><span>    995.0 ms  ✓ LuxCore → LuxCoreEnzymeCoreExt</span></span>
+<span class="line"><span>   1427.0 ms  ✓ MLDataDevices</span></span>
+<span class="line"><span>   1249.6 ms  ✓ LuxCore → LuxCoreChainRulesCoreExt</span></span>
+<span class="line"><span>   2051.2 ms  ✓ Optimisers</span></span>
+<span class="line"><span>    990.2 ms  ✓ LuxCore → LuxCoreSetfieldExt</span></span>
+<span class="line"><span>   1111.9 ms  ✓ MLDataDevices → MLDataDevicesChainRulesCoreExt</span></span>
+<span class="line"><span>    825.3 ms  ✓ MLDataDevices → MLDataDevicesFillArraysExt</span></span>
+<span class="line"><span>   1404.4 ms  ✓ MLDataDevices → MLDataDevicesSparseArraysExt</span></span>
+<span class="line"><span>   2580.0 ms  ✓ MLDataDevices → MLDataDevicesGPUArraysExt</span></span>
+<span class="line"><span>   2970.3 ms  ✓ MLDataDevices → MLDataDevicesOneHotArraysExt</span></span>
+<span class="line"><span>    858.4 ms  ✓ LuxCore → LuxCoreMLDataDevicesExt</span></span>
+<span class="line"><span>   2798.4 ms  ✓ MLDataDevices → MLDataDevicesZygoteExt</span></span>
+<span class="line"><span>   1354.1 ms  ✓ MLDataDevices → MLDataDevicesChainRulesExt</span></span>
+<span class="line"><span>   3416.9 ms  ✓ MLDataDevices → MLDataDevicesMLUtilsExt</span></span>
+<span class="line"><span>   6011.7 ms  ✓ LuxLib</span></span>
+<span class="line"><span>   9330.1 ms  ✓ Lux</span></span>
+<span class="line"><span>   2907.2 ms  ✓ Lux → LuxMLUtilsExt</span></span>
+<span class="line"><span>   3307.1 ms  ✓ Lux → LuxZygoteExt</span></span>
+<span class="line"><span>  21 dependencies successfully precompiled in 26 seconds. 190 already precompiled.</span></span>
+<span class="line"><span>Precompiling Boltz...</span></span>
+<span class="line"><span>   6467.1 ms  ✓ Flux</span></span>
+<span class="line"><span>   3575.4 ms  ✓ Lux → LuxFluxExt</span></span>
+<span class="line"><span>   5199.0 ms  ✓ Boltz</span></span>
+<span class="line"><span>   2692.6 ms  ✓ Boltz → BoltzZygoteExt</span></span>
+<span class="line"><span>  4 dependencies successfully precompiled in 18 seconds. 212 already precompiled.</span></span></code></pre></div><h2 id="Multi-Layer-Perceptron" tabindex="-1">Multi-Layer Perceptron <a class="header-anchor" href="#Multi-Layer-Perceptron" aria-label="Permalink to &quot;Multi-Layer Perceptron {#Multi-Layer-Perceptron}&quot;">​</a></h2><p>If we were to do this in <code>Lux.jl</code> we would write the following:</p><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">model </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> Chain</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">    Dense</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">784</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">256</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, relu),</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">    Dense</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">256</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>Chain(</span></span>
+<span class="line"><span>    layer_1 = Dense(784 =&gt; 256, relu),  # 200_960 parameters</span></span>
+<span class="line"><span>    layer_2 = Dense(256 =&gt; 10),         # 2_570 parameters</span></span>
+<span class="line"><span>)         # Total: 203_530 parameters,</span></span>
+<span class="line"><span>          #        plus 0 states.</span></span></code></pre></div><p>But in <code>Boltz.jl</code> we can do this:</p><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">model </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> Layers</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">MLP</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">784</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, (</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">256</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, </span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">10</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">), relu)</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>MLP(</span></span>
+<span class="line"><span>    chain = Chain(</span></span>
+<span class="line"><span>        block1 = DenseNormActDropoutBlock(</span></span>
+<span class="line"><span>            block = Chain(</span></span>
+<span class="line"><span>                dense = Dense(784 =&gt; 256, relu),  # 200_960 parameters</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>        ),</span></span>
+<span class="line"><span>        block2 = DenseNormActDropoutBlock(</span></span>
+<span class="line"><span>            block = Chain(</span></span>
+<span class="line"><span>                dense = Dense(256 =&gt; 10),  # 2_570 parameters</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>        ),</span></span>
+<span class="line"><span>    ),</span></span>
+<span class="line"><span>)         # Total: 203_530 parameters,</span></span>
+<span class="line"><span>          #        plus 0 states.</span></span></code></pre></div><p>The <code>MLP</code> function is just a convenience wrapper around <code>Lux.Chain</code> that constructs a multi-layer perceptron with the given number of layers and activation function.</p><h2 id="How-about-VGG?" tabindex="-1">How about VGG? <a class="header-anchor" href="#How-about-VGG?" aria-label="Permalink to &quot;How about VGG? {#How-about-VGG?}&quot;">​</a></h2><p>Let&#39;s take a look at the <code>Vision</code> module. We can construct a VGG model with the following code:</p><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">Vision</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">VGG</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">13</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>VGG(</span></span>
+<span class="line"><span>    layer = Chain(</span></span>
+<span class="line"><span>        feature_extractor = VGGFeatureExtractor(</span></span>
+<span class="line"><span>            model = Chain(</span></span>
+<span class="line"><span>                layer_1 = ConvNormActivation(</span></span>
+<span class="line"><span>                    model = Chain(</span></span>
+<span class="line"><span>                        block1 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 3 =&gt; 64, relu, pad=1),  # 1_792 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                        block2 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 64 =&gt; 64, relu, pad=1),  # 36_928 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_2 = MaxPool((2, 2)),</span></span>
+<span class="line"><span>                layer_3 = ConvNormActivation(</span></span>
+<span class="line"><span>                    model = Chain(</span></span>
+<span class="line"><span>                        block1 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 64 =&gt; 128, relu, pad=1),  # 73_856 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                        block2 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 128 =&gt; 128, relu, pad=1),  # 147_584 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_4 = MaxPool((2, 2)),</span></span>
+<span class="line"><span>                layer_5 = ConvNormActivation(</span></span>
+<span class="line"><span>                    model = Chain(</span></span>
+<span class="line"><span>                        block1 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 128 =&gt; 256, relu, pad=1),  # 295_168 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                        block2 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 256 =&gt; 256, relu, pad=1),  # 590_080 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_6 = MaxPool((2, 2)),</span></span>
+<span class="line"><span>                layer_7 = ConvNormActivation(</span></span>
+<span class="line"><span>                    model = Chain(</span></span>
+<span class="line"><span>                        block1 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 256 =&gt; 512, relu, pad=1),  # 1_180_160 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                        block2 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 512 =&gt; 512, relu, pad=1),  # 2_359_808 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_8 = MaxPool((2, 2)),</span></span>
+<span class="line"><span>                layer_9 = ConvNormActivation(</span></span>
+<span class="line"><span>                    model = Chain(</span></span>
+<span class="line"><span>                        block1 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 512 =&gt; 512, relu, pad=1),  # 2_359_808 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                        block2 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 512 =&gt; 512, relu, pad=1),  # 2_359_808 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_10 = MaxPool((2, 2)),</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>        ),</span></span>
+<span class="line"><span>        classifier = VGGClassifier(</span></span>
+<span class="line"><span>            model = Chain(</span></span>
+<span class="line"><span>                layer_1 = Lux.FlattenLayer{Nothing}(nothing),</span></span>
+<span class="line"><span>                layer_2 = Dense(25088 =&gt; 4096, relu),  # 102_764_544 parameters</span></span>
+<span class="line"><span>                layer_3 = Dropout(0.5),</span></span>
+<span class="line"><span>                layer_4 = Dense(4096 =&gt; 4096, relu),  # 16_781_312 parameters</span></span>
+<span class="line"><span>                layer_5 = Dropout(0.5),</span></span>
+<span class="line"><span>                layer_6 = Dense(4096 =&gt; 1000),  # 4_097_000 parameters</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>        ),</span></span>
+<span class="line"><span>    ),</span></span>
+<span class="line"><span>)         # Total: 133_047_848 parameters,</span></span>
+<span class="line"><span>          #        plus 4 states.</span></span></code></pre></div><p>We can also load pretrained ImageNet weights using</p><div class="tip custom-block"><p class="custom-block-title">Load JLD2</p><p>You need to load <code>JLD2</code> before being able to load pretrained weights.</p></div><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">using</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> JLD2</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">Vision</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">VGG</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">13</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">; pretrained</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">true</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>VGG(</span></span>
+<span class="line"><span>    layer = Chain(</span></span>
+<span class="line"><span>        feature_extractor = VGGFeatureExtractor(</span></span>
+<span class="line"><span>            model = Chain(</span></span>
+<span class="line"><span>                layer_1 = ConvNormActivation(</span></span>
+<span class="line"><span>                    model = Chain(</span></span>
+<span class="line"><span>                        block1 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 3 =&gt; 64, relu, pad=1),  # 1_792 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                        block2 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 64 =&gt; 64, relu, pad=1),  # 36_928 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_2 = MaxPool((2, 2)),</span></span>
+<span class="line"><span>                layer_3 = ConvNormActivation(</span></span>
+<span class="line"><span>                    model = Chain(</span></span>
+<span class="line"><span>                        block1 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 64 =&gt; 128, relu, pad=1),  # 73_856 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                        block2 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 128 =&gt; 128, relu, pad=1),  # 147_584 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_4 = MaxPool((2, 2)),</span></span>
+<span class="line"><span>                layer_5 = ConvNormActivation(</span></span>
+<span class="line"><span>                    model = Chain(</span></span>
+<span class="line"><span>                        block1 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 128 =&gt; 256, relu, pad=1),  # 295_168 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                        block2 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 256 =&gt; 256, relu, pad=1),  # 590_080 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_6 = MaxPool((2, 2)),</span></span>
+<span class="line"><span>                layer_7 = ConvNormActivation(</span></span>
+<span class="line"><span>                    model = Chain(</span></span>
+<span class="line"><span>                        block1 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 256 =&gt; 512, relu, pad=1),  # 1_180_160 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                        block2 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 512 =&gt; 512, relu, pad=1),  # 2_359_808 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_8 = MaxPool((2, 2)),</span></span>
+<span class="line"><span>                layer_9 = ConvNormActivation(</span></span>
+<span class="line"><span>                    model = Chain(</span></span>
+<span class="line"><span>                        block1 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 512 =&gt; 512, relu, pad=1),  # 2_359_808 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                        block2 = ConvNormActivationBlock(</span></span>
+<span class="line"><span>                            block = Conv((3, 3), 512 =&gt; 512, relu, pad=1),  # 2_359_808 parameters</span></span>
+<span class="line"><span>                        ),</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_10 = MaxPool((2, 2)),</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>        ),</span></span>
+<span class="line"><span>        classifier = VGGClassifier(</span></span>
+<span class="line"><span>            model = Chain(</span></span>
+<span class="line"><span>                layer_1 = Lux.FlattenLayer{Nothing}(nothing),</span></span>
+<span class="line"><span>                layer_2 = Dense(25088 =&gt; 4096, relu),  # 102_764_544 parameters</span></span>
+<span class="line"><span>                layer_3 = Dropout(0.5),</span></span>
+<span class="line"><span>                layer_4 = Dense(4096 =&gt; 4096, relu),  # 16_781_312 parameters</span></span>
+<span class="line"><span>                layer_5 = Dropout(0.5),</span></span>
+<span class="line"><span>                layer_6 = Dense(4096 =&gt; 1000),  # 4_097_000 parameters</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>        ),</span></span>
+<span class="line"><span>    ),</span></span>
+<span class="line"><span>)         # Total: 133_047_848 parameters,</span></span>
+<span class="line"><span>          #        plus 4 states.</span></span></code></pre></div><h2 id="Loading-Models-from-Metalhead-(Flux.jl)" tabindex="-1">Loading Models from Metalhead (Flux.jl) <a class="header-anchor" href="#Loading-Models-from-Metalhead-(Flux.jl)" aria-label="Permalink to &quot;Loading Models from Metalhead (Flux.jl) {#Loading-Models-from-Metalhead-(Flux.jl)}&quot;">​</a></h2><p>We can load models from Metalhead (Flux.jl), just remember to load <code>Metalhead</code> before.</p><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">using</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> Metalhead</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">Vision</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">ResNet</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">18</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>MetalheadWrapperLayer(</span></span>
+<span class="line"><span>    layer = Chain(</span></span>
+<span class="line"><span>        layer_1 = Chain(</span></span>
+<span class="line"><span>            layer_1 = Chain(</span></span>
+<span class="line"><span>                layer_1 = Conv((7, 7), 3 =&gt; 64, pad=3, stride=2, use_bias=false),  # 9_408 parameters</span></span>
+<span class="line"><span>                layer_2 = BatchNorm(64, relu, affine=true, track_stats=true),  # 128 parameters, plus 129</span></span>
+<span class="line"><span>                layer_3 = MaxPool((3, 3), pad=1, stride=2),</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>            layer_2 = Chain(</span></span>
+<span class="line"><span>                layer_1 = Parallel(</span></span>
+<span class="line"><span>                    connection = addact(NNlib.relu, ...),</span></span>
+<span class="line"><span>                    layer_1 = Lux.NoOpLayer(),</span></span>
+<span class="line"><span>                    layer_2 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((3, 3), 64 =&gt; 64, pad=1, use_bias=false),  # 36_864 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(64, affine=true, track_stats=true),  # 128 parameters, plus 129</span></span>
+<span class="line"><span>                        layer_3 = WrappedFunction(relu),</span></span>
+<span class="line"><span>                        layer_4 = Conv((3, 3), 64 =&gt; 64, pad=1, use_bias=false),  # 36_864 parameters</span></span>
+<span class="line"><span>                        layer_5 = BatchNorm(64, affine=true, track_stats=true),  # 128 parameters, plus 129</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_2 = Parallel(</span></span>
+<span class="line"><span>                    connection = addact(NNlib.relu, ...),</span></span>
+<span class="line"><span>                    layer_1 = Lux.NoOpLayer(),</span></span>
+<span class="line"><span>                    layer_2 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((3, 3), 64 =&gt; 64, pad=1, use_bias=false),  # 36_864 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(64, affine=true, track_stats=true),  # 128 parameters, plus 129</span></span>
+<span class="line"><span>                        layer_3 = WrappedFunction(relu),</span></span>
+<span class="line"><span>                        layer_4 = Conv((3, 3), 64 =&gt; 64, pad=1, use_bias=false),  # 36_864 parameters</span></span>
+<span class="line"><span>                        layer_5 = BatchNorm(64, affine=true, track_stats=true),  # 128 parameters, plus 129</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>            layer_3 = Chain(</span></span>
+<span class="line"><span>                layer_1 = Parallel(</span></span>
+<span class="line"><span>                    connection = addact(NNlib.relu, ...),</span></span>
+<span class="line"><span>                    layer_1 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((1, 1), 64 =&gt; 128, stride=2, use_bias=false),  # 8_192 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(128, affine=true, track_stats=true),  # 256 parameters, plus 257</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                    layer_2 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((3, 3), 64 =&gt; 128, pad=1, stride=2, use_bias=false),  # 73_728 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(128, affine=true, track_stats=true),  # 256 parameters, plus 257</span></span>
+<span class="line"><span>                        layer_3 = WrappedFunction(relu),</span></span>
+<span class="line"><span>                        layer_4 = Conv((3, 3), 128 =&gt; 128, pad=1, use_bias=false),  # 147_456 parameters</span></span>
+<span class="line"><span>                        layer_5 = BatchNorm(128, affine=true, track_stats=true),  # 256 parameters, plus 257</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_2 = Parallel(</span></span>
+<span class="line"><span>                    connection = addact(NNlib.relu, ...),</span></span>
+<span class="line"><span>                    layer_1 = Lux.NoOpLayer(),</span></span>
+<span class="line"><span>                    layer_2 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((3, 3), 128 =&gt; 128, pad=1, use_bias=false),  # 147_456 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(128, affine=true, track_stats=true),  # 256 parameters, plus 257</span></span>
+<span class="line"><span>                        layer_3 = WrappedFunction(relu),</span></span>
+<span class="line"><span>                        layer_4 = Conv((3, 3), 128 =&gt; 128, pad=1, use_bias=false),  # 147_456 parameters</span></span>
+<span class="line"><span>                        layer_5 = BatchNorm(128, affine=true, track_stats=true),  # 256 parameters, plus 257</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>            layer_4 = Chain(</span></span>
+<span class="line"><span>                layer_1 = Parallel(</span></span>
+<span class="line"><span>                    connection = addact(NNlib.relu, ...),</span></span>
+<span class="line"><span>                    layer_1 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((1, 1), 128 =&gt; 256, stride=2, use_bias=false),  # 32_768 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(256, affine=true, track_stats=true),  # 512 parameters, plus 513</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                    layer_2 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((3, 3), 128 =&gt; 256, pad=1, stride=2, use_bias=false),  # 294_912 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(256, affine=true, track_stats=true),  # 512 parameters, plus 513</span></span>
+<span class="line"><span>                        layer_3 = WrappedFunction(relu),</span></span>
+<span class="line"><span>                        layer_4 = Conv((3, 3), 256 =&gt; 256, pad=1, use_bias=false),  # 589_824 parameters</span></span>
+<span class="line"><span>                        layer_5 = BatchNorm(256, affine=true, track_stats=true),  # 512 parameters, plus 513</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_2 = Parallel(</span></span>
+<span class="line"><span>                    connection = addact(NNlib.relu, ...),</span></span>
+<span class="line"><span>                    layer_1 = Lux.NoOpLayer(),</span></span>
+<span class="line"><span>                    layer_2 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((3, 3), 256 =&gt; 256, pad=1, use_bias=false),  # 589_824 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(256, affine=true, track_stats=true),  # 512 parameters, plus 513</span></span>
+<span class="line"><span>                        layer_3 = WrappedFunction(relu),</span></span>
+<span class="line"><span>                        layer_4 = Conv((3, 3), 256 =&gt; 256, pad=1, use_bias=false),  # 589_824 parameters</span></span>
+<span class="line"><span>                        layer_5 = BatchNorm(256, affine=true, track_stats=true),  # 512 parameters, plus 513</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>            layer_5 = Chain(</span></span>
+<span class="line"><span>                layer_1 = Parallel(</span></span>
+<span class="line"><span>                    connection = addact(NNlib.relu, ...),</span></span>
+<span class="line"><span>                    layer_1 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((1, 1), 256 =&gt; 512, stride=2, use_bias=false),  # 131_072 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(512, affine=true, track_stats=true),  # 1_024 parameters, plus 1_025</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                    layer_2 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((3, 3), 256 =&gt; 512, pad=1, stride=2, use_bias=false),  # 1_179_648 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(512, affine=true, track_stats=true),  # 1_024 parameters, plus 1_025</span></span>
+<span class="line"><span>                        layer_3 = WrappedFunction(relu),</span></span>
+<span class="line"><span>                        layer_4 = Conv((3, 3), 512 =&gt; 512, pad=1, use_bias=false),  # 2_359_296 parameters</span></span>
+<span class="line"><span>                        layer_5 = BatchNorm(512, affine=true, track_stats=true),  # 1_024 parameters, plus 1_025</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>                layer_2 = Parallel(</span></span>
+<span class="line"><span>                    connection = addact(NNlib.relu, ...),</span></span>
+<span class="line"><span>                    layer_1 = Lux.NoOpLayer(),</span></span>
+<span class="line"><span>                    layer_2 = Chain(</span></span>
+<span class="line"><span>                        layer_1 = Conv((3, 3), 512 =&gt; 512, pad=1, use_bias=false),  # 2_359_296 parameters</span></span>
+<span class="line"><span>                        layer_2 = BatchNorm(512, affine=true, track_stats=true),  # 1_024 parameters, plus 1_025</span></span>
+<span class="line"><span>                        layer_3 = WrappedFunction(relu),</span></span>
+<span class="line"><span>                        layer_4 = Conv((3, 3), 512 =&gt; 512, pad=1, use_bias=false),  # 2_359_296 parameters</span></span>
+<span class="line"><span>                        layer_5 = BatchNorm(512, affine=true, track_stats=true),  # 1_024 parameters, plus 1_025</span></span>
+<span class="line"><span>                    ),</span></span>
+<span class="line"><span>                ),</span></span>
+<span class="line"><span>            ),</span></span>
+<span class="line"><span>        ),</span></span>
+<span class="line"><span>        layer_2 = Chain(</span></span>
+<span class="line"><span>            layer_1 = AdaptiveMeanPool((1, 1)),</span></span>
+<span class="line"><span>            layer_2 = WrappedFunction(flatten),</span></span>
+<span class="line"><span>            layer_3 = Dense(512 =&gt; 1000),  # 513_000 parameters</span></span>
+<span class="line"><span>        ),</span></span>
+<span class="line"><span>    ),</span></span>
+<span class="line"><span>)         # Total: 11_689_512 parameters,</span></span>
+<span class="line"><span>          #        plus 9_620 states.</span></span></code></pre></div><h2 id="appendix" tabindex="-1">Appendix <a class="header-anchor" href="#appendix" aria-label="Permalink to &quot;Appendix&quot;">​</a></h2><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">using</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> InteractiveUtils</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">InteractiveUtils</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">versioninfo</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">if</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> @isdefined</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(MLDataDevices)</span></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    if</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> @isdefined</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(CUDA) </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">&amp;&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> MLDataDevices</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">functional</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(CUDADevice)</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">        println</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">()</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">        CUDA</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">versioninfo</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">()</span></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    end</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    if</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> @isdefined</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(AMDGPU) </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">&amp;&amp;</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> MLDataDevices</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">functional</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(AMDGPUDevice)</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">        println</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">()</span></span>
+<span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">        AMDGPU</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">versioninfo</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">()</span></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    end</span></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">end</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>Julia Version 1.11.1</span></span>
+<span class="line"><span>Commit 8f5b7ca12ad (2024-10-16 10:53 UTC)</span></span>
+<span class="line"><span>Build Info:</span></span>
+<span class="line"><span>  Official https://julialang.org/ release</span></span>
+<span class="line"><span>Platform Info:</span></span>
+<span class="line"><span>  OS: Linux (x86_64-linux-gnu)</span></span>
+<span class="line"><span>  CPU: 4 × AMD EPYC 7763 64-Core Processor</span></span>
+<span class="line"><span>  WORD_SIZE: 64</span></span>
+<span class="line"><span>  LLVM: libLLVM-16.0.6 (ORCJIT, znver3)</span></span>
+<span class="line"><span>Threads: 1 default, 0 interactive, 1 GC (on 4 virtual cores)</span></span>
+<span class="line"><span>Environment:</span></span>
+<span class="line"><span>  JULIA_NUM_THREADS = 1</span></span>
+<span class="line"><span>  JULIA_CUDA_HARD_MEMORY_LIMIT = 100%</span></span>
+<span class="line"><span>  JULIA_PKG_PRECOMPILE_AUTO = 0</span></span>
+<span class="line"><span>  JULIA_DEBUG = Literate</span></span></code></pre></div><hr><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl" target="_blank" rel="noreferrer">Literate.jl</a>.</em></p></div></div></main><footer class="VPDocFooter" data-v-83890dd9 data-v-4f9813fa><!--[--><!--]--><div class="edit-info" data-v-4f9813fa><div class="edit-link" data-v-4f9813fa><a class="VPLink link vp-external-link-icon no-icon edit-link-button" href="https://github.com/LuxDL/Boltz.jl/edit/main/docs/src/tutorials/1_GettingStarted.md" target="_blank" rel="noreferrer" data-v-4f9813fa><!--[--><span class="vpi-square-pen edit-link-icon" data-v-4f9813fa></span> Edit this page on GitHub<!--]--></a></div><!----></div><nav class="prev-next" aria-labelledby="doc-footer-aria-label" data-v-4f9813fa><span class="visually-hidden" id="doc-footer-aria-label" data-v-4f9813fa>Pager</span><div class="pager" data-v-4f9813fa><a class="VPLink link pager-link prev" href="/Boltz.jl/previews/PR80/index" data-v-4f9813fa><!--[--><span class="desc" data-v-4f9813fa>Previous page</span><span class="title" data-v-4f9813fa>Boltz.jl</span><!--]--></a></div><div class="pager" data-v-4f9813fa><a class="VPLink link pager-link next" href="/Boltz.jl/previews/PR80/tutorials/2_SymbolicOptimalControl" data-v-4f9813fa><!--[--><span class="desc" data-v-4f9813fa>Next page</span><span class="title" data-v-4f9813fa>Symbolic Optimal Control</span><!--]--></a></div></nav></footer><!--[--><!--]--></div></div></div><!--[--><!--]--></div></div><footer class="VPFooter has-sidebar" data-v-a9a9e638 data-v-c970a860><div class="container" data-v-c970a860><p class="message" data-v-c970a860>Made with <a href="https://documenter.juliadocs.org/stable/" target="_blank"><strong>Documenter.jl</strong></a>, <a href="https://vitepress.dev" target="_blank"><strong>VitePress</strong></a> and <a href="https://luxdl.github.io/DocumenterVitepress.jl/stable" target="_blank"><strong>DocumenterVitepress.jl</strong></a><br>Released under the MIT License. Powered by the <a href="https://www.julialang.org">Julia Programming Language</a>.<br></p><p class="copyright" data-v-c970a860>© Copyright 2024 Avik Pal.</p></div></footer><!--[--><!--]--></div></div>
+    <script>window.__VP_HASH_MAP__=JSON.parse("{\"api_basis.md\":\"BTtJ_m2V\",\"api_index.md\":\"DC-M7urp\",\"api_layers.md\":\"BQNiENq7\",\"api_private.md\":\"C5yrfcp2\",\"api_vision.md\":\"q8pBuZ-T\",\"index.md\":\"BLA-YFPK\",\"tutorials_1_gettingstarted.md\":\"BP-O1k43\",\"tutorials_2_symbolicoptimalcontrol.md\":\"OJn-tIL7\"}");window.__VP_SITE_DATA__=JSON.parse("{\"lang\":\"en-US\",\"dir\":\"ltr\",\"title\":\"Boltz.jl Docs\",\"description\":\"Documentation for Boltz.jl\",\"base\":\"/Boltz.jl/previews/PR80/\",\"head\":[],\"router\":{\"prefetchLinks\":true},\"appearance\":true,\"themeConfig\":{\"outline\":\"deep\",\"logo\":{\"light\":\"/lux-logo.svg\",\"dark\":\"/lux-logo-dark.svg\"},\"search\":{\"provider\":\"local\",\"options\":{\"detailedView\":true}},\"nav\":[{\"text\":\"Boltz.jl\",\"link\":\"/index\"},{\"text\":\"Tutorials\",\"collapsed\":false,\"items\":[{\"text\":\"Getting Started\",\"link\":\"/tutorials/1_GettingStarted\"},{\"text\":\"Symbolic Optimal Control\",\"link\":\"/tutorials/2_SymbolicOptimalControl\"}]},{\"text\":\"API Reference\",\"collapsed\":false,\"items\":[{\"text\":\"Index\",\"link\":\"/api/index\"},{\"text\":\"Basis Functions\",\"link\":\"/api/basis\"},{\"text\":\"Layers API\",\"link\":\"/api/layers\"},{\"text\":\"Vision Models\",\"link\":\"/api/vision\"},{\"text\":\"Private API\",\"link\":\"/api/private\"}]}],\"sidebar\":[{\"text\":\"Boltz.jl\",\"link\":\"/index\"},{\"text\":\"Tutorials\",\"collapsed\":false,\"items\":[{\"text\":\"Getting Started\",\"link\":\"/tutorials/1_GettingStarted\"},{\"text\":\"Symbolic Optimal Control\",\"link\":\"/tutorials/2_SymbolicOptimalControl\"}]},{\"text\":\"API Reference\",\"collapsed\":false,\"items\":[{\"text\":\"Index\",\"link\":\"/api/index\"},{\"text\":\"Basis Functions\",\"link\":\"/api/basis\"},{\"text\":\"Layers API\",\"link\":\"/api/layers\"},{\"text\":\"Vision Models\",\"link\":\"/api/vision\"},{\"text\":\"Private API\",\"link\":\"/api/private\"}]}],\"editLink\":{\"pattern\":\"https://github.com/LuxDL/Boltz.jl/edit/main/docs/src/:path\",\"text\":\"Edit this page on GitHub\"},\"socialLinks\":[{\"icon\":\"github\",\"link\":\"https://github.com/LuxDL/Boltz.jl\"},{\"icon\":\"twitter\",\"link\":\"https://twitter.com/avikpal1410\"},{\"icon\":\"slack\",\"link\":\"https://julialang.org/slack/\"}],\"footer\":{\"message\":\"Made with <a href=\\\"https://documenter.juliadocs.org/stable/\\\" target=\\\"_blank\\\"><strong>Documenter.jl</strong></a>, <a href=\\\"https://vitepress.dev\\\" target=\\\"_blank\\\"><strong>VitePress</strong></a> and <a href=\\\"https://luxdl.github.io/DocumenterVitepress.jl/stable\\\" target=\\\"_blank\\\"><strong>DocumenterVitepress.jl</strong></a><br>Released under the MIT License. Powered by the <a href=\\\"https://www.julialang.org\\\">Julia Programming Language</a>.<br>\",\"copyright\":\"© Copyright 2024 Avik Pal.\"},\"lastUpdated\":{\"text\":\"Updated at\",\"formatOptions\":{\"dateStyle\":\"full\",\"timeStyle\":\"medium\"}}},\"locales\":{},\"scrollOffset\":134,\"cleanUrls\":true}");</script>
+    
+  </body>
+</html>
