@@ -29,8 +29,9 @@ Pkg.add("Boltz")
 
 ```julia
 using Boltz, Lux, Random
+using JLD2 # Needed to load pretrained weights
 
-model = Vision.AlexNet(; pretrained=Vision.AlexNet_Weights.DEFAULT)
+model = Vision.AlexNet(; pretrained="ImageNet1K") # or "DEFAULT"
 ps, st = Lux.setup(Random.default_rng(), model)
 
 x = rand(Float32, 224, 224, 3, 1)
