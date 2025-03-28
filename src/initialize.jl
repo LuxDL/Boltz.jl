@@ -22,6 +22,8 @@ for op in (:states, :parameters)
                 load_using_jld2(path, $(string(op)))
             elseif PretrainedWeights.load_with(Val(:Pickle), model.pretrained)
                 load_using_pickle(path)
+            elseif PretrainedWeights.load_with(Val(:SafeTensors), model.pretrained)
+                load_using_safetensors(path)
             else
                 error("Unknown pretrained weights format: $(ext)")
             end
@@ -33,25 +35,21 @@ end
 
 # Formats and Packages for loading pretrained weights. These are defined in extensions
 # to avoid heavy dependencies.
-function load_using_jld2(args...; kwargs...)
-    if !is_extension_loaded(Val(:JLD2))
-        error("`JLD2.jl` is not loaded. Please load it before trying to load pretrained \
-               weights.")
+for (pkg, lpkg) in ((:JLD2, :jld2), (:Pickle, :pickle), (:SafeTensors, :safetensors))
+    fname = Symbol(:load_using_, lpkg)
+    fname_internal = Symbol(:load_using_, lpkg, :_internal)
+    @eval begin
+        function $(fname)(args...; kwargs...)
+            if !is_extension_loaded(Val($(Meta.quot(pkg))))
+                error("`$($pkg).jl` is not loaded. Please load it before trying to load \
+                       pretrained weights.")
+            end
+            return $(fname_internal)(args...; kwargs...)
+        end
+
+        function $(fname_internal) end
     end
-    return load_using_jld2_internal(args...; kwargs...)
 end
-
-function load_using_jld2_internal end
-
-function load_using_pickle(args...; kwargs...)
-    if !is_extension_loaded(Val(:Pickle))
-        error("`Pickle.jl` is not loaded. Please load it before trying to load pretrained \
-               weights.")
-    end
-    return load_using_pickle_internal(args...; kwargs...)
-end
-
-function load_using_pickle_internal end
 
 # Load & Save Parameters & States. Models has overload `load_parameters` and `load_states`
 # to provide custom loaders (See EfficientNet for example).
