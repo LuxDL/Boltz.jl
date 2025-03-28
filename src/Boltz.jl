@@ -15,6 +15,9 @@ include("layers/Layers.jl")
 # Vision Models
 include("vision/Vision.jl")
 
-export Basis, Layers, Vision
+# LLMs
+include("llm/LLM.jl")
+
+export Basis, Layers, Vision, LLM
 
 end

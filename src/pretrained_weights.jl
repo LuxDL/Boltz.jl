@@ -10,10 +10,12 @@ abstract type AbstractPretrainedWeights end
 ## Subtypes need to implement the following methods
 load_with(::Val{:JLD2}, ::AbstractPretrainedWeights) = false
 load_with(::Val{:Pickle}, ::AbstractPretrainedWeights) = false
+load_with(::Val{:SafeTensors}, ::AbstractPretrainedWeights) = false
 
 ## Optional methods
 function checkpoint_extension(weight::AbstractPretrainedWeights)
     load_with(Val(:JLD2), weight) && return :jld2
+    load_with(Val(:Pickle), weight) && return :safetensors
     # For pickle there are quite a few possible extensions, so we simply error
     return error(
         "Unknown pretrained weights format. Implement `checkpoint_extension` for the \
