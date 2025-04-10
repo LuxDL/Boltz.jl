@@ -68,13 +68,13 @@ function LuxCore.initialstates(rng::AbstractRNG, pd::PositiveDefinite)
     return (; model=LuxCore.initialstates(rng, pd.model), x0=pd.init_x0(rng, pd.in_dims))
 end
 
-function (pd::PositiveDefinite)(x::V, ps, st) where V <: AbstractVector
+function (pd::PositiveDefinite)(x::V, ps, st) where {V<:AbstractVector}
     ϕ0, new_model_st = pd.model(st.x0, ps, st.model)
     ϕx, final_model_st = pd.model(x, ps, new_model_st)
     return V([pd.ψ(ϕx - ϕ0) + pd.r(x, st.x0)]), merge(st, (; model=final_model_st))
 end
 
-function (pd::PositiveDefinite{L, F, Ψ, R})(x::AbstractMatrix, ps, st) where {L, F, Ψ, R}
+function (pd::PositiveDefinite{L,F,Ψ,R})(x::AbstractMatrix, ps, st) where {L,F,Ψ,R}
     ϕ0, new_model_st = pd.model(st.x0, ps, st.model)
     ϕx, final_model_st = pd.model(x, ps, new_model_st)
     init = @ignore_derivatives permutedims(empty(ϕ0))
@@ -86,7 +86,9 @@ function (pd::PositiveDefinite{L, F, Ψ, R})(x::AbstractMatrix, ps, st) where {L
     )
 end
 
-const DefaultLyapunovNet = PositiveDefinite{L, F, typeof(Base.Fix1(sum, abs2)), typeof(Base.Fix1(sum, abs2) ∘ -)} where {L, F}
+const DefaultLyapunovNet = PositiveDefinite{
+    L,F,typeof(Base.Fix1(sum, abs2)),typeof(Base.Fix1(sum, abs2) ∘ -)
+} where {L,F}
 
 function (pd::DefaultLyapunovNet)(x::AbstractMatrix, ps, st)
     ϕ0, new_model_st = pd.model(st.x0, ps, st.model)
