@@ -1,6 +1,10 @@
+using LinearAlgebra
+
 """
     PositiveDefinite(model, x0; ψ, r)
+    PositiveDefinite(model, x0; f1, f2, P, Q)
     PositiveDefinite(model; in_dims, ψ, r)
+    PositiveDefinite(model; in_dims, f1, f2, P, Q)
 
 Constructs a Lyapunov-Net [gaby2022lyapunovnetdeepneuralnetwork](@citep), which is positive
 definite about `x0` whenever `ψ` and `r` meet certain conditions described below.
@@ -12,6 +16,13 @@ This results in a model which maps `x0` to `0` and any other input to a positive
 about zero and `r` returns a positive number for any non-equal inputs and zero for equal
 inputs.
 
+A special constructor is provided for ``ψ(Δϕ) = f_1(Δϕ^* P Δϕ)`` and
+``r(x, x_0) = f_2((x - x_0)^* Q (x - x_0))``, where ``P`` and ``Q`` are positive definite
+matrices, and ``f_1`` and ``f_2`` map zero to zero and a positive number to a positive
+number. If your `ψ` and `r` are of this form, using the corresponding constructor will
+result in serious performance improvements. This optimized form is also used when no keyword
+arguments (besides `in_dims`) are provided.
+
 ## Arguments
 
   - `model`: the underlying model being transformed into a positive definite function
@@ -21,9 +32,17 @@ inputs.
 
   - `in_dims`: the number of input dimensions if `x0` is not provided; uses
     `x0 = zeros(in_dims)`
-  - `ψ`: a positive definite function (about zero); defaults to ``ψ(x) = ||x||^2``
+  - `ψ`: a positive definite function (about zero); used with `r` and defaults to
+    ``ψ(x) = ||x||^2``
   - `r`: a bivariate function such that `r(x0, x0) = 0` and
-    `r(x, x0) > 0` whenever `x ≠ x0`; defaults to ``r(x, y) = ||x - y||^2``
+    `r(x, x0) > 0` whenever `x ≠ x0`; used with `ψ` and defaults to
+    ``r(x, y) = ||x - y||^2``
+  - `f1`: a function that takes a scalar and returns a scalar; used with `f2`, `P`, and `Q`;
+    defaults to `identity`
+  - `f2`: a function that takes a scalar and returns a scalar; used with `f1`, `P`, and `Q`;
+    defaults to `identity`
+  - `P`: a positive definite matrix; used with `f1`, `f2`, and `Q`; defaults to `I`
+  - `Q`: a positive definite matrix; used with `f1`, `f2`, and `P`; defaults to `I`
 
 ## Inputs
 
@@ -39,7 +58,9 @@ inputs.
 
 ## States
 
-  - `st`: a `NamedTuple` containing the state of the underlying `model` and the `x0` value
+  - `st`: a `NamedTuple` containing the state of the underlying `model` and the `x0` value.
+    When using the `f1`, `f2`, `P`, and `Q` constructor, the state will also contain the
+    `P` and `Q` matrices.
 
 ## Parameters
 
@@ -52,23 +73,64 @@ inputs.
     ψ <: Function
     r <: Function
 
-    function PositiveDefinite(
-        model, x0::AbstractVector; ψ=Base.Fix1(sum, abs2), r=Base.Fix1(sum, abs2) ∘ -
-    )
+    function PositiveDefinite(model, x0::AbstractVector; kwargs...)
+        if keys(kwargs) ⊆ [:f1, :f2, :P, :Q]
+            f1 = get(kwargs, :f1, identity)
+            f2 = get(kwargs, :f2, identity)
+            P = get(kwargs, :P, I)
+            Q = get(kwargs, :Q, I)
+            ψ = f1 ∘ Base.Fix2(quadratic_form, copy(P))
+            r = f2 ∘ Base.Fix2(quadratic_form, copy(Q)) ∘ -
+        elseif keys(kwargs) ⊆ [:ψ, :r]
+            ψ = get(kwargs, :ψ, identity ∘ Base.Fix2(quadratic_form, I))
+            r = get(kwargs, :r, identity ∘ Base.Fix2(quadratic_form, I) ∘ -)
+        else
+            error(
+                "Invalid keyword arguments for PositiveDefinite. Got $(keys(kwargs)) " *
+                "and expected a subset of either [:f1, :f2, :P, :Q] or [:ψ, :r]",
+            )
+        end
         return PositiveDefinite(model, Returns(copy(x0)), length(x0), ψ, r)
     end
-    function PositiveDefinite(
-        model; in_dims::Integer, ψ=Base.Fix1(sum, abs2), r=Base.Fix1(sum, abs2) ∘ -
-    )
+    function PositiveDefinite(model; kwargs...)
+        if !haskey(kwargs, :in_dims)
+            error(
+                "PositiveDefinite requires in_dims to be specified when x0 is not " *
+                "provided.",
+            )
+        end
+        in_dims = kwargs[:in_dims]
+        if keys(kwargs) ⊆ [:in_dims, :f1, :f2, :P, :Q]
+            f1 = get(kwargs, :f1, identity)
+            f2 = get(kwargs, :f2, identity)
+            P = get(kwargs, :P, I)
+            Q = get(kwargs, :Q, I)
+            ψ = f1 ∘ Base.Fix2(quadratic_form, copy(P))
+            r = f2 ∘ Base.Fix2(quadratic_form, copy(Q)) ∘ -
+        elseif keys(kwargs) ⊆ [:in_dims, :ψ, :r]
+            ψ = get(kwargs, :ψ, identity ∘ Base.Fix2(quadratic_form, I))
+            r = get(kwargs, :r, identity ∘ Base.Fix2(quadratic_form, I) ∘ -)
+        else
+            error(
+                "Invalid keyword arguments for PositiveDefinite. Got $(keys(kwargs)) " *
+                "and expected a subset of either [:in_dims, :f1, :f2, :P, :Q] or " *
+                "[:in_dims, :ψ, :r]",
+            )
+        end
         return PositiveDefinite(model, zeros32, in_dims, ψ, r)
     end
 end
 
-function LuxCore.initialstates(rng::AbstractRNG, pd::PositiveDefinite)
+quadratic_form(x, Q) = dot(x, Q, x)
+quadratic_form(x, ::typeof(I)) = sum(abs2, x)
+
+function LuxCore.initialstates(
+    rng::AbstractRNG, pd::PositiveDefinite{L,F,Ψ,R}
+) where {L,F,Ψ,R}
     return (; model=LuxCore.initialstates(rng, pd.model), x0=pd.init_x0(rng, pd.in_dims))
 end
 
-function (pd::PositiveDefinite)(x::V, ps, st) where {V<:AbstractVector}
+function (pd::PositiveDefinite{L,F,Ψ,R})(x::V, ps, st) where {V<:AbstractVector,L,F,Ψ,R}
     ϕ0, new_model_st = pd.model(st.x0, ps, st.model)
     ϕx, final_model_st = pd.model(x, ps, new_model_st)
     return V([pd.ψ(ϕx - ϕ0) + pd.r(x, st.x0)]), merge(st, (; model=final_model_st))
@@ -86,18 +148,58 @@ function (pd::PositiveDefinite{L,F,Ψ,R})(x::AbstractMatrix, ps, st) where {L,F,
     )
 end
 
-const DefaultLyapunovNet = PositiveDefinite{
-    L,F,typeof(Base.Fix1(sum, abs2)),typeof(Base.Fix1(sum, abs2) ∘ -)
-} where {L,F}
+const QuadraticLyapunovNet{L,F,F1,F2,P,Q} = PositiveDefinite{
+    L,
+    F,
+    ComposedFunction{F1,Base.Fix2{typeof(quadratic_form),P}},
+    ComposedFunction{ComposedFunction{F2,Base.Fix2{typeof(quadratic_form),Q}},typeof(-)},
+} where {L,F,F1,F2,P,Q}
 
-function (pd::DefaultLyapunovNet)(x::AbstractMatrix, ps, st)
-    ϕ0, new_model_st = pd.model(st.x0, ps, st.model)
-    ϕx, final_model_st = pd.model(x, ps, new_model_st)
-
-    return (
-        sum(abs2, ϕx .- ϕ0; dims=1) .+ sum(abs2, x .- st.x0; dims=1),
-        merge(st, (; model=final_model_st)),
+function LuxCore.initialstates(rng::AbstractRNG, qln::QuadraticLyapunovNet)
+    return (;
+        model=LuxCore.initialstates(rng, qln.model),
+        x0=qln.init_x0(rng, qln.in_dims),
+        P=copy(qln.ψ.inner.x),
+        Q=copy(qln.r.outer.inner.x),
     )
+end
+
+function (qln::QuadraticLyapunovNet{L,F,F1,F2,P,Q})(
+    x::V, ps, st
+) where {V<:AbstractVector,L,F,F1,F2,P,Q}
+    ϕ0, new_model_st = qln.model(st.x0, ps, st.model)
+    ϕx, final_model_st = qln.model(x, ps, new_model_st)
+
+    Δϕ = ϕx .- ϕ0
+    ΔϕPΔϕ = quadratic_form(Δϕ, st.P)
+
+    Δx = x .- st.x0
+    ΔxQΔx = quadratic_form(Δx, st.Q)
+
+    f1 = qln.ψ.outer
+    f2 = qln.r.outer.outer
+
+    return V([f1(ΔϕPΔϕ) + f2(ΔxQΔx)]), merge(st, (; model=final_model_st))
+end
+
+function (qln::QuadraticLyapunovNet{L,F,F1,F2,P,Q})(
+    x::AbstractMatrix, ps, st
+) where {L,F,F1,F2,P,Q}
+    ϕ0, new_model_st = qln.model(st.x0, ps, st.model)
+    ϕx, final_model_st = qln.model(x, ps, new_model_st)
+
+    Δϕ = ϕx .- ϕ0
+    PΔϕ = st.P * Δϕ
+    ΔϕPΔϕ = sum(conj(Δϕ) .* PΔϕ; dims=1)
+
+    Δx = x .- st.x0
+    QΔx = st.Q * Δx
+    ΔxQΔx = sum(conj(Δx) .* QΔx; dims=1)
+
+    f1 = qln.ψ.outer
+    f2 = qln.r.outer.outer
+
+    return f1.(ΔϕPΔϕ) .+ f2.(ΔxQΔx), merge(st, (; model=final_model_st))
 end
 
 """
