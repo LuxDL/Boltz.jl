@@ -187,25 +187,24 @@ const EFFICIENTNET_CONFIG = Dict(
 )
 
 function get_efficient_net_config(model_name; nclasses=1000, include_top=true, kwargs...)
-    block_params =
-        NamedTuple{(
-            :repeat,
-            :kernel,
-            :stride,
-            :expansion_ratio,
-            :in_channels,
-            :out_channels,
-            :se_ratio,
-            :skip_connection,
-        )}.([
-            (1, (3, 3), 1, 1, 32, 16, 0.25, true),
-            (2, (3, 3), 2, 6, 16, 24, 0.25, true),
-            (2, (5, 5), 2, 6, 24, 40, 0.25, true),
-            (3, (3, 3), 2, 6, 40, 80, 0.25, true),
-            (3, (5, 5), 1, 6, 80, 112, 0.25, true),
-            (4, (5, 5), 2, 6, 112, 192, 0.25, true),
-            (1, (3, 3), 1, 6, 192, 320, 0.25, true),
-        ])
+    block_params = NamedTuple{(
+        :repeat,
+        :kernel,
+        :stride,
+        :expansion_ratio,
+        :in_channels,
+        :out_channels,
+        :se_ratio,
+        :skip_connection,
+    )}.([
+        (1, (3, 3), 1, 1, 32, 16, 0.25, true),
+        (2, (3, 3), 2, 6, 16, 24, 0.25, true),
+        (2, (5, 5), 2, 6, 24, 40, 0.25, true),
+        (3, (3, 3), 2, 6, 40, 80, 0.25, true),
+        (3, (5, 5), 1, 6, 80, 112, 0.25, true),
+        (4, (5, 5), 2, 6, 112, 192, 0.25, true),
+        (1, (3, 3), 1, 6, 192, 320, 0.25, true),
+    ])
 
     width_coefficient, depth_coefficient, _ = EFFICIENTNET_CONFIG[model_name]
 
