@@ -1,5 +1,3 @@
-using LinearAlgebra
-
 """
     PositiveDefinite(model, x0; ψ, r)
     PositiveDefinite(model, x0; f1, f2, P, Q)
