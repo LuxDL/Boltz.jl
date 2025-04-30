@@ -83,18 +83,22 @@ arguments (besides `in_dims`) are provided.
             ψ = get(kwargs, :ψ, identity ∘ Base.Fix2(quadratic_form, I))
             r = get(kwargs, :r, identity ∘ Base.Fix2(quadratic_form, I) ∘ -)
         else
-            error(
-                "Invalid keyword arguments for PositiveDefinite. Got $(keys(kwargs)) " *
-                "and expected a subset of either [:f1, :f2, :P, :Q] or [:ψ, :r]",
+            throw(
+                ArgumentError(
+                    "Invalid keyword arguments for PositiveDefinite. Got $(keys(kwargs)) " *
+                    "and expected a subset of either [:f1, :f2, :P, :Q] or [:ψ, :r]",
+                ),
             )
         end
         return PositiveDefinite(model, Returns(copy(x0)), length(x0), ψ, r)
     end
     function PositiveDefinite(model; kwargs...)
         if !haskey(kwargs, :in_dims)
-            error(
-                "PositiveDefinite requires in_dims to be specified when x0 is not " *
-                "provided.",
+            throw(
+                ArgumentError(
+                    "PositiveDefinite requires in_dims to be specified when x0 is not " *
+                    "provided.",
+                ),
             )
         end
         in_dims = kwargs[:in_dims]
@@ -109,17 +113,19 @@ arguments (besides `in_dims`) are provided.
             ψ = get(kwargs, :ψ, identity ∘ Base.Fix2(quadratic_form, I))
             r = get(kwargs, :r, identity ∘ Base.Fix2(quadratic_form, I) ∘ -)
         else
-            error(
-                "Invalid keyword arguments for PositiveDefinite. Got $(keys(kwargs)) " *
-                "and expected a subset of either [:in_dims, :f1, :f2, :P, :Q] or " *
-                "[:in_dims, :ψ, :r]",
+            throw(
+                ArgumentError(
+                    "Invalid keyword arguments for PositiveDefinite. Got $(keys(kwargs)) " *
+                    "and expected a subset of either [:in_dims, :f1, :f2, :P, :Q] or " *
+                    "[:in_dims, :ψ, :r]",
+                ),
             )
         end
         return PositiveDefinite(model, zeros32, in_dims, ψ, r)
     end
 end
 
-quadratic_form(x, Q) = dot(x, Q, x)
+quadratic_form(x, Q) = x' * Q * x
 quadratic_form(x, ::typeof(I)) = sum(abs2, x)
 
 function LuxCore.initialstates(

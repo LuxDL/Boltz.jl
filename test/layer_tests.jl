@@ -341,12 +341,18 @@ end
         broken_backends = ongpu ? [] : [AutoEnzyme()]
         @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
 
-        pd2 = Layers.PositiveDefinite(model, ones(2))
+        R = rand(2, 2)
+        P = R' * R
+        pd2 = Layers.PositiveDefinite(model, ones(2); P)
         ps, st = dev(Lux.setup(StableRNG(0), pd2))
 
         y, _ = pd2(x1, ps, st)
 
         @test maximum(abs, y) < 1.0f-8
+
+        @test_throws ArgumentError Layers.PositiveDefinite(model)
+        @test_throws ArgumentError Layers.PositiveDefinite(model; in_dims=2, p=P)
+        @test_throws ArgumentError Layers.PositiveDefinite(model, x0; p=P)
 
         # Then test with a non-optimized option
         pd3 = Layers.PositiveDefinite(model; in_dims=2, ψ=Base.Fix1(sum, abs))
