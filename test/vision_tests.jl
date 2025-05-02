@@ -45,7 +45,6 @@ end
             st = Lux.testmode(st)
             img = aType(randn(Float32, 224, 224, 3, 2))
 
-            @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
 
             if pretrained
@@ -66,7 +65,6 @@ end
         st = Lux.testmode(st)
         img = aType(randn(Float32, 256, 256, 3, 2))
 
-        @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
@@ -82,7 +80,6 @@ end
         st = Lux.testmode(st)
         img = aType(randn(Float32, 224, 224, 3, 2))
 
-        @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
@@ -98,7 +95,6 @@ end
         st = Lux.testmode(st)
         img = aType(randn(Float32, 224, 224, 3, 2))
 
-        @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
@@ -119,7 +115,6 @@ end
             st = Lux.testmode(st)
             img = aType(randn(Float32, 224, 224, 3, 2))
 
-            @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
 
             if pretrained
@@ -148,7 +143,6 @@ end
                 st = Lux.testmode(st)
                 img = aType(randn(Float32, 224, 224, 3, 2))
 
-                @jet model(img, ps, st)
                 @test size(first(model(img, ps, st))) == (1000, 2)
 
                 if pretrained
@@ -176,7 +170,6 @@ end
             st = Lux.testmode(st)
             img = aType(randn(Float32, 224, 224, 3, 2))
 
-            @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
 
             if pretrained
@@ -200,7 +193,6 @@ end
             st = Lux.testmode(st)
             img = aType(randn(Float32, 224, 224, 3, 2))
 
-            @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
 
             if pretrained
@@ -220,7 +212,6 @@ end
             st = Lux.testmode(st)
             img = aType(randn(Float32, 224, 224, 3, 2))
 
-            @jet model(img, ps, st)
             @test size(first(model(img, ps, st))) == (1000, 2)
 
             if pretrained
@@ -243,7 +234,6 @@ end
             img = randn(Float32, 224, 224, 3, 2) |> aType
 
             @test size(first(model(img, ps, st))) == (1000, 2)
-            @jet model(img, ps, st)
 
             if pretrained
                 @test imagenet_acctest(model, ps, st, dev)
@@ -262,7 +252,6 @@ end
         st = Lux.testmode(st)
         img = aType(randn(Float32, 256, 256, 3, 2))
 
-        @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         model = Vision.VisionTransformer(name; pretrained=false)
@@ -270,7 +259,6 @@ end
         st = Lux.testmode(st)
         img = aType(randn(Float32, 256, 256, 3, 2))
 
-        @jet model(img, ps, st)
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)

@@ -11,13 +11,13 @@ Multi-head self-attention layer
   - `use_qkv_bias`: whether to use bias in the layer to get the query, key and value
   - `attn_dropout_prob`: dropout probability after the self-attention layer
   - `proj_dropout_prob`: dropout probability after the projection layer
+
+!!! danger "Dreprecated"
+
+    Use `MultiHeadAttention` from `Lux` instead.
 """
-@concrete struct MultiHeadSelfAttention <:
-                 AbstractLuxContainerLayer{(:qkv_layer, :dropout, :projection)}
-    qkv_layer
-    dropout
-    projection
-    nheads::Int
+@concrete struct MultiHeadSelfAttention <: AbstractLuxWrapperLayer{:model}
+    model
 end
 
 function MultiHeadSelfAttention(
@@ -27,23 +27,20 @@ function MultiHeadSelfAttention(
     attention_dropout_rate::T=0.0f0,
     projection_dropout_rate::T=0.0f0,
 ) where {T}
-    @argcheck in_planes % number_heads == 0
-    return MultiHeadSelfAttention(
-        Lux.Dense(in_planes, in_planes * 3; use_bias=use_qkv_bias),
-        Lux.Dropout(attention_dropout_rate),
-        Lux.Chain(Lux.Dense(in_planes => in_planes), Lux.Dropout(projection_dropout_rate)),
-        number_heads,
+    Base.depwarn(
+        "MultiHeadSelfAttention is deprecated. Use MultiHeadAttention from Lux instead.",
+        :MultiHeadSelfAttention,
     )
-end
-
-function (mhsa::MultiHeadSelfAttention)(x::AbstractArray{T,3}, ps, st) where {T}
-    qkv, st_qkv = mhsa.qkv_layer(x, ps.qkv_layer, st.qkv_layer)
-    q, k, v = fast_chunk(qkv, Val(3), Val(1))
-
-    attn_dropout = StatefulLuxLayer{true}(mhsa.dropout, ps.dropout, st.dropout)
-    y, _ = NNlib.dot_product_attention(q, k, v; fdrop=attn_dropout, mhsa.nheads)
-
-    z, st_proj = mhsa.projection(y, ps.projection, st.projection)
-
-    return z, (; qkv_layer=st_qkv, dropout=attn_dropout.st, projection=st_proj)
+    return MultiHeadSelfAttention(
+        Lux.Chain(
+            Lux.MultiHeadAttention(
+                in_planes;
+                nheads=number_heads,
+                dense_kwargs=(; use_bias=use_qkv_bias),
+                attention_dropout_probability=attention_dropout_rate,
+            ),
+            Lux.WrappedFunction(first),
+            Lux.Dropout(projection_dropout_rate),
+        ),
+    )
 end

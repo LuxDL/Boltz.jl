@@ -21,9 +21,10 @@ and dropout.
   - `norm_kwargs`: keyword arguments for the normalization layers
   - `last_layer_activation`: set to `true` to apply the activation function to the last
     layer
+  - `residual_connection`: set to `true` to apply a residual connection to the MLP
 """
 @concrete struct MLP <: AbstractLuxWrapperLayer{:chain}
-    chain <: Lux.Chain
+    chain <: Union{Lux.Chain,Lux.SkipConnection}
 end
 
 function MLP(
@@ -35,6 +36,7 @@ function MLP(
     last_layer_activation::Bool=false,
     dense_kwargs=(;),
     norm_kwargs=(;),
+    residual_connection::Bool=false,
 ) where {N,F,NF}
     @argcheck N > 0
     layers = Vector{AbstractLuxLayer}(undef, N)
@@ -43,6 +45,9 @@ function MLP(
         layers[i] = dense_norm_act_dropout(
             i, in_dims => out_dims, act, norm_layer, dropout_rate, dense_kwargs, norm_kwargs
         )
+        if residual_connection && in_dims == out_dims
+            layers[i] = Lux.SkipConnection(layers[i], +)
+        end
         in_dims = out_dims
     end
     inner_blocks = NamedTuple{ntuple(i -> Symbol(:block, i), N)}(layers)

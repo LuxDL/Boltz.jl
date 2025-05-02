@@ -19,7 +19,6 @@ using WeightInitializers: zeros32, randn32
 
 using ..Utils:
     DataTransferBarrier,
-    fast_chunk,
     should_type_assert,
     mapreduce_stack,
     unwrap_val,

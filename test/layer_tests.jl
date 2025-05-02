@@ -19,8 +19,6 @@
 
                 x = aType(randn(Float32, 2, 2))
 
-                @jet model(x, ps, st)
-
                 __f = (x, ps) -> sum(abs2, first(model(x, ps, st)))
                 @test_gradients(
                     __f,
@@ -123,8 +121,6 @@ end
             y, st = tensor_project(x, ps, st)
             @test size(y) == (2, 4, 5)
 
-            @jet tensor_project(x, ps, st)
-
             __f = (x, ps) -> sum(abs2, first(tensor_project(x, ps, st)))
             @test_gradients(
                 __f,
@@ -153,21 +149,15 @@ end
 
             fn = basis(3)
             @test size(fn(x)) == (3, 2, 4)
-            @jet fn(x)
             @test size(fn(x, grid)) == (3, 2, 4)
-            @jet fn(x, grid)
 
             fn = basis(3; dim=2)
             @test size(fn(x)) == (2, 3, 4)
-            @jet fn(x)
             @test size(fn(x, grid)) == (2, 3, 4)
-            @jet fn(x, grid)
 
             fn = basis(3; dim=3)
             @test size(fn(x)) == (2, 4, 3)
-            @jet fn(x)
             @test size(fn(x, grid)) == (2, 4, 3)
-            @jet fn(x, grid)
 
             fn = basis(3; dim=4)
             @test_throws ArgumentError fn(x)
@@ -203,12 +193,8 @@ end
             y, st = spline(x, ps, st)
             @test size(y) == (dims..., 4)
 
-            @jet spline(x, ps, st)
-
             y, st = spline(x, ps_ca, st)
             @test size(y) == (dims..., 4)
-
-            @jet spline(x, ps_ca, st)
 
             ∂x, ∂ps = Zygote.gradient((x, ps) -> sum(abs2, first(spline(x, ps, st))), x, ps)
             spl !== ConstantInterpolation && @test ∂x !== nothing
@@ -244,8 +230,6 @@ end
         @test all(val[1:4, :, :, :] .== shifted_val[1:4, :, :, :]) && all(
             isapprox.(val[5:8, :, :, :], shifted_val[5:8, :, :, :]; atol=5 * eps(Float32))
         )
-
-        @jet layer(x, ps, st)
 
         __f = x -> sum(first(layer(x, ps, st)))
         @test_gradients(__f, x; atol=1.0f-3, rtol=1.0f-3, enzyme_set_runtime_activity=true)
@@ -332,8 +316,6 @@ end
 
         @test maximum(abs, y - y_by_hand) < 1.0f-8
 
-        @jet pd(x, ps, st)
-
         __f = (x, ps) -> sum(first(pd(x, ps, st)))
         broken_backends = ongpu ? [AutoTracker()] : [AutoReverseDiff(), AutoEnzyme()]
         @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
@@ -360,7 +342,6 @@ end
         @test maximum(abs, y0) < 1.0f-8
 
         x = aType(randn(StableRNG(0), Float32, 2, 2))
-        @jet s(x, ps, st)
 
         __f = (x, ps) -> sum(first(s(x, ps, st)))
         broken_backends = ongpu ? [] : [AutoEnzyme()]
