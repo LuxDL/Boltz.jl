@@ -37,7 +37,7 @@ function MultiHeadSelfAttention(
                 in_planes;
                 nheads=number_heads,
                 dense_kwargs=(; use_bias=use_qkv_bias),
-                attention_dropout_rate=attention_dropout_rate,
+                attention_dropout_probability=attention_dropout_rate,
             ),
             Lux.WrappedFunction(first),
             Lux.Dropout(projection_dropout_rate),
