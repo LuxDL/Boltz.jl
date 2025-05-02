@@ -34,7 +34,9 @@ function MultiHeadSelfAttention(
     return MultiHeadSelfAttention(
         Lux.Chain(
             Lux.MultiHeadAttention(
-                in_planes; nheads=number_heads, dense_kwargs=(; use_bias=use_qkv_bias),
+                in_planes;
+                nheads=number_heads,
+                dense_kwargs=(; use_bias=use_qkv_bias),
                 attention_dropout_rate=attention_dropout_rate,
             ),
             Lux.WrappedFunction(first),

@@ -24,7 +24,7 @@ and dropout.
   - `residual_connection`: set to `true` to apply a residual connection to the MLP
 """
 @concrete struct MLP <: AbstractLuxWrapperLayer{:chain}
-    chain <: Union{Lux.Chain, Lux.SkipConnection}
+    chain <: Union{Lux.Chain,Lux.SkipConnection}
 end
 
 function MLP(
