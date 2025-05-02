@@ -3,8 +3,8 @@ module Utils
 using ForwardDiff: ForwardDiff
 using Statistics: mean
 
-using MLDataDevices: MLDataDevices, get_device_type, get_device, CPUDevice, CUDADevice,
-                     ReactantDevice
+using MLDataDevices:
+    MLDataDevices, get_device_type, get_device, CPUDevice, CUDADevice, ReactantDevice
 
 is_extension_loaded(::Val) = false
 
