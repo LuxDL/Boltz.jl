@@ -9,22 +9,6 @@ using MLDataDevices: MLDataDevices, get_device_type, get_device, CPUDevice, CUDA
 is_extension_loaded(::Val) = false
 
 """
-    fast_chunk(x::AbstractArray, ::Val{n}, ::Val{dim})
-
-Type-stable and faster version of `MLUtils.chunk`.
-"""
-fast_chunk(h::Int, n::Int) = (1:h) .+ h * (n - 1)
-function fast_chunk(x::AbstractArray, h::Int, n::Int, ::Val{dim}) where {dim}
-    return selectdim(x, dim, fast_chunk(h, n))
-end
-function fast_chunk(x::AnyGPUArray, h::Int, n::Int, ::Val{dim}) where {dim}
-    return copy(selectdim(x, dim, fast_chunk(h, n)))
-end
-function fast_chunk(x::AbstractArray, ::Val{N}, d::Val{D}) where {N,D}
-    return fast_chunk.((x,), size(x, D) ÷ N, 1:N, d)
-end
-
-"""
     flatten_spatial(x::AbstractArray{T, 4})
 
 Flattens the first 2 dimensions of `x`, and permutes the remaining dimensions to (2, 1, 3).
