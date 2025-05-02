@@ -318,12 +318,15 @@ end
     using NNlib
 
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+        # Setup
         model = Layers.MLP(2, (4, 4, 2), NNlib.gelu)
-        pd = Layers.PositiveDefinite(model; in_dims=2)
-        ps, st = dev(Lux.setup(StableRNG(0), pd))
-
         x = aType(randn(StableRNG(0), Float32, 2, 2))
         x0 = aType(zeros(Float32, 2))
+        x1 = aType(ones(Float32, 2))
+
+        # First test optimized defaults
+        pd = Layers.PositiveDefinite(model; in_dims=2)
+        ps, st = dev(Lux.setup(StableRNG(0), pd))
 
         y, _ = pd(x, ps, st)
         z, _ = model(x, ps, st.model)
@@ -335,14 +338,43 @@ end
         @jet pd(x, ps, st)
 
         __f = (x, ps) -> sum(first(pd(x, ps, st)))
+        broken_backends = ongpu ? [] : [AutoEnzyme()]
+        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
+
+        R = rand(2, 2)
+        P = R' * R
+        pd2 = Layers.PositiveDefinite(model, ones(2); P)
+        ps, st = dev(Lux.setup(StableRNG(0), pd2))
+
+        y, _ = pd2(x1, ps, st)
+
+        @test maximum(abs, y) < 1.0f-8
+
+        @test_throws ArgumentError Layers.PositiveDefinite(model)
+        @test_throws ArgumentError Layers.PositiveDefinite(model; in_dims=2, p=P)
+        @test_throws ArgumentError Layers.PositiveDefinite(model, x0; p=P)
+
+        # Then test with a non-optimized option
+        pd3 = Layers.PositiveDefinite(model; in_dims=2, ψ=Base.Fix1(sum, abs))
+        ps, st = dev(Lux.setup(StableRNG(0), pd3))
+
+        y, _ = pd3(x, ps, st)
+        z, _ = model(x, ps, st.model)
+        z0, _ = model(x0, ps, st.model)
+        y_by_hand = sum(abs, z .- z0; dims=1) .+ sum(abs2, x .- x0; dims=1)
+
+        @test maximum(abs, y - y_by_hand) < 1.0f-8
+
+        @jet pd3(x, ps, st)
+
+        __f = (x, ps) -> sum(first(pd3(x, ps, st)))
         broken_backends = ongpu ? [AutoTracker()] : [AutoReverseDiff(), AutoEnzyme()]
         @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
 
-        pd2 = Layers.PositiveDefinite(model, ones(2))
-        ps, st = dev(Lux.setup(StableRNG(0), pd2))
+        pd4 = Layers.PositiveDefinite(model, ones(2); ψ=Base.Fix1(sum, abs))
+        ps, st = dev(Lux.setup(StableRNG(0), pd4))
 
-        x0 = aType(ones(Float32, 2))
-        y, _ = pd2(x0, ps, st)
+        y, _ = pd4(x1, ps, st)
 
         @test maximum(abs, y) < 1.0f-8
     end

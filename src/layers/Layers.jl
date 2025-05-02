@@ -17,6 +17,8 @@ using MLDataDevices: get_device, CPUDevice
 using NNlib: NNlib
 using WeightInitializers: zeros32, randn32
 
+using LinearAlgebra: I
+
 using ..Utils:
     DataTransferBarrier,
     fast_chunk,
