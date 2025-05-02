@@ -1,7 +1,6 @@
 module Utils
 
 using ForwardDiff: ForwardDiff
-using GPUArraysCore: AnyGPUArray
 using Statistics: mean
 
 using MLDataDevices: MLDataDevices, get_device_type, get_device, CPUDevice, CUDADevice
