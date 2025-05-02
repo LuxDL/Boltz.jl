@@ -1,8 +1,8 @@
 @testsetup module SharedTestSetup
 
 import Reexport: @reexport
-@reexport using Boltz, Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random, StableRNGs,
-                Reactant
+@reexport using Boltz,
+    Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random, StableRNGs, Reactant, NNlib
 using MLDataDevices, JLD2, Enzyme, Zygote
 using LuxTestUtils: check_approx
 
@@ -68,7 +68,12 @@ function compute_zygote_gradient(f::F, model, x, ps, st) where {F}
     return Zygote.gradient((x, ps) -> f(model, x, ps, st), x, ps)
 end
 
-export MODES, BACKEND_GROUP, test_reactant, set_reactant_backend!,
-       compute_reactant_gradient, compute_zygote_gradient, check_approx
+export MODES,
+    BACKEND_GROUP,
+    test_reactant,
+    set_reactant_backend!,
+    compute_reactant_gradient,
+    compute_zygote_gradient,
+    check_approx
 
 end

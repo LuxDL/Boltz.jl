@@ -1,8 +1,6 @@
 # Only tests that are not run via `vision` or other higher-level test suites are
 # included in this snippet.
 @testitem "MLP" setup = [SharedTestSetup] tags = [:layers] begin
-    using NNlib
-
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
         @testset "$(act)" for act in (tanh, NNlib.gelu)
             @testset "$(nType)" for nType in (BatchNorm, GroupNorm, nothing)
@@ -341,10 +339,8 @@ end
 end
 
 @testitem "Positive Definite Container" setup = [SharedTestSetup] tags = [:layers] begin
-    using NNlib
-
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
-        model = Layers.MLP(2, (4, 4, 2), NNlib.gelu)
+        model = Layers.MLP(2, (4, 4, 2), gelu)
         pd = Layers.PositiveDefinite(model; in_dims=2)
         ps, st = dev(Lux.setup(StableRNG(0), pd))
 
@@ -369,24 +365,63 @@ end
         y, _ = pd2(x0, ps, st)
 
         @test maximum(abs, y) < 1.0f-8
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+
+            rdev = reactant_device(; force=true)
+
+            pd = Layers.PositiveDefinite(model; in_dims=2)
+            ps, st = dev(Lux.setup(StableRNG(0), pd))
+            x = aType(randn(StableRNG(0), Float32, 2, 2))
+            ps_ra, st_ra, x_ra = rdev((ps, st, x))
+            st_ra_test = Lux.testmode(st_ra)
+
+            @test @jit(pd(x_ra, ps_ra, st_ra_test))[1] ≈ pd(x, ps, st)[1] atol = 1e-3 rtol =
+                1e-3
+
+            ∂x_ra, ∂ps_ra =
+                @jit(compute_reactant_gradient(pd, x_ra, ps_ra, st_ra)) |> cpu_device()
+            ∂x_zyg, ∂ps_zyg = compute_zygote_gradient(pd, x, ps, st) |> cpu_device()
+
+            @test check_approx(∂x_ra, ∂x_zyg; atol=1e-3, rtol=1e-3)
+            @test check_approx(∂ps_ra, ∂ps_zyg; atol=1e-3, rtol=1e-3)
+        end
     end
 end
 
 @testitem "ShiftTo Container" setup = [SharedTestSetup] tags = [:layers] begin
-    using NNlib
-
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
-        model = Layers.MLP(2, (4, 4, 2), NNlib.gelu)
-        s = Layers.ShiftTo(model, ones(2), zeros(2))
-        ps, st = dev(Lux.setup(StableRNG(0), s))
+        model = Layers.MLP(2, (4, 4, 2), gelu)
+        shiftto = Layers.ShiftTo(model, ones(Float32, 2), zeros(Float32, 2))
+        ps, st = Lux.setup(StableRNG(0), shiftto) |> dev
 
-        y0, _ = s(st.in_val, ps, st)
+        y0, _ = shiftto(st.in_val, ps, st)
         @test maximum(abs, y0) < 1.0f-8
 
-        x = aType(randn(StableRNG(0), Float32, 2, 2))
+        x = randn(StableRNG(0), Float32, 2, 2) |> aType
 
-        __f = (x, ps) -> sum(first(s(x, ps, st)))
+        __f = (x, ps) -> sum(first(shiftto(x, ps, st)))
         broken_backends = ongpu ? [] : [AutoEnzyme()]
         @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+
+            rdev = reactant_device(; force=true)
+
+            ps_ra, st_ra, x_ra = rdev((ps, st, x))
+            st_ra_test = Lux.testmode(st_ra)
+
+            @test @jit(shiftto(x_ra, ps_ra, st_ra_test))[1] ≈ shiftto(x, ps, st)[1] atol =
+                1e-3 rtol = 1e-3
+
+            ∂x_ra, ∂ps_ra =
+                @jit(compute_reactant_gradient(shiftto, x_ra, ps_ra, st_ra)) |> cpu_device()
+            ∂x_zyg, ∂ps_zyg = compute_zygote_gradient(shiftto, x, ps, st) |> cpu_device()
+
+            @test check_approx(∂x_ra, ∂x_zyg; atol=1e-3, rtol=1e-3)
+            @test check_approx(∂ps_ra, ∂ps_zyg; atol=1e-3, rtol=1e-3)
+        end
     end
 end
