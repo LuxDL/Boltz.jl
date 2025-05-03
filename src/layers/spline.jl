@@ -80,5 +80,5 @@ function LuxCore.initialparameters(
 end
 
 function LuxCore.initialstates(::AbstractRNG, layer::SplineLayer{false})
-    return (; grid=collect((layer.grid_min):(layer.grid_step):(layer.grid_max)),)
+    return (; grid=collect((layer.grid_min):(layer.grid_step):(layer.grid_max)))
 end
