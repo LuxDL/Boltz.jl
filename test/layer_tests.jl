@@ -169,7 +169,30 @@ end
                 skip_backends=[AutoTracker(), AutoEnzyme()]
             )
 
-            # TODO: Not yet supported nicely by Reactant
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+
+                # XXX: Currently causes some issues with tracing
+                basis == Basis.Legendre && continue
+
+                rdev = reactant_device(; force=true)
+
+                x_ra = rdev(x)
+                ps_ra, st_ra = rdev((ps, st))
+                st_ra_test = Lux.testmode(st_ra)
+
+                @test @jit(tensor_project(x_ra, ps_ra, st_ra_test))[1] ≈
+                    tensor_project(x, ps, st)[1] atol = 1e-3 rtol = 1e-3
+
+                ∂x_ra, ∂ps_ra =
+                    @jit(compute_reactant_gradient(tensor_project, x_ra, ps_ra, st_ra)) |>
+                    cpu_device()
+                ∂x_zyg, ∂ps_zyg =
+                    compute_zygote_gradient(tensor_project, x, ps, st) |> cpu_device()
+
+                @test check_approx(∂x_ra, ∂x_zyg; atol=1e-3, rtol=1e-3)
+                @test check_approx(∂ps_ra, ∂ps_zyg; atol=1e-3, rtol=1e-3)
+            end
         end
     end
 end
@@ -187,23 +210,44 @@ end
             x = aType(tanh.(randn(Float32, 2, 4)))
             grid = aType(collect(1:3))
 
-            fn = basis(3)
-            @test size(fn(x)) == (3, 2, 4)
-            @test size(fn(x, grid)) == (3, 2, 4)
+            fn1 = basis(3)
+            @test size(fn1(x)) == (3, 2, 4)
+            @test size(fn1(x, grid)) == (3, 2, 4)
 
-            fn = basis(3; dim=2)
-            @test size(fn(x)) == (2, 3, 4)
-            @test size(fn(x, grid)) == (2, 3, 4)
+            fn2 = basis(3; dim=2)
+            @test size(fn2(x)) == (2, 3, 4)
+            @test size(fn2(x, grid)) == (2, 3, 4)
 
-            fn = basis(3; dim=3)
-            @test size(fn(x)) == (2, 4, 3)
-            @test size(fn(x, grid)) == (2, 4, 3)
+            fn3 = basis(3; dim=3)
+            @test size(fn3(x)) == (2, 4, 3)
+            @test size(fn3(x, grid)) == (2, 4, 3)
 
-            fn = basis(3; dim=4)
-            @test_throws ArgumentError fn(x)
+            fn4 = basis(3; dim=4)
+            @test_throws ArgumentError fn4(x)
 
-            grid = aType(1:5)
-            @test_throws ArgumentError fn(x, grid)
+            grid2 = aType(1:5)
+            @test_throws ArgumentError fn4(x, grid2)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+
+                # XXX: Currently causes some issues with tracing
+                basis == Basis.Legendre && continue
+
+                rdev = reactant_device(; force=true)
+
+                x_ra = rdev(x)
+                grid_ra = rdev(grid)
+
+                @test @jit(fn1(x_ra)) ≈ fn1(x) atol = 1e-3 rtol = 1e-3
+                @test @jit(fn1(x_ra, grid_ra)) ≈ fn1(x, grid) atol = 1e-3 rtol = 1e-3
+
+                @test @jit(fn2(x_ra)) ≈ fn2(x) atol = 1e-3 rtol = 1e-3
+                @test @jit(fn2(x_ra, grid_ra)) ≈ fn2(x, grid) atol = 1e-3 rtol = 1e-3
+
+                @test @jit(fn3(x_ra)) ≈ fn3(x) atol = 1e-3 rtol = 1e-3
+                @test @jit(fn3(x_ra, grid_ra)) ≈ fn3(x, grid) atol = 1e-3 rtol = 1e-3
+            end
         end
     end
 end
@@ -273,6 +317,25 @@ end
 
         __f = x -> sum(first(layer(x, ps, st)))
         @test_gradients(__f, x; atol=1.0f-3, rtol=1.0f-3, enzyme_set_runtime_activity=true)
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+
+            rdev = reactant_device(; force=true)
+
+            ps_ra, st_ra, x_ra = rdev((ps, st, x))
+            st_ra_test = Lux.testmode(st_ra)
+
+            @test @jit(layer(x_ra, ps_ra, st_ra_test))[1] ≈ layer(x, ps, st)[1] atol = 1e-3 rtol =
+                1e-3
+
+            ∂x_ra, ∂ps_ra =
+                @jit(compute_reactant_gradient(layer, x_ra, ps_ra, st_ra)) |> cpu_device()
+            ∂x_zyg, ∂ps_zyg = compute_zygote_gradient(layer, x, ps, st) |> cpu_device()
+
+            @test check_approx(∂x_ra, ∂x_zyg; atol=1e-3, rtol=1e-3)
+            @test check_approx(∂ps_ra, ∂ps_zyg; atol=1e-3, rtol=1e-3)
+        end
     end
 end
 
