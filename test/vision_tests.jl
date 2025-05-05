@@ -63,7 +63,7 @@ end
 
                 rdev = reactant_device(; force=true)
 
-                ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+                ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
                 @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
                     1e-3 rtol = 1e-3
@@ -94,7 +94,7 @@ end
 
             rdev = reactant_device(; force=true)
 
-            ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+            ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
             @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol = 1e-3 rtol =
                 1e-3
@@ -120,7 +120,7 @@ end
 
             rdev = reactant_device(; force=true)
 
-            ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+            ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
             @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol = 1e-3 rtol =
                 1e-3
@@ -146,7 +146,7 @@ end
 
             rdev = reactant_device(; force=true)
 
-            ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+            ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
             @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol = 1e-3 rtol =
                 1e-3
@@ -181,7 +181,7 @@ end
 
                 rdev = reactant_device(; force=true)
 
-                ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+                ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
                 @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
                     1e-3 rtol = 1e-3
@@ -224,7 +224,7 @@ end
 
                     rdev = reactant_device(; force=true)
 
-                    ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+                    ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
                     @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
                         1e-3 rtol = 1e-3
@@ -266,7 +266,7 @@ end
 
                 rdev = reactant_device(; force=true)
 
-                ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+                ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
                 @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
                     1e-3 rtol = 1e-3
@@ -300,7 +300,7 @@ end
 
                 rdev = reactant_device(; force=true)
 
-                ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+                ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
                 @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
                     1e-3 rtol = 1e-3
@@ -334,7 +334,7 @@ end
 
                 rdev = reactant_device(; force=true)
 
-                ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+                ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
                 @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
                     1e-3 rtol = 1e-3
@@ -370,7 +370,7 @@ end
 
                 rdev = reactant_device(; force=true)
 
-                ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+                ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
                 @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
                     1e-3 rtol = 1e-3
@@ -407,7 +407,7 @@ end
 
             rdev = reactant_device(; force=true)
 
-            ps_ra, st_ra, img_ra = rdev(cpu_device()(ps, st, img))
+            ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
             @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol = 1e-3 rtol =
                 1e-3
