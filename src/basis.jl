@@ -6,8 +6,6 @@ using Compat: @compat
 using ConcreteStructs: @concrete
 using Markdown: @doc_str
 
-using MLDataDevices: get_device, CPUDevice
-
 using ..Utils: unsqueeze1
 
 const CRC = ChainRulesCore
@@ -40,10 +38,6 @@ function (basis::GeneralBasisFunction{name,F})(
         ndims(x) + 1,
     )
     x_new = reshape(x, new_x_size)
-    if grid isa AbstractRange
-        dev = get_device(x)
-        grid = dev isa CPUDevice ? collect(grid) : dev(grid)
-    end
     grid_shape = ntuple(i -> i == basis.dim ? basis.n : 1, ndims(x) + 1)
     grid_new = reshape(grid, grid_shape)
     return basis.f.(grid_new, x_new)
