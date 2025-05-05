@@ -1,6 +1,6 @@
 @testsetup module PretrainedWeightsTestSetup
 
-using Lux, Downloads, JLD2, Pickle
+using Lux, Downloads, JLD2, Pickle, Reactant
 
 function normalize_imagenet(data)
     cmean = reshape(Float32[0.485, 0.456, 0.406], (1, 1, 3, 1))
@@ -28,7 +28,12 @@ function imagenet_acctest(model, ps, st, dev; size=224)
         (size == 256 ? MONARCH_256 : error("size must be 224 or 256"))
     end
     x = dev(TEST_X)
-    ypred = vec(collect(first(model(x, ps, st))))
+
+    if dev isa ReactantDevice
+        model = @compile model(x, ps, st)
+    end
+
+    ypred = vec(collect(cpu_device()(first(model(x, ps, st)))))
     top5 = TEST_LBLS[partialsortperm(ypred, 1:5; rev=true)]
     return "monarch" in top5
 end
@@ -52,6 +57,21 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+
+                rdev = reactant_device(; force=true)
+
+                ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                    1e-3 rtol = 1e-3
+
+                if pretrained
+                    @test imagenet_acctest(model, ps, st, rdev)
+                end
+            end
         end
     end
 end
@@ -68,6 +88,17 @@ end
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+
+            rdev = reactant_device(; force=true)
+
+            ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+            @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                1e-3 rtol = 1e-3
+        end
     end
 end
 
@@ -83,6 +114,17 @@ end
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+
+            rdev = reactant_device(; force=true)
+
+            ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+            @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                1e-3 rtol = 1e-3
+        end
     end
 end
 
@@ -98,6 +140,18 @@ end
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
+
+        # XXX: Needs https://github.com/EnzymeAD/Reactant.jl/pull/1248
+        # if test_reactant(mode)
+        #     set_reactant_backend!(mode)
+
+        #     rdev = reactant_device(; force=true)
+
+        #     ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+        #     @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+        #         1e-3 rtol = 1e-3
+        # end
     end
 end
 
@@ -122,6 +176,21 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+
+                rdev = reactant_device(; force=true)
+
+                ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                    1e-3 rtol = 1e-3
+
+                if pretrained
+                    @test imagenet_acctest(model, ps, st, rdev)
+                end
+            end
         end
     end
 end
@@ -150,6 +219,21 @@ end
                 end
 
                 GC.gc(true)
+
+                if test_reactant(mode)
+                    set_reactant_backend!(mode)
+
+                    rdev = reactant_device(; force=true)
+
+                    ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+                    @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                        1e-3 rtol = 1e-3
+
+                    if pretrained
+                        @test imagenet_acctest(model, ps, st, rdev)
+                    end
+                end
             end
         end
     end
@@ -177,6 +261,17 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+
+                rdev = reactant_device(; force=true)
+
+                ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                    1e-3 rtol = 1e-3
+            end
         end
     end
 end
@@ -200,6 +295,21 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+
+                rdev = reactant_device(; force=true)
+
+                ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                    1e-3 rtol = 1e-3
+
+                if pretrained
+                    @test imagenet_acctest(model, ps, st, rdev)
+                end
+            end
         end
     end
 end
@@ -219,6 +329,21 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+
+                rdev = reactant_device(; force=true)
+
+                ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                    1e-3 rtol = 1e-3
+
+                if pretrained
+                    @test imagenet_acctest(model, ps, st, rdev)
+                end
+            end
         end
     end
 end
@@ -240,6 +365,21 @@ end
             end
 
             GC.gc(true)
+
+            if test_reactant(mode)
+                set_reactant_backend!(mode)
+
+                rdev = reactant_device(; force=true)
+
+                ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                    1e-3 rtol = 1e-3
+
+                if pretrained
+                    @test imagenet_acctest(model, ps, st, rdev)
+                end
+            end
         end
     end
 end
@@ -262,5 +402,16 @@ end
         @test size(first(model(img, ps, st))) == (1000, 2)
 
         GC.gc(true)
+
+        if test_reactant(mode)
+            set_reactant_backend!(mode)
+
+            rdev = reactant_device(; force=true)
+
+            ps_ra, st_ra, img_ra = rdev((ps, st, img))
+
+            @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                1e-3 rtol = 1e-3
+        end
     end
 end
