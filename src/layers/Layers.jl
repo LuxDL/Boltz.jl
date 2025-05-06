@@ -14,8 +14,8 @@ using ForwardDiff: ForwardDiff
 using Lux: Lux, LuxOps, StatefulLuxLayer
 using LuxCore: LuxCore, AbstractLuxLayer, AbstractLuxContainerLayer, AbstractLuxWrapperLayer
 using MLDataDevices: get_device, CPUDevice
-using NNlib: NNlib
-using WeightInitializers: zeros32, randn32
+using NNlib: NNlib, softmax
+using WeightInitializers: zeros32, randn32, ones32, orthogonal
 
 using ..Utils:
     DataTransferBarrier,
