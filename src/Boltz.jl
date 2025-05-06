@@ -15,6 +15,9 @@ include("layers/Layers.jl")
 # Vision Models
 include("vision/Vision.jl")
 
-export Basis, Layers, Vision
+# Physics-Informed Models
+include("piml/PIML.jl")
+
+export Basis, Layers, Vision, PIML
 
 end

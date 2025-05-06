@@ -76,8 +76,11 @@ Physics self-attention layer used in neural PDE solvers. See [luo2025transolver+
 end
 
 function PhysicsSelfAttentionIrregularMesh(
-    dim; nheads=8, dim_head=64, dropout=0.0f0, slice_num=64
+    dim; nheads=8, dim_head=64, dropout_rate=0.0f0, slice_num=64, shapelist=nothing
 )
+    @assert shapelist === nothing "shapelist cannot be specified for \
+                                   PhysicsSelfAttentionIrregularMesh"
+
     inner_dim = nheads * dim_head
     return PhysicsSelfAttentionIrregularMesh(
         Lux.Dense(dim => inner_dim),
@@ -93,8 +96,8 @@ function PhysicsSelfAttentionIrregularMesh(
         Lux.Dense(dim_head => dim_head; use_bias=false),
         Lux.Dense(dim_head => dim_head; use_bias=false),
         Lux.Dense(dim_head => dim_head; use_bias=false),
-        Lux.Chain(Lux.Dense(inner_dim => dim), Lux.Dropout(dropout)),
-        Lux.Dropout(dropout),
+        Lux.Chain(Lux.Dense(inner_dim => dim), Lux.Dropout(dropout_rate)),
+        Lux.Dropout(dropout_rate),
         nheads,
         dim_head,
         slice_num,
@@ -120,8 +123,9 @@ function (model::PhysicsSelfAttentionIrregularMesh)(x::AbstractArray{T,3}, ps, s
         x_mid, ps.input_project_slice, st.input_project_slice
     ) # G N H B
     slice_weights = NNlib.softmax(slice_weights; dims=1) # G N H B
-    slice_norm = sum(slice_weights; dims=2) # G 1 H B
-    slice_token = NNlib.batched_mul(fx_mid, permutedims(slice_weights, (2, 1, 3, 4)))
+    slice_norm = reshape(sum(slice_weights; dims=2), 1, :, model.nheads, B) # G 1 H B
+    slice_token = NNlib.batched_mul(fx_mid, permutedims(slice_weights, (2, 1, 3, 4))) # C N H B
+
     slice_token = slice_token ./ (slice_norm .+ T(1e-5)) # C G H B
 
     # (2) Attention among slice tokens
