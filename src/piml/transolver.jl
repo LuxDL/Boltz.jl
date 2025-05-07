@@ -76,7 +76,7 @@ end
     )
 
 Implements the Transolver model from [wu2024transolver](@citep). Currently we only support
-unstructured meshes without temporal input. Internall uses
+unstructured meshes without temporal input. Internally uses
 [`PhysicsSelfAttentionIrregularMesh`](@ref).
 """
 @concrete struct Transolver <: AbstractLuxContainerLayer{(:preprocess, :main_block)}
