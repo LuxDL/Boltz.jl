@@ -10,6 +10,7 @@ pages = [
         "Basis Functions" => "api/basis.md",
         "Layers API" => "api/layers.md",
         "Vision Models" => "api/vision.md",
+        "Physics-Informed Models" => "api/piml.md",
         "Private API" => "api/private.md",
     ],
 ]
