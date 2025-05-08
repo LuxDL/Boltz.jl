@@ -1,7 +1,7 @@
 using ReTestItems, Pkg, Hwloc, Test
 
 const ALL_BOTLZ_TEST_GROUPS = [
-    "layers", "others", "vision", "vision_metalhead", "integration"
+    "layers", "others", "vision", "vision_metalhead", "integration", "piml"
 ]
 
 INPUT_TEST_GROUP = lowercase(get(ENV, "BOLTZ_TEST_GROUP", "all"))
