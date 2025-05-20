@@ -16,8 +16,7 @@ pages = [
 ]
 
 doctestexpr = quote
-    using Boltz, Random, Lux
-    using DynamicExpressions, Zygote
+    using Boltz, Random, Lux, Zygote
 end
 
 DocMeta.setdocmeta!(Boltz, :DocTestSetup, doctestexpr; recursive=true)
@@ -45,7 +44,7 @@ makedocs(;
     pages,
 )
 
-deploydocs(;
+DocumenterVitepress.deploydocs(;
     repo="github.com/LuxDL/Boltz.jl.git",
     push_preview=true,
     target="build",

@@ -1,4 +1,6 @@
-const ALL_TUTORIALS = ["GettingStarted/main.jl", "SymbolicOptimalControl/main.jl"]
+const ALL_TUTORIALS = [
+    ("GettingStarted/main.jl", true), ("SymbolicOptimalControl/main.jl", false)
+]
 
 const TUTORIALS = collect(enumerate(ALL_TUTORIALS))
 
@@ -26,7 +28,11 @@ const NTASKS = min(
 
 @info "Starting Lux Tutorial Build with $(NTASKS) tasks."
 
-asyncmap(TUTORIALS_BUILDING; ntasks=NTASKS) do (i, p)
+run(
+    `$(Base.julia_cmd()) --startup=no --code-coverage=user --threads=$(Threads.nthreads()) --project=@literate -e 'import Pkg; Pkg.add(["Literate", "InteractiveUtils"])'`,
+)
+
+asyncmap(TUTORIALS_BUILDING; ntasks=NTASKS) do (i, (p, should_run))
     @info "Running Tutorial $(i): $(p) on task $(current_task())"
     path = joinpath(@__DIR__, "..", "examples", p)
     name = "$(i)_$(first(rsplit(p, "/")))"
@@ -40,8 +46,9 @@ asyncmap(TUTORIALS_BUILDING; ntasks=NTASKS) do (i, p)
         "JULIA_PKG_PRECOMPILE_AUTO" => "0",
         "JULIA_DEBUG" => "Literate",
     ) do
-        cmd = `$(Base.julia_cmd()) --color=yes --code-coverage=user --threads=$(Threads.nthreads()) --project=$(tutorial_proj) "$(file)" "$(name)" "$(output_directory)" "$(path)"`
-        run(cmd)
+        run(
+            `$(Base.julia_cmd()) --color=yes --code-coverage=user --threads=$(Threads.nthreads()) --project=$(tutorial_proj) "$(file)" "$(name)" "$(output_directory)" "$(path)" "$(should_run)"`,
+        )
     end
 
     return nothing

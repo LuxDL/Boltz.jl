@@ -25,8 +25,8 @@ permissions:
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 jobs:
   # Build job
@@ -40,9 +40,9 @@ jobs:
       - name: Pull Julia cache
         uses: julia-actions/cache@v2
       - name: Install documentation dependencies
-        run: julia --project=docs -e 'using Pkg; Pkg.develop(Pkg.PackageSpec(path=".")); Pkg.instantiate(); Pkg.precompile(); Pkg.status()'
+        run: julia --project=docs --color=yes -e 'using Pkg; Pkg.develop(Pkg.PackageSpec(path=".")); Pkg.instantiate(); Pkg.precompile(); Pkg.status()'
       - name: Build the tutorials
-        run: julia --project=docs docs/tutorials.jl
+        run: julia --project=docs --color=yes docs/tutorials.jl
       - name: Build and deploy docs
         uses: julia-actions/julia-docdeploy@v1
         env:

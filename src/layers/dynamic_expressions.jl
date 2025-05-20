@@ -28,7 +28,7 @@ and `eval_grad_tree_array` function.
 
 ## Example
 
-```jldoctest
+```julia
 julia> operators = OperatorEnum(; binary_operators=[+, -, *], unary_operators=[cos]);
 
 julia> x1 = Node(; feature=1);
