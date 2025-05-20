@@ -45,7 +45,7 @@ makedocs(;
     pages,
 )
 
-deploydocs(;
+DocumenterVitepress.deploydocs(;
     repo="github.com/LuxDL/Boltz.jl.git",
     push_preview=true,
     target="build",
