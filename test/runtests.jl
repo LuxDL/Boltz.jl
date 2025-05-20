@@ -16,7 +16,9 @@ const BACKEND_GROUP = lowercase(get(ENV, "BACKEND_GROUP", "all"))
 const EXTRA_PKGS = String[]
 
 if "all" ∈ BOLTZ_TEST_GROUP || "integration" ∈ BOLTZ_TEST_GROUP
-    append!(EXTRA_PKGS, ["DataInterpolations", "DynamicExpressions"])
+    # TODO: enable once https://github.com/SymbolicML/DynamicExpressions.jl/pull/119 lands
+    # append!(EXTRA_PKGS, ["DataInterpolations", "DynamicExpressions"])
+    append!(EXTRA_PKGS, ["DataInterpolations"])
 end
 if "all" ∈ BOLTZ_TEST_GROUP || "vision_metalhead" ∈ BOLTZ_TEST_GROUP
     push!(EXTRA_PKGS, "Metalhead")

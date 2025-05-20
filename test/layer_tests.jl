@@ -339,7 +339,9 @@ end
     end
 end
 
-@testitem "Dynamic Expressions Layer" setup = [SharedTestSetup] tags = [:integration] begin
+# TODO: enable once https://github.com/SymbolicML/DynamicExpressions.jl/pull/119 lands
+@testitem "Dynamic Expressions Layer" setup = [SharedTestSetup] tags = [:integration] skip =
+    true begin
     using DynamicExpressions, ForwardDiff, ComponentArrays
 
     operators = OperatorEnum(; binary_operators=[+, -, *], unary_operators=[cos])

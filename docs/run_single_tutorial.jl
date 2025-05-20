@@ -8,37 +8,72 @@ name = ARGS[1]
 pkg_log_path = joinpath(storage_dir, "$(name)_pkg.log")
 output_directory = ARGS[2]
 path = ARGS[3]
+should_run = parse(Bool, ARGS[4])
 
 io = open(pkg_log_path, "w")
-Pkg.develop(; path=joinpath(@__DIR__, ".."), io)
-Pkg.instantiate(; io)
+warn_old_version = try
+    should_run && Pkg.develop(; path=joinpath(@__DIR__, ".."), io)
+    false
+catch err
+    err isa Pkg.Resolve.ResolverError || rethrow()
+    @warn "Failed to install the latest version of Boltz.jl. This is possible when the \
+           downstream packages haven't been updated to support latest releases yet." err =
+        err
+    true
+end
+should_run && Pkg.instantiate(; io)
 close(io)
 
 using Literate
 
 function preprocess(path, str)
-    new_str = replace(str, "__DIR = @__DIR__" => "__DIR = \"$(dirname(path))\"")
-    appendix_code = """
-    # ## Appendix
+    if warn_old_version
+        str =
+            """
+            # !!! danger "Using older version of Boltz.jl"
 
-    using InteractiveUtils
-    InteractiveUtils.versioninfo()
+            #     This tutorial cannot be run on the latest Boltz.jl release due to
+            #     downstream packages not being updated yet.
 
-    if @isdefined(MLDataDevices)
-        if @isdefined(CUDA) && MLDataDevices.functional(CUDADevice)
-            println()
-            CUDA.versioninfo()
-        end
-
-        if @isdefined(AMDGPU) && MLDataDevices.functional(AMDGPUDevice)
-            println()
-            AMDGPU.versioninfo()
-        end
+            \n\n""" * str
     end
 
-    nothing #hide
-    """
-    return new_str * appendix_code
+    str = replace(str, "__DIR = @__DIR__" => "__DIR = \"$(dirname(path))\"")
+
+    if !should_run
+        str =
+            """
+            # !!! danger "Not Run on CI"
+
+            #     This tutorial is not run on CI to reduce the computational burden. If you
+            #     encounter any issues, please open an issue on the
+            #     [Boltz.jl](https://github.com/LuxDL/Boltz.jl) repository.
+
+            \n\n""" * str
+    else
+        str = str * """
+        # ## Appendix
+
+        using InteractiveUtils
+        InteractiveUtils.versioninfo()
+
+        if @isdefined(MLDataDevices)
+            if @isdefined(CUDA) && MLDataDevices.functional(CUDADevice)
+                println()
+                CUDA.versioninfo()
+            end
+
+            if @isdefined(AMDGPU) && MLDataDevices.functional(AMDGPUDevice)
+                println()
+                AMDGPU.versioninfo()
+            end
+        end
+
+        nothing #hide
+        """
+    end
+
+    return str
 end
 
 # For displaying generated Latex
@@ -51,9 +86,9 @@ end
 Literate.markdown(
     path,
     output_directory;
-    execute=true,
+    execute=should_run,
     name,
-    flavor=Literate.DocumenterFlavor(),
+    flavor=should_run ? Literate.DocumenterFlavor() : Literate.CommonMarkFlavor(),
     preprocess=Base.Fix1(preprocess, path),
     postprocess=Base.Fix1(postprocess, path),
 )

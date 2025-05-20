@@ -16,8 +16,7 @@ pages = [
 ]
 
 doctestexpr = quote
-    using Boltz, Random, Lux
-    using DynamicExpressions, Zygote
+    using Boltz, Random, Lux, Zygote
 end
 
 DocMeta.setdocmeta!(Boltz, :DocTestSetup, doctestexpr; recursive=true)
