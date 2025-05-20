@@ -1,6 +1,5 @@
 const ALL_TUTORIALS = [
-    ("GettingStarted/main.jl", true),
-    ("SymbolicOptimalControl/main.jl", false)
+    ("GettingStarted/main.jl", true), ("SymbolicOptimalControl/main.jl", false)
 ]
 
 const TUTORIALS = collect(enumerate(ALL_TUTORIALS))
@@ -47,7 +46,9 @@ asyncmap(TUTORIALS_BUILDING; ntasks=NTASKS) do (i, (p, should_run))
         "JULIA_PKG_PRECOMPILE_AUTO" => "0",
         "JULIA_DEBUG" => "Literate",
     ) do
-        run(`$(Base.julia_cmd()) --color=yes --code-coverage=user --threads=$(Threads.nthreads()) --project=$(tutorial_proj) "$(file)" "$(name)" "$(output_directory)" "$(path)" "$(should_run)"`)
+        run(
+            `$(Base.julia_cmd()) --color=yes --code-coverage=user --threads=$(Threads.nthreads()) --project=$(tutorial_proj) "$(file)" "$(name)" "$(output_directory)" "$(path)" "$(should_run)"`,
+        )
     end
 
     return nothing

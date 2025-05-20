@@ -253,7 +253,7 @@ end
 end
 
 # Unskip once https://github.com/SciML/DataInterpolations.jl/pull/414 lands
-@testitem "Spline Layer" setup = [SharedTestSetup] tags = [:integration] skip=true begin
+@testitem "Spline Layer" setup = [SharedTestSetup] tags = [:integration] skip = true begin
     using ComponentArrays, DataInterpolations, ForwardDiff, Zygote, MLDataDevices
 
     @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES

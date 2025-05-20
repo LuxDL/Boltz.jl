@@ -9,6 +9,7 @@ pkg_log_path = joinpath(storage_dir, "$(name)_pkg.log")
 output_directory = ARGS[2]
 path = ARGS[3]
 should_run = parse(Bool, ARGS[4])
+push!(LOAD_PATH, "@literate")  # Should have the Literate and InteractiveUtils packages
 
 io = open(pkg_log_path, "w")
 warn_old_version = try
@@ -23,7 +24,6 @@ catch err
 end
 should_run && Pkg.instantiate(; io)
 close(io)
-push!(LOAD_PATH, "@literate")  # Should have the Literate and InteractiveUtils packages
 
 using Literate
 
