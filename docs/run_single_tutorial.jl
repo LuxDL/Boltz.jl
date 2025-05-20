@@ -23,19 +23,19 @@ catch err
 end
 should_run && Pkg.instantiate(; io)
 close(io)
+push!(LOAD_PATH, "@literate")  # Should have the Literate and InteractiveUtils packages
 
 using Literate
 
 function preprocess(path, str)
     if warn_old_version
-        str =
-            """
-            # !!! danger "Using older version of Boltz.jl"
+        str = """
+              # !!! danger "Using older version of Boltz.jl"
 
-            #     This tutorial cannot be run on the latest Boltz.jl release due to
-            #     downstream packages not being updated yet.
+              #     This tutorial cannot be run on the latest Boltz.jl release due to
+              #     downstream packages not being updated yet.
 
-            \n\n""" * str
+              \n\n""" * str
     end
 
     str = replace(str, "__DIR = @__DIR__" => "__DIR = \"$(dirname(path))\"")

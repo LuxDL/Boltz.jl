@@ -29,6 +29,10 @@ const NTASKS = min(
 
 @info "Starting Lux Tutorial Build with $(NTASKS) tasks."
 
+run(
+    `$(Base.julia_cmd()) --startup=no --code-coverage=user --threads=$(Threads.nthreads()) --project=@literate -e 'import Pkg; Pkg.add(["Literate", "InteractiveUtils"])'`,
+)
+
 asyncmap(TUTORIALS_BUILDING; ntasks=NTASKS) do (i, (p, should_run))
     @info "Running Tutorial $(i): $(p) on task $(current_task())"
     path = joinpath(@__DIR__, "..", "examples", p)
