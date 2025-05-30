@@ -1,26 +1,42 @@
 @testsetup module SharedTestSetup
 
 import Reexport: @reexport
-@reexport using Boltz,
-    Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random, StableRNGs, Reactant, NNlib
+@reexport using Boltz, Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random, StableRNGs, NNlib
 using MLDataDevices, JLD2, Enzyme, Zygote
 using LuxTestUtils: check_approx
 
-LuxTestUtils.jet_target_modules!(["Boltz", "Lux", "LuxLib"])
+const BOLTZ_TEST_REACTANT = parse(Bool, lowercase(get(ENV, "BOLTZ_TEST_REACTANT", "true")))
 
 const BACKEND_GROUP = lowercase(get(ENV, "BACKEND_GROUP", "all"))
 
 GPUArraysCore.allowscalar(false)
 
-if BACKEND_GROUP == "all" || BACKEND_GROUP == "cuda"
+if (BACKEND_GROUP == "all" || BACKEND_GROUP == "cuda") && !BOLTZ_TEST_REACTANT
     using LuxCUDA
 end
 
-if BACKEND_GROUP == "all" || BACKEND_GROUP == "amdgpu"
+if (BACKEND_GROUP == "all" || BACKEND_GROUP == "amdgpu") && !BOLTZ_TEST_REACTANT
     using AMDGPU
 end
 
+if BOLTZ_TEST_REACTANT
+    @reexport using Reactant
+else
+    macro jit(ex)
+        quote
+            $(ex)
+        end
+    end
+    macro compile(ex)
+        quote
+            $(ex)
+        end
+    end
+    export @jit, @compile
+end
+
 cpu_testing() = BACKEND_GROUP == "all" || BACKEND_GROUP == "cpu"
+# Reactant will not work nicely if we load AMDGPU / CUDA
 function cuda_testing()
     return (BACKEND_GROUP == "all" || BACKEND_GROUP == "cuda") &&
            MLDataDevices.functional(CUDADevice)
@@ -32,13 +48,19 @@ end
 
 const MODES = begin
     modes = []
-    cpu_testing() && push!(modes, ("cpu", Array, CPUDevice(), false))
-    cuda_testing() && push!(modes, ("cuda", CuArray, CUDADevice(), true))
-    amdgpu_testing() && push!(modes, ("amdgpu", ROCArray, AMDGPUDevice(), true))
+    cpu_testing() && push!(modes, ("cpu", Array, CPUDevice()))
+    if !BOLTZ_TEST_REACTANT
+        cuda_testing() && push!(modes, ("cuda", CuArray, CUDADevice()))
+        amdgpu_testing() && push!(modes, ("amdgpu", ROCArray, AMDGPUDevice()))
+    else
+        if BACKEND_GROUP == "cuda" || BACKEND_GROUP == "all"
+            push!(modes, ("cuda", Array, CPUDevice()))
+        end
+    end
     modes
 end
 
-test_reactant(mode::String) = mode != "amdgpu"
+test_reactant(mode::String) = mode != "amdgpu" && BOLTZ_TEST_REACTANT
 function set_reactant_backend!(mode::String)
     if mode == "cuda"
         Reactant.set_default_backend("gpu")

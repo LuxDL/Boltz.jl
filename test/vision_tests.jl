@@ -43,7 +43,7 @@ export imagenet_acctest
 end
 
 @testitem "AlexNet" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [:vision] begin
-    for (mode, aType, dev, ongpu) in MODES
+    for (mode, aType, dev) in MODES
         @testset "pretrained: $(pretrained)" for pretrained in [true, false]
             model = Vision.AlexNet(; pretrained)
             ps, st = dev(Lux.setup(Random.default_rng(), model))
@@ -79,7 +79,7 @@ end
 @testitem "ConvMixer" setup = [SharedTestSetup] tags = [:vision_metalhead] begin
     using Metalhead: Metalhead
 
-    for (mode, aType, dev, ongpu) in MODES, name in [:small, :base, :large]
+    for (mode, aType, dev) in MODES, name in [:small, :base, :large]
         model = Vision.ConvMixer(name; pretrained=false)
         ps, st = dev(Lux.setup(Random.default_rng(), model))
         st = Lux.testmode(st)
@@ -105,7 +105,7 @@ end
 @testitem "GoogLeNet" setup = [SharedTestSetup] tags = [:vision_metalhead] begin
     using Metalhead: Metalhead
 
-    for (mode, aType, dev, ongpu) in MODES
+    for (mode, aType, dev) in MODES
         model = Vision.GoogLeNet(; pretrained=false)
         ps, st = dev(Lux.setup(Random.default_rng(), model))
         st = Lux.testmode(st)
@@ -131,7 +131,7 @@ end
 @testitem "MobileNet" setup = [SharedTestSetup] tags = [:vision_metalhead] begin
     using Metalhead: Metalhead
 
-    for (mode, aType, dev, ongpu) in MODES, name in [:v1, :v2, :v3_small, :v3_large]
+    for (mode, aType, dev) in MODES, name in [:v1, :v2, :v3_small, :v3_large]
         model = Vision.MobileNet(name; pretrained=false)
         ps, st = dev(Lux.setup(Random.default_rng(), model))
         st = Lux.testmode(st)
@@ -159,7 +159,7 @@ end
 ] begin
     using Metalhead: Metalhead
 
-    for (mode, aType, dev, ongpu) in MODES, depth in [18, 34, 50, 101, 152]
+    for (mode, aType, dev) in MODES, depth in [18, 34, 50, 101, 152]
         @testset for pretrained in [false, true]
             pretrained && pkgversion(Metalhead) > v"0.9.4" && continue
 
@@ -199,7 +199,7 @@ end
 ] begin
     using Metalhead: Metalhead
 
-    for (mode, aType, dev, ongpu) in MODES
+    for (mode, aType, dev) in MODES
         @testset for (depth, cardinality, base_width) in
                      [(50, 32, 4), (101, 32, 8), (101, 64, 4), (152, 64, 4)]
             @testset for pretrained in [false, true]
@@ -243,7 +243,7 @@ end
 ] begin
     using Metalhead: Metalhead
 
-    for (mode, aType, dev, ongpu) in MODES, depth in [50, 101, 152]
+    for (mode, aType, dev) in MODES, depth in [50, 101, 152]
         @testset for pretrained in [false, true]
             depth == 152 && pretrained && continue
             pretrained && pkgversion(Metalhead) > v"0.9.4" && continue
@@ -280,7 +280,7 @@ end
 ] begin
     using Metalhead: Metalhead
 
-    for (mode, aType, dev, ongpu) in MODES
+    for (mode, aType, dev) in MODES
         @testset for pretrained in [false, true]
             model = Vision.SqueezeNet(; pretrained)
             ps, st = dev(Lux.setup(Random.default_rng(), model))
@@ -314,7 +314,7 @@ end
 end
 
 @testitem "VGG" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [:vision] begin
-    for (mode, aType, dev, ongpu) in MODES, depth in [11, 13, 16, 19]
+    for (mode, aType, dev) in MODES, depth in [11, 13, 16, 19]
         @testset for pretrained in [false, true], batchnorm in [false, true]
             model = Vision.VGG(depth; batchnorm, pretrained)
             ps, st = dev(Lux.setup(Random.default_rng(), model))
@@ -350,7 +350,12 @@ end
 @testitem "EfficientNet" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [
     :vision
 ] begin
-    for (mode, aType, dev, ongpu) in MODES, name in [:b0, :b1, :b2, :b3, :b4, :b5, :b6, :b7]
+    all_names = if parse(Bool, get(ENV, "CI", "false"))
+        [:b0, :b1, :b2]
+    else
+        [:b0, :b1, :b2, :b3, :b4, :b5, :b6, :b7]
+    end
+    for (mode, aType, dev) in MODES, name in all_names
         @testset for pretrained in [false, true]
             model = Boltz.Vision.EfficientNet(name; pretrained)
             ps, st = Lux.setup(Random.default_rng(), model) |> dev
@@ -384,8 +389,13 @@ end
 end
 
 @testitem "VisionTransformer" setup = [SharedTestSetup] tags = [:vision] begin
-    for (mode, aType, dev, ongpu) in MODES, name in [:tiny, :small, :base]
-        # :large, :huge, :giant, :gigantic --> too large for CI
+    all_names = if parse(Bool, get(ENV, "CI", "false"))
+        [:tiny, :small, :base]
+    else
+        [:tiny, :small, :base, :large, :huge, :giant, :gigantic]
+    end
+
+    for (mode, aType, dev) in MODES, name in all_names
         model = Vision.VisionTransformer(name; pretrained=false)
         ps, st = dev(Lux.setup(Random.default_rng(), model))
         st = Lux.testmode(st)
