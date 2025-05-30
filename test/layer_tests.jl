@@ -397,7 +397,7 @@ end
             4.0f0 5.0f0 6.0f0
         ])
 
-        if ongpu
+        if dev isa MLDataDevices.AbstractGPUDevice
             @test_throws ArgumentError layer(x, ps, st)
         end
     end

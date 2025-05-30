@@ -4,6 +4,8 @@ const ALL_BOTLZ_TEST_GROUPS = [
     "layers", "others", "vision", "vision_metalhead", "integration", "piml"
 ]
 
+const BOLTZ_TEST_REACTANT = parse(Bool, lowercase(get(ENV, "BOLTZ_TEST_REACTANT", "true")))
+
 INPUT_TEST_GROUP = lowercase(get(ENV, "BOLTZ_TEST_GROUP", "all"))
 const BOLTZ_TEST_GROUP = if startswith("!", INPUT_TEST_GROUP[1])
     exclude_group = lowercase.(split(INPUT_TEST_GROUP[2:end], ","))
@@ -25,8 +27,12 @@ if "all" ∈ BOLTZ_TEST_GROUP || "vision_metalhead" ∈ BOLTZ_TEST_GROUP
     push!(EXTRA_PKGS, "Metalhead")
 end
 
-(BACKEND_GROUP == "all" || BACKEND_GROUP == "cuda") && push!(EXTRA_PKGS, "LuxCUDA")
-(BACKEND_GROUP == "all" || BACKEND_GROUP == "amdgpu") && push!(EXTRA_PKGS, "AMDGPU")
+(BACKEND_GROUP == "all" || BACKEND_GROUP == "cuda") &&
+    !BOLTZ_TEST_REACTANT &&
+    push!(EXTRA_PKGS, "LuxCUDA")
+(BACKEND_GROUP == "all" || BACKEND_GROUP == "amdgpu") &&
+    !BOLTZ_TEST_REACTANT &&
+    push!(EXTRA_PKGS, "AMDGPU")
 
 if !isempty(EXTRA_PKGS)
     @info "Installing Extra Packages for testing" EXTRA_PKGS = EXTRA_PKGS
