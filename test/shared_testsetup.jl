@@ -60,7 +60,7 @@ const MODES = begin
     modes
 end
 
-test_reactant(mode::String) = mode != "amdgpu"
+test_reactant(mode::String) = mode != "amdgpu" && BOLTZ_TEST_REACTANT
 function set_reactant_backend!(mode::String)
     if mode == "cuda"
         Reactant.set_default_backend("gpu")
