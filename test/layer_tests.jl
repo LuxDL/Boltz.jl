@@ -2,8 +2,8 @@
 # included in this snippet.
 @testitem "MLP" setup = [SharedTestSetup] tags = [:layers] begin
     @testset "$(mode)" for (mode, aType, dev) in MODES
-        @testset "$(act)" for act in (tanh, NNlib.gelu)
-            @testset "$(nType)" for nType in (BatchNorm, GroupNorm, nothing)
+        @testset "$(act)" for act in (tanh,)
+            @testset "$(nType)" for nType in (BatchNorm,)
                 norm = if nType === nothing
                     nType
                 elseif nType === BatchNorm

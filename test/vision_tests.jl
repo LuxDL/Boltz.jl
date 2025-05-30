@@ -350,7 +350,12 @@ end
 @testitem "EfficientNet" setup = [SharedTestSetup, PretrainedWeightsTestSetup] tags = [
     :vision
 ] begin
-    for (mode, aType, dev) in MODES, name in [:b0, :b1, :b2, :b3, :b4, :b5, :b6, :b7]
+    all_names = if parse(Bool, get(ENV, "CI", "false"))
+        [:b0, :b1, :b2]
+    else
+        [:b0, :b1, :b2, :b3, :b4, :b5, :b6, :b7]
+    end
+    for (mode, aType, dev) in MODES, name in all_names
         @testset for pretrained in [false, true]
             model = Boltz.Vision.EfficientNet(name; pretrained)
             ps, st = Lux.setup(Random.default_rng(), model) |> dev
@@ -384,8 +389,13 @@ end
 end
 
 @testitem "VisionTransformer" setup = [SharedTestSetup] tags = [:vision] begin
-    for (mode, aType, dev) in MODES, name in [:tiny, :small, :base]
-        # :large, :huge, :giant, :gigantic --> too large for CI
+    all_names = if parse(Bool, get(ENV, "CI", "false"))
+        [:tiny, :small, :base]
+    else
+        [:tiny, :small, :base, :large, :huge, :giant, :gigantic]
+    end
+
+    for (mode, aType, dev) in MODES, name in all_names
         model = Vision.VisionTransformer(name; pretrained=false)
         ps, st = dev(Lux.setup(Random.default_rng(), model))
         st = Lux.testmode(st)
