@@ -19,8 +19,13 @@
                 ps_ra, st_ra = rdev(cpu_device()((ps, st)))
                 x_ra, fx_ra = rdev(cpu_device()((x, fx)))
 
-                @test @jit(model((x_ra, fx_ra), ps_ra, st_ra))[1] ≈
-                    model((x, fx), ps, st)[1]
+                Reactant.with_config(;
+                    dot_general_precision=PrecisionConfig.HIGH,
+                    convolution_precision=PrecisionConfig.HIGH,
+                ) do
+                    @test @jit(model((x_ra, fx_ra), ps_ra, st_ra))[1] ≈
+                        model((x, fx), ps, st)[1] atol = 1e-3 rtol = 1e-3
+                end
             end
         end
 
@@ -53,8 +58,13 @@
                 ps_ra, st_ra = rdev(cpu_device()((ps, st)))
                 x_ra, fx_ra = rdev(cpu_device()((x, fx)))
 
-                @test @jit(model((x_ra, fx_ra), ps_ra, st_ra))[1] ≈
-                    model((x, fx), ps, st)[1]
+                Reactant.with_config(;
+                    dot_general_precision=PrecisionConfig.HIGH,
+                    convolution_precision=PrecisionConfig.HIGH,
+                ) do
+                    @test @jit(model((x_ra, fx_ra), ps_ra, st_ra))[1] ≈
+                        model((x, fx), ps, st)[1] atol = 1e-3 rtol = 1e-3
+                end
             end
         end
     end

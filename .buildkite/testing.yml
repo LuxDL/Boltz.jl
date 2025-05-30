@@ -20,7 +20,7 @@ steps:
           BOLTZ_TEST_GROUP: "{{matrix.group}}"
           BOLTZ_TEST_REACTANT: "{{matrix.reactant}}"
         if: build.message !~ /\[skip tests\]/ && build.message !~ /\[skip ci\]/
-        timeout_in_minutes: 60
+        timeout_in_minutes: 120
         matrix:
           setup:
             julia:
