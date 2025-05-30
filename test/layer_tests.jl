@@ -1,7 +1,7 @@
 # Only tests that are not run via `vision` or other higher-level test suites are
 # included in this snippet.
 @testitem "MLP" setup = [SharedTestSetup] tags = [:layers] begin
-    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+    @testset "$(mode)" for (mode, aType, dev) in MODES
         @testset "$(act)" for act in (tanh, NNlib.gelu)
             @testset "$(nType)" for nType in (BatchNorm, GroupNorm, nothing)
                 norm = if nType === nothing
@@ -57,10 +57,12 @@ end
 
     _remove_nothing(xs) = map(x -> x === nothing ? 0 : x, xs)
 
-    @testset "$(mode): $(autodiff)" for (mode, aType, dev, ongpu) in MODES,
+    @testset "$(mode): $(autodiff)" for (mode, aType, dev) in MODES,
         autodiff in (nothing, AutoZygote(), AutoForwardDiff())
 
-        ongpu && autodiff === AutoForwardDiff() && continue
+        dev isa MLDataDevices.AbstractGPUDevice &&
+            autodiff === AutoForwardDiff() &&
+            continue
 
         hnn = Layers.HamiltonianNN{true}(Layers.MLP(2, (4, 4, 2), NNlib.gelu); autodiff)
         ps, st = dev(Lux.setup(StableRNG(0), hnn))
@@ -82,7 +84,7 @@ end
         )
         @test ∂x_zyg !== nothing
         @test ∂ps_zyg !== nothing
-        if !ongpu
+        if !(dev isa MLDataDevices.AbstractGPUDevice)
             ∂ps_zyg = _remove_nothing(getdata(dev(ComponentArray(cpu_device()(∂ps_zyg)))))
             ∂x_fd = ForwardDiff.gradient(x -> sum(abs2, first(hnn(x, ps, st))), x)
             ∂ps_fd = getdata(
@@ -105,7 +107,7 @@ end
         )
         @test ∂x_zyg !== nothing
         @test ∂ps_zyg !== nothing
-        if !ongpu
+        if !(dev isa MLDataDevices.AbstractGPUDevice)
             ∂ps_zyg = _remove_nothing(getdata(dev(ComponentArray(cpu_device()(∂ps_zyg)))))
             ∂x_fd = ForwardDiff.gradient(x -> sum(abs2, first(hnn(x, ps_ca, st))), x)
             ∂ps_fd = getdata(
@@ -138,7 +140,7 @@ end
 end
 
 @testitem "Tensor Product Layer" setup = [SharedTestSetup] tags = [:layers] begin
-    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+    @testset "$(mode)" for (mode, aType, dev) in MODES
         @testset "$(basis)" for basis in (
             Basis.Chebyshev,
             Basis.Sin,
@@ -198,7 +200,7 @@ end
 end
 
 @testitem "Basis Functions" setup = [SharedTestSetup] tags = [:layers] begin
-    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+    @testset "$(mode)" for (mode, aType, dev) in MODES
         @testset "$(basis)" for basis in (
             Basis.Chebyshev,
             Basis.Sin,
@@ -256,8 +258,8 @@ end
 @testitem "Spline Layer" setup = [SharedTestSetup] tags = [:integration] skip = true begin
     using ComponentArrays, DataInterpolations, ForwardDiff, Zygote, MLDataDevices
 
-    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
-        ongpu && continue
+    @testset "$(mode)" for (mode, aType, dev) in MODES
+        dev isa MLDataDevices.AbstractGPUDevice && continue
 
         @testset "$(spl): train_grid $(train_grid), dims $(dims)" for spl in (
                 ConstantInterpolation,
@@ -303,7 +305,7 @@ end
 end
 
 @testitem "Periodic Embedding" setup = [SharedTestSetup] tags = [:layers] begin
-    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+    @testset "$(mode)" for (mode, aType, dev) in MODES
         layer = Layers.PeriodicEmbedding([2, 3], [4.0, π / 5])
         ps, st = dev(Lux.setup(StableRNG(0), layer))
         x = aType(randn(StableRNG(0), 6, 4, 3, 2))
@@ -388,7 +390,7 @@ end
         @test_gradients(__f, x, ps; atol=1.0e-3, rtol=1.0e-3, skip_backends=[AutoEnzyme()])
     end
 
-    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+    @testset "$(mode)" for (mode, aType, dev) in MODES
         layer = Layers.DynamicExpressionsLayer(operators, expr_1)
         ps, st = dev(Lux.setup(StableRNG(0), layer))
 
@@ -404,7 +406,7 @@ end
 end
 
 @testitem "Positive Definite Container" setup = [SharedTestSetup] tags = [:layers] begin
-    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+    @testset "$(mode)" for (mode, aType, dev) in MODES
         model = Layers.MLP(2, (4, 4, 2), gelu)
         pd = Layers.PositiveDefinite(model; in_dims=2)
         ps, st = dev(Lux.setup(StableRNG(0), pd))
@@ -420,7 +422,11 @@ end
         @test maximum(abs, y - y_by_hand) < 1.0f-8
 
         __f = (x, ps) -> sum(first(pd(x, ps, st)))
-        broken_backends = ongpu ? [AutoTracker()] : [AutoReverseDiff(), AutoEnzyme()]
+        broken_backends = if dev isa MLDataDevices.AbstractGPUDevice
+            [AutoTracker()]
+        else
+            [AutoReverseDiff(), AutoEnzyme()]
+        end
         @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
 
         pd2 = Layers.PositiveDefinite(model, ones(2))
@@ -456,7 +462,7 @@ end
 end
 
 @testitem "ShiftTo Container" setup = [SharedTestSetup] tags = [:layers] begin
-    @testset "$(mode)" for (mode, aType, dev, ongpu) in MODES
+    @testset "$(mode)" for (mode, aType, dev) in MODES
         model = Layers.MLP(2, (4, 4, 2), gelu)
         shiftto = Layers.ShiftTo(model, ones(Float32, 2), zeros(Float32, 2))
         ps, st = Lux.setup(StableRNG(0), shiftto) |> dev
@@ -467,7 +473,11 @@ end
         x = randn(StableRNG(0), Float32, 2, 2) |> aType
 
         __f = (x, ps) -> sum(first(shiftto(x, ps, st)))
-        broken_backends = ongpu ? [] : [AutoEnzyme()]
+        broken_backends = if dev isa MLDataDevices.AbstractGPUDevice
+            []
+        else
+            [AutoEnzyme()]
+        end
         @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
 
         if test_reactant(mode)

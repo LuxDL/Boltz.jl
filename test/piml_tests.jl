@@ -1,5 +1,5 @@
 @testitem "Transolver" setup = [SharedTestSetup] tags = [:piml] begin
-    for (mode, aType, dev, ongpu) in MODES
+    for (mode, aType, dev) in MODES
         @testset "Base Model" begin
             model = PIML.Transolver(;
                 func_dim=6, spatial_dim=3, nheads=8, num_layers=1, out_dim=2

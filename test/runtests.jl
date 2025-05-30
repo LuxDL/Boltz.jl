@@ -44,34 +44,17 @@ end
 
 using Boltz
 
-const RETESTITEMS_NWORKERS = parse(
-    Int, get(ENV, "RETESTITEMS_NWORKERS", string(min(Hwloc.num_physical_cores(), 4)))
-)
-
 @testset "Boltz.jl Tests" begin
-    @testset "[$(tag)] [$(i)/$(length(BOLTZ_TEST_GROUP))]" for (i, tag) in
-                                                               enumerate(BOLTZ_TEST_GROUP)
-        nworkers = ifelse(
-            BACKEND_GROUP ∈ ("cuda", "amdgpu") &&
-            (tag == "vision" || tag == "vision_metalhead"),
-            0,
-            RETESTITEMS_NWORKERS,
-        )
-        nworker_threads = parse(
-            Int,
-            get(
-                ENV,
-                "RETESTITEMS_NWORKER_THREADS",
-                string(max(Hwloc.num_virtual_cores() ÷ max(nworkers, 1), 1)),
-            ),
-        )
-
+    @testset for (i, tag) in enumerate(BOLTZ_TEST_GROUP)
         ReTestItems.runtests(
             Boltz;
             tags=(tag == "all" ? nothing : [Symbol(tag)]),
             testitem_timeout=2400,
-            nworkers,
-            nworker_threads,
+            nworkers=0,
+            nworker_threads=parse(
+                Int,
+                get(ENV, "RETESTITEMS_NWORKER_THREADS", string(Hwloc.num_virtual_cores())),
+            ),
         )
     end
 end

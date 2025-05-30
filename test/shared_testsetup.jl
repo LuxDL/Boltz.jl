@@ -48,13 +48,13 @@ end
 
 const MODES = begin
     modes = []
-    cpu_testing() && push!(modes, ("cpu", Array, CPUDevice(), false))
+    cpu_testing() && push!(modes, ("cpu", Array, CPUDevice()))
     if !BOLTZ_TEST_REACTANT
-        cuda_testing() && push!(modes, ("cuda", CuArray, CUDADevice(), true))
-        amdgpu_testing() && push!(modes, ("amdgpu", ROCArray, AMDGPUDevice(), true))
+        cuda_testing() && push!(modes, ("cuda", CuArray, CUDADevice()))
+        amdgpu_testing() && push!(modes, ("amdgpu", ROCArray, AMDGPUDevice()))
     else
         if BACKEND_GROUP == "cuda" || BACKEND_GROUP == "all"
-            push!(modes, ("cuda", Array, CPUDevice(), true))
+            push!(modes, ("cuda", Array, CPUDevice()))
         end
     end
     modes
