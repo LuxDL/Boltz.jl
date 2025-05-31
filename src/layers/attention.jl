@@ -53,26 +53,15 @@ end
 Physics self-attention layer used in neural PDE solvers. See [luo2025transolver++](@citep)  and [wu2024transolver](@citep) for more details.
 """
 @concrete struct PhysicsSelfAttentionIrregularMesh <: AbstractLuxContainerLayer{(
-    :input_project_x,
-    :input_project_fx,
-    :input_project_slice,
-    :q_layer,
-    :k_layer,
-    :v_layer,
-    :out_layer,
-    :dropout_layer,
+    :input_project_x, :input_project_fx, :input_project_slice, :mha_layer, :out_layer
 )}
     input_project_x
     input_project_fx
     input_project_slice
-    q_layer
-    k_layer
-    v_layer
     out_layer
-    dropout_layer
+    mha_layer
     nheads::Int
     dim_head::Int
-    slice_num::Int
 end
 
 function PhysicsSelfAttentionIrregularMesh(
@@ -93,14 +82,15 @@ function PhysicsSelfAttentionIrregularMesh(
                 use_bias=false,
             ),
         ),
-        Lux.Dense(dim_head => dim_head; use_bias=false),
-        Lux.Dense(dim_head => dim_head; use_bias=false),
-        Lux.Dense(dim_head => dim_head; use_bias=false),
         Lux.Chain(Lux.Dense(inner_dim => dim), Lux.Dropout(dropout_rate)),
-        Lux.Dropout(dropout_rate),
+        Lux.MultiHeadAttention(
+            dim_head;
+            nheads=1,
+            dense_kwargs=(; use_bias=false),
+            attention_dropout_probability=dropout_rate,
+        ),
         nheads,
         dim_head,
-        slice_num,
     )
 end
 
@@ -129,15 +119,12 @@ function (model::PhysicsSelfAttentionIrregularMesh)(x::AbstractArray{T,3}, ps, s
     slice_token = slice_token ./ (slice_norm .+ T(1e-5)) # C G H B
 
     # (2) Attention among slice tokens
-    q_slice_token, st_q = model.q_layer(slice_token, ps.q_layer, st.q_layer) # C G H B
-    k_slice_token, st_k = model.k_layer(slice_token, ps.k_layer, st.k_layer) # C G H B
-    v_slice_token, st_v = model.v_layer(slice_token, ps.v_layer, st.v_layer) # C G H B
-    dots =
-        NNlib.batched_mul(q_slice_token, permutedims(k_slice_token, (2, 1, 3, 4))) ./
-        T(sqrt(model.dim_head))
-    attn = NNlib.softmax(dots; dims=1)
-    attn, st_dropout = model.dropout_layer(attn, ps.dropout_layer, st.dropout_layer)
-    out_slice_token = NNlib.batched_mul(attn, v_slice_token) # C G H B
+    (out_slice_token, α), st_attn = model.mha_layer(
+        reshape(slice_token, model.dim_head, :, model.nheads * B),
+        ps.mha_layer,
+        st.mha_layer,
+    )
+    out_slice_token = reshape(out_slice_token, model.dim_head, :, model.nheads, B) # C G H B
 
     # (3) Deslice
     out_x = NNlib.batched_mul(out_slice_token, slice_weights) # C N H B
@@ -151,11 +138,8 @@ function (model::PhysicsSelfAttentionIrregularMesh)(x::AbstractArray{T,3}, ps, s
             input_project_fx=st_in_project_fx,
             input_project_x=st_in_project_x,
             input_project_slice=st_in_project_slice,
-            q_layer=st_q,
-            k_layer=st_k,
-            v_layer=st_v,
+            mha_layer=st_attn,
             out_layer=st_out,
-            dropout_layer=st_dropout,
         ),
     )
 end
