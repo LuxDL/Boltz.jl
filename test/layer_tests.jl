@@ -168,7 +168,7 @@ end
                 ps;
                 atol=1e-3,
                 rtol=1e-3,
-                skip_backends=[AutoTracker(), AutoEnzyme(), AutoReverseDiff()],
+                skip_backends=[AutoTracker(), AutoEnzyme(), AutoReverseDiff()]
             )
 
             if test_reactant(mode)
