@@ -77,7 +77,7 @@ function (pd::PositiveDefinite)(x::AbstractMatrix, ps, st)
     ϕ0, new_model_st = pd.model(reshape(st.x0, :, 1), ps, st.model)
     ϕx, final_model_st = pd.model(x, ps, new_model_st)
     return (
-        mapreduce(hcat, zip(eachcol(x), eachcol(ϕx)); init=similar(x, 1, 0)) do (x, ϕx)
+        mapfoldl(hcat, zip(eachcol(x), eachcol(ϕx)); init=similar(x, 1, 0)) do (x, ϕx)
             pd.ψ(ϕx - ϕ0) + pd.r(x, st.x0)
         end,
         merge(st, (; model=final_model_st)),
