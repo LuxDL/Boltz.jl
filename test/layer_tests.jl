@@ -18,11 +18,12 @@
 
                 x = randn(Float32, 2, 2) |> aType
 
-                __f = (x, ps) -> sum(abs2, first(model(x, ps, st)))
                 @test_gradients(
-                    __f,
+                    sumabs2first,
+                    Constant(model),
                     x,
-                    ps;
+                    ps,
+                    Constant(st);
                     atol=1e-3,
                     rtol=1e-3,
                     soft_fail=[AutoFiniteDiff()],
@@ -161,14 +162,15 @@ end
             y, st = tensor_project(x, ps, st)
             @test size(y) == (2, 4, 5)
 
-            __f = (x, ps) -> sum(abs2, first(tensor_project(x, ps, st)))
             @test_gradients(
-                __f,
+                sumabs2first,
+                Constant(tensor_project),
                 x,
-                ps;
+                ps,
+                Constant(st);
                 atol=1e-3,
                 rtol=1e-3,
-                skip_backends=[AutoTracker(), AutoEnzyme(), AutoReverseDiff()]
+                skip_backends=[AutoEnzyme()]
             )
 
             if test_reactant(mode)
@@ -318,8 +320,16 @@ end
             isapprox.(val[5:8, :, :, :], shifted_val[5:8, :, :, :]; atol=5 * eps(Float32))
         )
 
-        __f = x -> sum(first(layer(x, ps, st)))
-        @test_gradients(__f, x; atol=1.0f-3, rtol=1.0f-3, enzyme_set_runtime_activity=true)
+        @test_gradients(
+            sumabs2first,
+            Constant(layer),
+            x,
+            ps,
+            Constant(st);
+            atol=1.0f-3,
+            rtol=1.0f-3,
+            enzyme_set_runtime_activity=true
+        )
 
         if test_reactant(mode)
             set_reactant_backend!(mode)
@@ -365,8 +375,17 @@ end
 
         y, st_ = layer(x, ps, st)
         @test eltype(y) == Float32
-        __f = (x, p) -> sum(abs2, first(layer(x, p, st)))
-        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, skip_backends=[AutoEnzyme()])
+
+        @test_gradients(
+            sumabs2first,
+            Constant(layer),
+            x,
+            ps,
+            Constant(st);
+            atol=1.0f-3,
+            rtol=1.0f-3,
+            skip_backends=[AutoEnzyme()]
+        )
 
         # Particular ForwardDiff dispatches
         ps_ca = ComponentArray(ps)
@@ -386,8 +405,17 @@ end
         x = Float64.(x)
         y, st_ = layer(x, ps, st)
         @test eltype(y) == Float64
-        __f = (x, p) -> sum(abs2, first(layer(x, p, st)))
-        @test_gradients(__f, x, ps; atol=1.0e-3, rtol=1.0e-3, skip_backends=[AutoEnzyme()])
+
+        @test_gradients(
+            sumabs2first,
+            Constant(layer),
+            x,
+            ps,
+            Constant(st);
+            atol=1.0e-3,
+            rtol=1.0e-3,
+            skip_backends=[AutoEnzyme()]
+        )
     end
 
     @testset "$(mode)" for (mode, aType, dev) in MODES
@@ -421,13 +449,16 @@ end
 
         @test maximum(abs, y - y_by_hand) < 1.0f-8
 
-        __f = (x, ps) -> sum(first(pd(x, ps, st)))
-        broken_backends = if dev isa MLDataDevices.AbstractGPUDevice
-            [AutoTracker()]
-        else
-            [AutoReverseDiff(), AutoEnzyme()]
-        end
-        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
+        @test_gradients(
+            sumabs2first,
+            Constant(pd),
+            x,
+            ps,
+            Constant(st);
+            atol=1.0f-3,
+            rtol=1.0f-3,
+            broken_backends=[AutoEnzyme()]
+        )
 
         pd2 = Layers.PositiveDefinite(model, ones(2))
         ps, st = dev(Lux.setup(StableRNG(0), pd2))
@@ -472,13 +503,16 @@ end
 
         x = randn(StableRNG(0), Float32, 2, 2) |> aType
 
-        __f = (x, ps) -> sum(first(shiftto(x, ps, st)))
-        broken_backends = if dev isa MLDataDevices.AbstractGPUDevice
-            []
-        else
-            [AutoEnzyme()]
-        end
-        @test_gradients(__f, x, ps; atol=1.0f-3, rtol=1.0f-3, broken_backends)
+        @test_gradients(
+            sumabs2first,
+            Constant(shiftto),
+            x,
+            ps,
+            Constant(st);
+            atol=1.0f-3,
+            rtol=1.0f-3,
+            broken_backends=[AutoEnzyme()]
+        )
 
         if test_reactant(mode)
             set_reactant_backend!(mode)

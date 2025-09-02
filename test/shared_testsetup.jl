@@ -3,7 +3,7 @@
 import Reexport: @reexport
 @reexport using Boltz, Lux, GPUArraysCore, LuxLib, LuxTestUtils, Random, StableRNGs, NNlib
 using MLDataDevices, JLD2, Enzyme, Zygote
-using LuxTestUtils: check_approx
+using LuxTestUtils: Constant, check_approx
 
 const BOLTZ_TEST_REACTANT = parse(Bool, lowercase(get(ENV, "BOLTZ_TEST_REACTANT", "true")))
 
@@ -96,6 +96,7 @@ export MODES,
     set_reactant_backend!,
     compute_reactant_gradient,
     compute_zygote_gradient,
-    check_approx
+    check_approx,
+    Constant
 
 end
