@@ -97,6 +97,7 @@ export MODES,
     compute_reactant_gradient,
     compute_zygote_gradient,
     check_approx,
-    Constant
+    Constant,
+    sumabs2first
 
 end

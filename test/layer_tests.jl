@@ -256,8 +256,7 @@ end
     end
 end
 
-# Unskip once https://github.com/SciML/DataInterpolations.jl/pull/414 lands
-@testitem "Spline Layer" setup = [SharedTestSetup] tags = [:integration] skip = true begin
+@testitem "Spline Layer" setup = [SharedTestSetup] tags = [:integration] begin
     using ComponentArrays, DataInterpolations, ForwardDiff, Zygote, MLDataDevices
 
     @testset "$(mode)" for (mode, aType, dev) in MODES
@@ -352,7 +351,6 @@ end
     end
 end
 
-# TODO: enable once https://github.com/SymbolicML/DynamicExpressions.jl/pull/119 lands
 @testitem "Dynamic Expressions Layer" setup = [SharedTestSetup] tags = [:integration] begin
     using DynamicExpressions, ForwardDiff, ComponentArrays
 
