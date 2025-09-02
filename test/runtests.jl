@@ -1,4 +1,4 @@
-using ReTestItems, Pkg, Hwloc, Test
+using ReTestItems, Pkg, CPUSummary, Test
 
 const ALL_BOTLZ_TEST_GROUPS = [
     "layers", "others", "vision", "vision_metalhead", "integration", "piml"
@@ -51,24 +51,37 @@ end
 
 using Boltz
 
+const RETESTITEMS_NWORKERS = parse(
+    Int,
+    get(
+        ENV,
+        "RETESTITEMS_NWORKERS",
+        string(min(Int(CPUSummary.num_cores()), Sys.isapple() ? 2 : 4)),
+    ),
+)
+
+const RETESTITEMS_NWORKER_THREADS = parse(
+    Int,
+    get(
+        ENV,
+        "RETESTITEMS_NWORKER_THREADS",
+        string(max(Int(CPUSummary.sys_threads()) ÷ RETESTITEMS_NWORKERS, 1)),
+    ),
+)
+
 @testset "Boltz.jl Tests" begin
     @testset for (i, tag) in enumerate(BOLTZ_TEST_GROUP)
         withenv(
-            "BOLTZ_TEST_REACTANT" => BOLTZ_TEST_REACTANT, "BACKEND_GROUP" => BACKEND_GROUP
+            "BOLTZ_TEST_REACTANT" => BOLTZ_TEST_REACTANT,
+            "BACKEND_GROUP" => BACKEND_GROUP,
+            "XLA_REACTANT_GPU_MEM_FRACTION" => 1 / (RETESTITEMS_NWORKERS + 0.1),
         ) do
             ReTestItems.runtests(
                 Boltz;
                 tags=(tag == "all" ? nothing : [Symbol(tag)]),
                 testitem_timeout=2400,
-                nworkers=0,
-                nworker_threads=parse(
-                    Int,
-                    get(
-                        ENV,
-                        "RETESTITEMS_NWORKER_THREADS",
-                        string(Hwloc.num_virtual_cores()),
-                    ),
-                ),
+                nworkers=RETESTITEMS_NWORKERS,
+                nworker_threads=RETESTITEMS_NWORKER_THREADS,
             )
         end
     end
