@@ -57,12 +57,12 @@ function safe_kron_internal(a::AbstractVector, b::AbstractVector)
     return safe_kron_internal(get_device_type((a, b)), a, b)
 end
 
-safe_kron_internal(::Type{CPUDevice}, a::AbstractVector, b::AbstractVector) = kron(a, b)
-function safe_kron_internal(::Type{ReactantDevice}, a::AbstractVector, b::AbstractVector)
+function safe_kron_internal(
+    ::Type{<:Union{CPUDevice,ReactantDevice,CUDADevice}},
+    a::AbstractVector,
+    b::AbstractVector,
+)
     return kron(a, b)
-end
-function safe_kron_internal(::Type{CUDADevice}, a::AbstractVector, b::AbstractVector)
-    return vec(kron(reshape(a, :, 1), reshape(b, 1, :)))
 end
 function safe_kron_internal(::Type{D}, a::AbstractVector, b::AbstractVector) where {D}
     safe_warning("`kron` is not supported on $(D). Falling back to `kron` on CPU.")

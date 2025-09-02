@@ -110,9 +110,7 @@ function (model::PhysicsSelfAttentionIrregularMesh)(x::AbstractArray{T,3}, ps, s
     x_mid = reshape(x_mid, model.dim_head, model.nheads, N, B) # C H N B
 
     slice_weights, st_in_project_slice = model.input_project_slice(
-        x_mid,
-        ps.input_project_slice,
-        st.input_project_slice,
+        x_mid, ps.input_project_slice, st.input_project_slice
     ) # G H N B
     slice_weights = NNlib.softmax(slice_weights; dims=1) # G H N B
     slice_norm = reshape(sum(slice_weights; dims=3), 1, :, model.nheads, B) # 1 G H B
