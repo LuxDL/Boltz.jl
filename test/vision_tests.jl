@@ -36,7 +36,12 @@ function imagenet_acctest(model, ps, st, dev; size=224)
     x = dev(TEST_X)
 
     if dev isa ReactantDevice
-        model = @compile model(x, ps, st)
+        model = Reactant.with_config(;
+            dot_general_precision=PrecisionConfig.HIGH,
+            convolution_precision=PrecisionConfig.HIGH,
+        ) do
+            @compile model(x, ps, st)
+        end
     end
 
     ypred = vec(collect(cpu_device()(first(model(x, ps, st)))))
@@ -71,8 +76,13 @@ end
 
                 ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
-                    1e-3 rtol = 1e-3
+                Reactant.with_config(;
+                    dot_general_precision=PrecisionConfig.HIGH,
+                    convolution_precision=PrecisionConfig.HIGH,
+                ) do
+                    @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                        1e-3 rtol = 1e-3
+                end
 
                 if pretrained
                     @test imagenet_acctest(model, ps, st, rdev)
@@ -104,8 +114,13 @@ end
 
             ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-            @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol = 1e-3 rtol =
-                1e-3
+            Reactant.with_config(;
+                dot_general_precision=PrecisionConfig.HIGH,
+                convolution_precision=PrecisionConfig.HIGH,
+            ) do
+                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                    1e-3 rtol = 1e-3
+            end
         end
     end
 end
@@ -132,8 +147,13 @@ end
 
             ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-            @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol = 1e-3 rtol =
-                1e-3
+            Reactant.with_config(;
+                dot_general_precision=PrecisionConfig.HIGH,
+                convolution_precision=PrecisionConfig.HIGH,
+            ) do
+                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                    1e-3 rtol = 1e-3
+            end
         end
     end
 end
@@ -160,8 +180,13 @@ end
 
             ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-            @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol = 1e-3 rtol =
-                1e-3
+            Reactant.with_config(;
+                dot_general_precision=PrecisionConfig.HIGH,
+                convolution_precision=PrecisionConfig.HIGH,
+            ) do
+                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                    1e-3 rtol = 1e-3
+            end
         end
     end
 end
@@ -195,8 +220,13 @@ end
 
                 ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
-                    1e-3 rtol = 1e-3
+                Reactant.with_config(;
+                    dot_general_precision=PrecisionConfig.HIGH,
+                    convolution_precision=PrecisionConfig.HIGH,
+                ) do
+                    @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                        1e-3 rtol = 1e-3
+                end
 
                 if pretrained
                     @test imagenet_acctest(model, ps, st, rdev)
@@ -238,8 +268,13 @@ end
 
                     ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-                    @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
-                        1e-3 rtol = 1e-3
+                    Reactant.with_config(;
+                        dot_general_precision=PrecisionConfig.HIGH,
+                        convolution_precision=PrecisionConfig.HIGH,
+                    ) do
+                        @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                            1e-3 rtol = 1e-3
+                    end
 
                     if pretrained
                         @test imagenet_acctest(model, ps, st, rdev)
@@ -280,8 +315,13 @@ end
 
                 ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
-                    1e-3 rtol = 1e-3
+                Reactant.with_config(;
+                    dot_general_precision=PrecisionConfig.HIGH,
+                    convolution_precision=PrecisionConfig.HIGH,
+                ) do
+                    @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                        1e-3 rtol = 1e-3
+                end
             end
         end
     end
@@ -314,8 +354,13 @@ end
 
                 ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
-                    1e-3 rtol = 1e-3
+                Reactant.with_config(;
+                    dot_general_precision=PrecisionConfig.HIGH,
+                    convolution_precision=PrecisionConfig.HIGH,
+                ) do
+                    @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                        1e-3 rtol = 1e-3
+                end
 
                 if pretrained
                     @test imagenet_acctest(model, ps, st, rdev)
@@ -353,8 +398,13 @@ end
 
                 ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
-                    1e-3 rtol = 1e-3
+                Reactant.with_config(;
+                    dot_general_precision=PrecisionConfig.HIGH,
+                    convolution_precision=PrecisionConfig.HIGH,
+                ) do
+                    @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                        1e-3 rtol = 1e-3
+                end
 
                 if pretrained
                     @test imagenet_acctest(model, ps, st, rdev)
@@ -394,8 +444,13 @@ end
 
                 ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
-                    1e-3 rtol = 1e-3
+                Reactant.with_config(;
+                    dot_general_precision=PrecisionConfig.HIGH,
+                    convolution_precision=PrecisionConfig.HIGH,
+                ) do
+                    @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                        1e-3 rtol = 1e-3
+                end
 
                 if pretrained
                     @test imagenet_acctest(model, ps, st, rdev)
@@ -438,8 +493,13 @@ end
 
             ps_ra, st_ra, img_ra = rdev(cpu_device()((ps, st, img)))
 
-            @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol = 1e-3 rtol =
-                1e-3
+            Reactant.with_config(;
+                dot_general_precision=PrecisionConfig.HIGH,
+                convolution_precision=PrecisionConfig.HIGH,
+            ) do
+                @test @jit(model(img_ra, ps_ra, st_ra))[1] ≈ model(img, ps, st)[1] atol =
+                    1e-3 rtol = 1e-3
+            end
         end
     end
 end
