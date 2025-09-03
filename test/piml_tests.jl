@@ -1,8 +1,8 @@
 @testitem "Transolver" setup = [SharedTestSetup] tags = [:piml] begin
     for (mode, aType, dev) in MODES
-        @testset "Base Model" begin
+        @testset "Base Model: $(use_rms_norm)" for use_rms_norm in (true, false)
             model = PIML.Transolver(;
-                func_dim=6, spatial_dim=3, nheads=8, num_layers=1, out_dim=2
+                func_dim=6, spatial_dim=3, nheads=8, num_layers=1, out_dim=2, use_rms_norm
             )
             ps, st = dev(Lux.setup(Random.default_rng(), model))
             x = aType(randn(Float32, 3, 32, 4))
@@ -29,7 +29,7 @@
             end
         end
 
-        @testset "Conditioned Model" begin
+        @testset "Conditioned Model: $(use_rms_norm)" for use_rms_norm in (true, false)
             hidden_dim = 128
             activation = gelu
             preprocess = Parallel(
@@ -41,7 +41,9 @@
                 ),
             )
 
-            model = PIML.Transolver(; nheads=8, num_layers=1, out_dim=2, preprocess)
+            model = PIML.Transolver(;
+                nheads=8, num_layers=1, out_dim=2, preprocess, use_rms_norm
+            )
             ps, st = dev(Lux.setup(Random.default_rng(), model))
 
             x = aType(randn(Float32, 3, 32, 4))

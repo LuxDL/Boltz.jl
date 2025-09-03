@@ -13,15 +13,21 @@ function TransolverBlock(;
     slice_num::Int=32,
     geometry_kind::Symbol=:unstructured,
     shapelist=nothing,
+    use_rms_norm::Bool=false,
 )
     @assert geometry_kind === :unstructured "Transolver currently only supports \
                                              unstructured mesh"
+    norm_layer = if use_rms_norm
+        Lux.RMSNorm(hidden_dim)
+    else
+        Lux.LayerNorm(hidden_dim; dims=nothing)
+    end
 
     return TransolverBlock(
         Lux.Chain(
             Lux.SkipConnection(
                 Lux.Chain(
-                    Lux.LayerNorm(hidden_dim; dims=nothing),
+                    norm_layer,
                     PhysicsSelfAttentionIrregularMesh(
                         hidden_dim;
                         nheads,
@@ -35,17 +41,14 @@ function TransolverBlock(;
             ),
             Lux.SkipConnection(
                 Lux.Chain(
-                    Lux.LayerNorm(hidden_dim; dims=nothing),
+                    norm_layer,
                     Lux.Dense(hidden_dim => hidden_dim * mlp_ratio, activation),
                     Lux.Dense(hidden_dim * mlp_ratio => hidden_dim),
                 ),
                 +,
             ),
             if last_layer
-                Lux.Chain(
-                    Lux.LayerNorm(hidden_dim; dims=nothing),
-                    Lux.Dense(hidden_dim => out_dim),
-                )
+                Lux.Chain(norm_layer, Lux.Dense(hidden_dim => out_dim))
             else
                 Lux.NoOpLayer()
             end,
@@ -73,6 +76,7 @@ end
         last_layer::Bool=false,
         slice_num::Int=32,
         shapelist=nothing,
+        use_rms_norm::Bool=false,
     )
 
 Implements the Transolver model from [wu2024transolver](@citep). Currently we only support

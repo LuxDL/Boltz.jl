@@ -191,7 +191,7 @@ Y_train = mlp[2](X_train, trained_ude.ps.mlp.layer_2, trained_ude.st.mlp.layer_2
 
 # ### Fitting the Symbolic Expression
 
-# We will follow the example from [SymbolicRegression.jl docs](https://astroautomata.com/SymbolicRegression.jl/dev/examples/)
+# We will follow the example from [SymbolicRegression.jl docs](https://ai.damtp.cam.ac.uk/symbolicregression/dev/)
 # to fit the symbolic expression.
 
 srmodel = MultitargetSRRegressor(;

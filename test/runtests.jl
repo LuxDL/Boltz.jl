@@ -1,4 +1,4 @@
-using ReTestItems, Pkg, Hwloc, Test
+using ReTestItems, Pkg, CPUSummary, Test
 
 const ALL_BOTLZ_TEST_GROUPS = [
     "layers", "others", "vision", "vision_metalhead", "integration", "piml"
@@ -34,16 +34,6 @@ end
 const BACKEND_GROUP = lowercase(get(PARSED_TEST_ARGS, "BACKEND_GROUP", "all"))
 const EXTRA_PKGS = String[]
 
-if "all" ∈ BOLTZ_TEST_GROUP || "integration" ∈ BOLTZ_TEST_GROUP
-    # TODO: enable once https://github.com/SciML/DataInterpolations.jl/pull/414  lands
-    # append!(EXTRA_PKGS, ["DataInterpolations"])
-    # TODO: enable once https://github.com/SymbolicML/DynamicExpressions.jl/pull/119 lands
-    append!(EXTRA_PKGS, ["DynamicExpressions"])
-end
-if "all" ∈ BOLTZ_TEST_GROUP || "vision_metalhead" ∈ BOLTZ_TEST_GROUP
-    push!(EXTRA_PKGS, "Metalhead")
-end
-
 (BACKEND_GROUP == "all" || BACKEND_GROUP == "cuda") &&
     !BOLTZ_TEST_REACTANT &&
     push!(EXTRA_PKGS, "LuxCUDA")
@@ -61,24 +51,37 @@ end
 
 using Boltz
 
+const RETESTITEMS_NWORKERS = parse(
+    Int,
+    get(
+        ENV,
+        "RETESTITEMS_NWORKERS",
+        string(min(Int(CPUSummary.num_cores()), Sys.isapple() ? 2 : 4)),
+    ),
+)
+
+const RETESTITEMS_NWORKER_THREADS = parse(
+    Int,
+    get(
+        ENV,
+        "RETESTITEMS_NWORKER_THREADS",
+        string(max(Int(CPUSummary.sys_threads()) ÷ RETESTITEMS_NWORKERS, 1)),
+    ),
+)
+
 @testset "Boltz.jl Tests" begin
     @testset for (i, tag) in enumerate(BOLTZ_TEST_GROUP)
         withenv(
-            "BOLTZ_TEST_REACTANT" => BOLTZ_TEST_REACTANT, "BACKEND_GROUP" => BACKEND_GROUP
+            "BOLTZ_TEST_REACTANT" => BOLTZ_TEST_REACTANT,
+            "BACKEND_GROUP" => BACKEND_GROUP,
+            "XLA_REACTANT_GPU_MEM_FRACTION" => 1 / (RETESTITEMS_NWORKERS + 0.1),
         ) do
             ReTestItems.runtests(
                 Boltz;
                 tags=(tag == "all" ? nothing : [Symbol(tag)]),
                 testitem_timeout=2400,
-                nworkers=0,
-                nworker_threads=parse(
-                    Int,
-                    get(
-                        ENV,
-                        "RETESTITEMS_NWORKER_THREADS",
-                        string(Hwloc.num_virtual_cores()),
-                    ),
-                ),
+                nworkers=RETESTITEMS_NWORKERS,
+                nworker_threads=RETESTITEMS_NWORKER_THREADS,
             )
         end
     end
