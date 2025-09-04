@@ -28,6 +28,7 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
 Aqua = "0.8.7"
+CPUSummary = "0.2"
 ComponentArrays = "0.15.16"
 DataInterpolations = "8"
 Downloads = "1.6"
