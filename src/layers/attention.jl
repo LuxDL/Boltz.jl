@@ -157,3 +157,79 @@ function (model::PhysicsSelfAttentionIrregularMesh)(x::AbstractArray{T,3}, ps, s
         ),
     )
 end
+
+@concrete struct FLARE <: AbstractLuxContainerLayer{(:k_proj, :v_proj, :out_proj)}
+    k_proj
+    v_proj
+    out_proj
+    channel_dim::Int
+    num_latents::Int
+    num_heads::Int
+    head_dim::Int
+end
+
+function LuxCore.initialparameters(rng::AbstractRNG, m::FLARE)
+    return (;
+        k_proj=LuxCore.initialparameters(rng, m.k_proj),
+        v_proj=LuxCore.initialparameters(rng, m.v_proj),
+        out_proj=LuxCore.initialparameters(rng, m.out_proj),
+        latent_q=randn32(rng, m.head_dim, m.num_heads, m.num_latents, 1) .* 0.1f0,
+    )
+end
+
+function FLARE(;
+    channel_dim::Int,
+    kv_proj_hidden_dim::Int,
+    num_heads::Union{Int,Nothing}=nothing,
+    num_latents::Int=32,
+    num_layers_kv_proj::Int=1,
+    activation=identity,
+)
+    num_heads = num_heads === nothing ? channel_dim ÷ 8 : num_heads
+    @argcheck channel_dim % num_heads == 0
+    head_dim = channel_dim ÷ num_heads
+
+    k_proj = MLP(
+        channel_dim,
+        [[kv_proj_hidden_dim for _ in 1:(num_layers_kv_proj - 1)]..., channel_dim],
+        activation;
+        dense_kwargs=(; use_bias=false),
+    )
+    v_proj = MLP(
+        channel_dim,
+        [[kv_proj_hidden_dim for _ in 1:(num_layers_kv_proj - 1)]..., channel_dim],
+        activation;
+        dense_kwargs=(; use_bias=false),
+    )
+
+    return FLARE(
+        k_proj,
+        v_proj,
+        Lux.Dense(channel_dim, channel_dim),
+        channel_dim,
+        num_latents,
+        num_heads,
+        head_dim,
+    )
+end
+
+function (m::FLARE)(x::AbstractArray{T,3}, ps, st) where {T}
+    C, N, B = size(x)
+    @argcheck C == m.channel_dim
+
+    q = repeat(ps.latent_q, 1, 1, 1, B) # D H L B
+
+    k_p, st_k_proj = m.k_proj(x, ps.k_proj, st.k_proj)
+    k = reshape(k_p, m.head_dim, m.num_heads, N, B) # D H N B
+
+    v_p, st_v_proj = m.v_proj(x, ps.v_proj, st.v_proj)
+    v = reshape(v_p, m.head_dim, m.num_heads, N, B) # D H N B
+
+    z, _ = scaled_dot_product_attention(q, k, v; scale=1)
+    y, _ = scaled_dot_product_attention(k, q, z; scale=1) # D H N B
+    y = reshape(y, m.channel_dim, N, B) # C N B
+
+    out, st_out_proj = m.out_proj(y, ps.out_proj, st.out_proj)
+
+    return (out, (; k_proj=st_k_proj, v_proj=st_v_proj, out_proj=st_out_proj))
+end

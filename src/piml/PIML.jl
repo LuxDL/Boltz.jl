@@ -12,9 +12,10 @@ using LuxCore: LuxCore, AbstractLuxLayer, AbstractLuxContainerLayer, AbstractLux
 using NNlib: NNlib
 using WeightInitializers: truncated_normal, zeros32, randn32
 
-using ..Layers: PhysicsSelfAttentionIrregularMesh
+using ..Layers: Layers, PhysicsSelfAttentionIrregularMesh
 
 include("transolver.jl")
+include("flare.jl")
 
 @compat(public, (Transolver,))
 
