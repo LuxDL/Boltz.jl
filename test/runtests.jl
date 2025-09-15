@@ -34,9 +34,6 @@ end
 const BACKEND_GROUP = lowercase(get(PARSED_TEST_ARGS, "BACKEND_GROUP", "all"))
 const EXTRA_PKGS = String[]
 
-(BACKEND_GROUP == "all" || BACKEND_GROUP == "cuda") &&
-    !BOLTZ_TEST_REACTANT &&
-    push!(EXTRA_PKGS, "LuxCUDA")
 (BACKEND_GROUP == "all" || BACKEND_GROUP == "amdgpu") &&
     !BOLTZ_TEST_REACTANT &&
     push!(EXTRA_PKGS, "AMDGPU")
