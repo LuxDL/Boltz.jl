@@ -1,10 +1,12 @@
 module BoltzReactantExt
 
+using ArgCheck: @argcheck
 using ADTypes: AutoEnzyme
-using Reactant: Reactant, AnyTracedRArray, Ops
-using ReactantCore: materialize_traced_array
+using Reactant: Reactant, AnyTracedRArray, AnyTracedRVector, TracedRNumber, Ops, @opcall
+using ReactantCore: materialize_traced_array, @trace
 
-using Boltz: Boltz, Layers, Utils
+using Lux: LuxOps
+using Boltz: Boltz, Layers, Utils, Basis
 
 Utils.is_extension_loaded(::Val{:Reactant}) = true
 
@@ -16,10 +18,10 @@ function Layers.get_hamiltonian_autodiff(autodiff, ::AnyTracedRArray)
 end
 
 function Utils.unsqueeze1(x::AnyTracedRArray)
-    return Ops.reshape(materialize_traced_array(x), [1, size(x)...])
+    return @opcall reshape(materialize_traced_array(x), [1, size(x)...])
 end
 function Utils.unsqueezeN(x::AnyTracedRArray)
-    return Ops.reshape(materialize_traced_array(x), [size(x)..., 1])
+    return @opcall reshape(materialize_traced_array(x), [size(x)..., 1])
 end
 
 end

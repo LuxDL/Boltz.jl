@@ -27,6 +27,10 @@ and dropout.
     chain <: Union{Lux.Chain,Lux.SkipConnection}
 end
 
+function MLP(in_dims::Integer, hidden_dims::Vector{<:Integer}, args...; kwargs...)
+    return MLP(in_dims, Dims(hidden_dims), args...; kwargs...)
+end
+
 function MLP(
     in_dims::Integer,
     hidden_dims::Dims{N},
@@ -54,10 +58,6 @@ function MLP(
     return MLP(Lux.Chain(inner_blocks))
 end
 
-@concrete struct DenseNormActDropoutBlock <: AbstractLuxWrapperLayer{:block}
-    block
-end
-
 function dense_norm_act_dropout(
     i::Integer,
     (in_dims, out_dims)::Pair{<:Integer,<:Integer},
@@ -67,34 +67,14 @@ function dense_norm_act_dropout(
     dense_kwargs,
     norm_kwargs,
 ) where {F,NF}
-    if iszero(dropout_rate)
-        if norm_layer === nothing
-            return DenseNormActDropoutBlock(
-                Lux.Chain(;
-                    dense=Lux.Dense(in_dims => out_dims, activation; dense_kwargs...)
-                ),
-            )
-        end
-        return DenseNormActDropoutBlock(
-            Lux.Chain(;
-                dense=Lux.Dense(in_dims => out_dims; dense_kwargs...),
-                norm=norm_layer(i, out_dims, activation; norm_kwargs...),
-            ),
-        )
-    end
     if norm_layer === nothing
-        return DenseNormActDropoutBlock(
-            Lux.Chain(;
-                dense=Lux.Dense(in_dims => out_dims, activation; dense_kwargs...),
-                dropout=Lux.Dropout(dropout_rate),
-            ),
-        )
+        dense = Lux.Dense(in_dims => out_dims, activation; dense_kwargs...)
+        iszero(dropout_rate) && return dense
+        return Lux.Chain(; dense, dropout=Lux.Dropout(dropout_rate))
     end
-    return DenseNormActDropoutBlock(
-        Lux.Chain(;
-            dense=Lux.Dense(in_dims => out_dims; dense_kwargs...),
-            norm=norm_layer(i, out_dims, activation; norm_kwargs...),
-            dropout=Lux.Dropout(dropout_rate),
-        ),
-    )
+
+    dense = Lux.Dense(in_dims => out_dims; dense_kwargs...)
+    norm = norm_layer(i, out_dims, activation; norm_kwargs...)
+    iszero(dropout_rate) && return Lux.Chain(; dense, norm)
+    return Lux.Chain(; dense, norm, dropout=Lux.Dropout(dropout_rate))
 end

@@ -24,12 +24,14 @@ function Base.show(
     return print(io, "Basis.$(name)(order=$(basis.n))")
 end
 
+apply_basis(f::F, grid, x) where {F} = f.(grid, x)
+
 function (basis::GeneralBasisFunction{name,F})(
-    x::AbstractArray, grid::Union{AbstractRange,AbstractVector}=1:1:(basis.n)
+    x::AbstractArray, grid::AbstractVector=Base.OneTo(Int32(basis.n))
 ) where {name,F}
     @argcheck length(grid) == basis.n
     if basis.dim == 1 # Fast path where we don't need to materialize the range
-        return basis.f.(grid, unsqueeze1(x))
+        return apply_basis(basis.f, grid, unsqueeze1(x))
     end
 
     @argcheck ndims(x) + 1 ≥ basis.dim
@@ -37,10 +39,8 @@ function (basis::GeneralBasisFunction{name,F})(
         i -> i == basis.dim ? 1 : (i < basis.dim ? size(x, i) : size(x, i - 1)),
         ndims(x) + 1,
     )
-    x_new = reshape(x, new_x_size)
     grid_shape = ntuple(i -> i == basis.dim ? basis.n : 1, ndims(x) + 1)
-    grid_new = reshape(grid, grid_shape)
-    return basis.f.(grid_new, x_new)
+    return apply_basis(basis.f, reshape(grid, grid_shape), reshape(x, new_x_size))
 end
 
 @doc doc"""
@@ -156,7 +156,7 @@ Legendre(n; dim::Int=1) = GeneralBasisFunction{:Legendre}(legendre_poly, n, dim)
 
 ## Source: https://github.com/ranocha/PolynomialBases.jl/blob/master/src/legendre.jl
 function legendre_poly(i, x)
-    p = i - 1
+    p = i - typeof(i)(1)
     a = one(x)
     b = x
 
@@ -164,7 +164,7 @@ function legendre_poly(i, x)
     p == 1 && return b
 
     for j in 2:p
-        a, b = b, @fastmath(((2j - 1) * x * b - (j - 1) * a) / j)
+        a, b = b, @fastmath(((2j - one(j)) * x * b - (j - one(j)) * a) / j)
     end
 
     return b
