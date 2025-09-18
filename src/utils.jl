@@ -4,7 +4,13 @@ using ForwardDiff: ForwardDiff
 using Statistics: mean
 
 using MLDataDevices:
-    MLDataDevices, get_device_type, get_device, CPUDevice, CUDADevice, ReactantDevice
+    MLDataDevices,
+    AbstractDevice,
+    get_device_type,
+    get_device,
+    CPUDevice,
+    CUDADevice,
+    ReactantDevice
 
 is_extension_loaded(::Val) = false
 
@@ -52,9 +58,16 @@ function safe_warning(msg::AbstractString)
     return nothing
 end
 
-safe_kron(a, b) = map(safe_kron_internal, a, b)
-function safe_kron_internal(a::AbstractVector, b::AbstractVector)
-    return safe_kron_internal(get_device_type((a, b)), a, b)
+safe_kron(a, b) = safe_kron(get_device_type((a, b)), a, b)
+
+safe_kron(T::Type{<:AbstractDevice}, a, b) = safe_kron_internal.(Ref(T), a, b)
+
+function safe_kron(::Type{ReactantDevice}, a::AbstractVector, b::AbstractVector)
+    res = [safe_kron_internal(ReactantDevice, first(a), first(b))]
+    for (aᵢ, bᵢ) in zip(a[2:end], b[2:end])
+        push!(res, safe_kron_internal(ReactantDevice, aᵢ, bᵢ))
+    end
+    return res
 end
 
 function safe_kron_internal(
