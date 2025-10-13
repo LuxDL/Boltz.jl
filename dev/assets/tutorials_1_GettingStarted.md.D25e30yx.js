@@ -275,15 +275,16 @@ import{_ as a,c as n,o as p,al as l}from"./chunks/framework.B0nYGJyD.js";const k
 <span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">        println</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">()</span></span>
 <span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">        AMDGPU</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">.</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">versioninfo</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">()</span></span>
 <span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    end</span></span>
-<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">end</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>Julia Version 1.11.7</span></span>
-<span class="line"><span>Commit f2b3dbda30a (2025-09-08 12:10 UTC)</span></span>
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">end</span></span></code></pre></div><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>Julia Version 1.12.0</span></span>
+<span class="line"><span>Commit b907bd0600f (2025-10-07 15:42 UTC)</span></span>
 <span class="line"><span>Build Info:</span></span>
-<span class="line"><span>  Official https://julialang.org/ release</span></span>
+<span class="line"><span>  Official https://julialang.org release</span></span>
 <span class="line"><span>Platform Info:</span></span>
 <span class="line"><span>  OS: Linux (x86_64-linux-gnu)</span></span>
 <span class="line"><span>  CPU: 4 × AMD EPYC 7763 64-Core Processor</span></span>
 <span class="line"><span>  WORD_SIZE: 64</span></span>
-<span class="line"><span>  LLVM: libLLVM-16.0.6 (ORCJIT, znver3)</span></span>
+<span class="line"><span>  LLVM: libLLVM-18.1.7 (ORCJIT, znver3)</span></span>
+<span class="line"><span>  GC: Built with stock GC</span></span>
 <span class="line"><span>Threads: 1 default, 0 interactive, 1 GC (on 4 virtual cores)</span></span>
 <span class="line"><span>Environment:</span></span>
 <span class="line"><span>  JULIA_NUM_THREADS = 1</span></span>
