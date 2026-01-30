@@ -56,7 +56,7 @@ BoltzTrackerExt = "Tracker"
 BoltzZygoteExt = "Zygote"
 
 [compat]
-ADTypes = "1.10"
+ADTypes = "1.15"
 ArgCheck = "2.3"
 Artifacts = "1.10, 1"
 ChainRulesCore = "1.25.1"
