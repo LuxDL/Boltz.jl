@@ -17,7 +17,7 @@ val = Array(layer(x, ps, st)[1])
 shifted_val = Array(layer(x .+ Δx, ps, st)[1])
 
 @test all(val[1:4, :, :, :] .== shifted_val[1:4, :, :, :])
-@test all(isapprox.(val[5:8, :, :, :], shifted_val[5:8, :, :, :]; atol = 1e-5))
+@test all(isapprox.(val[5:8, :, :, :], shifted_val[5:8, :, :, :]; atol=1e-5))
 
 @test_gradients(
     TestUtils.sumabs2first,

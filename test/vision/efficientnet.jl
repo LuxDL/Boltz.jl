@@ -14,4 +14,3 @@ end
     model = Vision.EfficientNet(variant; pretrained)
     VisionTestUtils.test_model(model; pretrained)
 end
-

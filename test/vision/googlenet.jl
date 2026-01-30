@@ -6,4 +6,3 @@ include("testutils.jl")
     model = Vision.GoogleNet(; pretrained)
     VisionTestUtils.test_model(model; pretrained)
 end
-
