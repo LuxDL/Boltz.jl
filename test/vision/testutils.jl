@@ -28,7 +28,7 @@ end
 function imagenet_acctest(model, ps, st, dev; size=224)
     ps = dev(ps)
     st = dev(Lux.testmode(st))
-    TEST_X = get_test_image(size, dev)
+    TEST_X = get_test_image(size)
     x = dev(TEST_X)
 
     if dev isa ReactantDevice

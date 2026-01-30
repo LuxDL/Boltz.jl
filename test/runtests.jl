@@ -5,7 +5,7 @@ delete!(testsuite, "testutils")
 delete!(testsuite, "vision/testutils")
 
 # Limit total jobs to 4 to avoid OOM on GPU
-total_jobs = min(min(ParallelTestRunner.default_njobs(), length(keys(testsuite))), 4)
+total_jobs = min(ParallelTestRunner.default_njobs(), length(keys(testsuite)), 4)
 
 testrunner_args = @isdefined(TEST_ARGS) ? TEST_ARGS : ARGS
 push!(testrunner_args, "--jobs=$(total_jobs)")

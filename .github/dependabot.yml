@@ -11,7 +11,7 @@ updates:
     directories:
       # Location of Julia projects
       - "/"
-      - "/docs"
-      - "/test"
+      - "/examples/GettingStarted"
+      - "/examples/SymbolicOptimalControl"
     schedule:
       interval: "weekly"

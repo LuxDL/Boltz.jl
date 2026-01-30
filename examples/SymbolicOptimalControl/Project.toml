@@ -33,3 +33,6 @@ SciMLSensitivity = "7.57"
 Statistics = "1.10"
 SymbolicRegression = "1"
 SymbolicUtils = "3"
+
+[sources]
+Boltz = {path = "../../"}
