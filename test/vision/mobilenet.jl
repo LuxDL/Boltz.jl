@@ -1,4 +1,4 @@
-using Boltz, Test
+using Boltz, Test, Metalhead
 
 include("testutils.jl")
 

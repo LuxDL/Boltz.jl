@@ -1,5 +1,7 @@
 using Boltz, Test
 
+include("testutils.jl")
+
 variants = if parse(Bool, get(ENV, "CI", "false"))
     [:tiny, :small, :base]
 else
