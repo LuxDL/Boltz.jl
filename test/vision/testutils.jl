@@ -1,6 +1,6 @@
 module VisionTestUtils
 
-using Lux, Downloads, JLD2, Pickle, Reactant, StableRNGs, Reactant
+using Lux, Downloads, JLD2, Pickle, Reactant, StableRNGs, Reactant, Test
 
 function normalize_imagenet(data)
     cmean = reshape(Float32[0.485, 0.456, 0.406], (1, 1, 3, 1))
