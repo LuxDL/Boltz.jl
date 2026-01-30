@@ -48,7 +48,7 @@ function test_model(model; size=224, pretrained::Bool=false, nclasses::Int=1000)
     img = get_test_image(size)
 
     res = first(model(img, ps, st))
-    @test size(res) == (nclasses, 1)
+    @test Base.size(res) == (nclasses, 1)
 
     if pretrained
         @test imagenet_acctest(model, ps, st, CPUDevice(); size)
