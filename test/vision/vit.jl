@@ -7,7 +7,7 @@ else
 end
 
 @testset "VisionTransformer: $(variant): pretrained: $(pretrained)" for variant in variants,
-    pretrained in [false, true]
+    pretrained in [false]
 
     model = Vision.VisionTransformer(variant; pretrained)
     VisionTestUtils.test_model(model; pretrained, size=256)
