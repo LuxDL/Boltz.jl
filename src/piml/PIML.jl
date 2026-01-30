@@ -1,6 +1,5 @@
 module PIML
 
-using ArgCheck: @argcheck
 using Compat: @compat
 using ConcreteStructs: @concrete
 using Random: Random, AbstractRNG
