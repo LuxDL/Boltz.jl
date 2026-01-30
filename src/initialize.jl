@@ -1,6 +1,5 @@
 module InitializeModels
 
-using ArgCheck: @argcheck
 using Functors: fmap
 using Random: Random, AbstractRNG
 
