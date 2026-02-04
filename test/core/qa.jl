@@ -1,15 +1,11 @@
-@testitem "Aqua: Quality Assurance" tags = [:others] begin
-    using Aqua
+using Lux, Aqua, ExplicitImports, Boltz, Test
 
+@testset "Aqua: Quality Assurance" begin
     Aqua.test_all(Boltz; ambiguities=false)
     Aqua.test_ambiguities(Boltz; recursive=false)
 end
 
-@testitem "Explicit Imports: Quality Assurance" tags = [:others] begin
-    using Lux: Lux
-    using Zygote: Zygote # Load all trigger packages
-    using ExplicitImports
-
+@testset "Explicit Imports: Quality Assurance" begin
     @test check_no_implicit_imports(Boltz; skip=(Base, Core, Lux)) === nothing
     @test check_no_stale_explicit_imports(Boltz) === nothing
     @test check_no_self_qualified_accesses(Boltz) === nothing

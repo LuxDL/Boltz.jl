@@ -1,85 +1,24 @@
-using ReTestItems, Pkg, CPUSummary, Test
+using Boltz, ParallelTestRunner, Setfield
 
-const ALL_BOTLZ_TEST_GROUPS = [
-    "layers", "others", "vision", "vision_metalhead", "integration", "piml"
-]
+parsed_args = parse_args(@isdefined(TEST_ARGS) ? TEST_ARGS : ARGS)
 
-function parse_test_args()
-    test_args_from_env = @isdefined(TEST_ARGS) ? TEST_ARGS : ARGS
-    test_args = Dict{String,String}()
-    for arg in test_args_from_env
-        if contains(arg, "=")
-            key, value = split(arg, "="; limit=2)
-            test_args[key] = value
-        end
-    end
-    @info "Parsed test args" test_args
-    return test_args
-end
+testsuite = find_tests(@__DIR__)
+delete!(testsuite, "testutils")
+delete!(testsuite, "vision/testutils")
 
-const PARSED_TEST_ARGS = parse_test_args()
-
-const BOLTZ_TEST_REACTANT = parse(
-    Bool, lowercase(get(PARSED_TEST_ARGS, "BOLTZ_TEST_REACTANT", "true"))
+# Limit total jobs to 4 to avoid OOM on GPU
+total_jobs = min(
+    something(parsed_args.jobs, ParallelTestRunner.default_njobs()),
+    length(keys(testsuite)),
+    4,
 )
 
-INPUT_TEST_GROUP = lowercase(get(PARSED_TEST_ARGS, "BOLTZ_TEST_GROUP", "all"))
-const BOLTZ_TEST_GROUP = if startswith("!", INPUT_TEST_GROUP[1])
-    exclude_group = lowercase.(split(INPUT_TEST_GROUP[2:end], ","))
-    filter(x -> x ∉ exclude_group, ALL_BOTLZ_TEST_GROUPS)
-else
-    [INPUT_TEST_GROUP]
-end
+@set! parsed_args.jobs = Some(total_jobs)
 
-const BACKEND_GROUP = lowercase(get(PARSED_TEST_ARGS, "BACKEND_GROUP", "all"))
-const EXTRA_PKGS = String[]
-
-(BACKEND_GROUP == "all" || BACKEND_GROUP == "amdgpu") &&
-    !BOLTZ_TEST_REACTANT &&
-    push!(EXTRA_PKGS, "AMDGPU")
-
-if !isempty(EXTRA_PKGS)
-    @info "Installing Extra Packages for testing" EXTRA_PKGS = EXTRA_PKGS
-    Pkg.add(EXTRA_PKGS)
-    Pkg.update()
-    Base.retry_load_extensions()
-    Pkg.instantiate()
-end
-
-using Boltz
-
-const RETESTITEMS_NWORKERS = parse(
-    Int,
-    get(
-        ENV,
-        "RETESTITEMS_NWORKERS",
-        string(min(Int(CPUSummary.num_cores()), Sys.isapple() ? 2 : 4)),
-    ),
-)
-
-const RETESTITEMS_NWORKER_THREADS = parse(
-    Int,
-    get(
-        ENV,
-        "RETESTITEMS_NWORKER_THREADS",
-        string(max(Int(CPUSummary.sys_threads()) ÷ RETESTITEMS_NWORKERS, 1)),
-    ),
-)
-
-@testset "Boltz.jl Tests" begin
-    @testset for (i, tag) in enumerate(BOLTZ_TEST_GROUP)
-        withenv(
-            "BOLTZ_TEST_REACTANT" => BOLTZ_TEST_REACTANT,
-            "BACKEND_GROUP" => BACKEND_GROUP,
-            "XLA_REACTANT_GPU_MEM_FRACTION" => 1 / (RETESTITEMS_NWORKERS + 0.1),
-        ) do
-            ReTestItems.runtests(
-                Boltz;
-                tags=(tag == "all" ? nothing : [Symbol(tag)]),
-                testitem_timeout=2400,
-                nworkers=RETESTITEMS_NWORKERS,
-                nworker_threads=RETESTITEMS_NWORKER_THREADS,
-            )
-        end
-    end
+withenv(
+    "XLA_REACTANT_GPU_MEM_FRACTION" => 1 / (total_jobs + 0.1),
+    "XLA_REACTANT_GPU_PREALLOCATE" => false,
+    "JULIA_CUDA_HARD_MEMORY_LIMIT" => "$(100 / (total_jobs + 0.1))%",
+) do
+    runtests(Boltz, parsed_args; testsuite)
 end
