@@ -38,7 +38,7 @@ jobs:
       julia_version: ${{ matrix.version }}
       os: ${{ matrix.os }}
       project: "."
-      test_args: "BACKEND_GROUP=CPU ${{ matrix.group }}"
+      test_args: "${{ matrix.group }}"
 
   downgrade:
     uses: LuxDL/Lux.jl/.github/workflows/CommonCI.yml@main
@@ -47,4 +47,4 @@ jobs:
       os: ubuntu-latest
       project: "."
       downgrade_testing: true
-      test_args: "BACKEND_GROUP=CPU"
+      test_args: ""
