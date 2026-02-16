@@ -1,12 +1,12 @@
 steps:
   - group: ":julia: CUDA GPU"
     steps:
-      - label: ":julia: Julia {{matrix.julia}} + CUDA GPU + {{matrix.group}} + Reactant: {{matrix.reactant}}"
+      - label: ":julia: Julia {{matrix.julia}} + CUDA GPU + {{matrix.group}}"
         plugins:
           - JuliaCI/julia#v1:
               version: "{{matrix.julia}}"
           - JuliaCI/julia-test#v1:
-              test_args: "BACKEND_GROUP=CUDA BOLTZ_TEST_GROUP={{matrix.group}} BOLTZ_TEST_REACTANT={{matrix.reactant}}"
+              test_args: "{{matrix.group}}"
           - JuliaCI/julia-coverage#v1:
               codecov: true
               dirs:
@@ -22,19 +22,19 @@ steps:
             julia:
               - "1"
             group:
-              - "all"
-            reactant:
-              - "true"
-              - "false"
+              - "layers"
+              - "vision"
+              - "piml"
+              - "core"
 
   # - group: ":julia: AMD GPU"
   #   steps:
-  #     - label: ":julia: Julia: {{matrix.julia}} + AMD GPU + {{matrix.group}} + Reactant: {{matrix.reactant}}"
+  #     - label: ":julia: Julia: {{matrix.julia}} + AMD GPU + {{matrix.group}}"
   #       plugins:
   #         - JuliaCI/julia#v1:
   #             version: "{{matrix.julia}}"
   #         - JuliaCI/julia-test#v1:
-  #             test_args: "BACKEND_GROUP=AMDGPU BOLTZ_TEST_GROUP={{matrix.group}} BOLTZ_TEST_REACTANT={{matrix.reactant}}"
+  #             test_args: "{{matrix.group}}"
   #         - JuliaCI/julia-coverage#v1:
   #             codecov: true
   #             dirs:
@@ -55,9 +55,10 @@ steps:
   #           julia:
   #             - "1"
   #           group:
-  #             - "all"
-  #           reactant:
-  #             - "false"
+  #             - "layers"
+  #             - "vision"
+  #             - "piml"
+  #             - "core"
 
 env:
   SECRET_CODECOV_TOKEN: "gZlC/IAmeUJehhP5mP2QuUV5a1qV61cvo4PUCLkA9vVkt3x6wgD6fTZmCm+f+gHkmkssFxX+q2h1Ud00XXc75H2LrjyR/cDTIthcO46BBOidYocv/U0gfhp6uT2IZ9fi+ryFfTVVpZ0RIUGmDTj0O/b5qt4oaTriAArLAq6mMipbIR9YCz7ZD/hWQXx8oDeAbnDpwQaddwPyhJhz95nayknOpuJj+ClaVOxgsLGZc3ZWiTj1QxkXBNwxLD2ALeG16Qxs9h7eK87sdcbWeTihvJ6OooARgpoVJAa2pJCFYOGy4Bh07c0VTZmicN2M3GIi74Y5T1PWNaz7nGeANO5Pow==;U2FsdGVkX1843DHkbGWCV9PArLBw0rNqmdy56VOTRNTifBSpkC796Oez1lMFU+yDtkElbcrRSIlS5hRFqpsaFA=="

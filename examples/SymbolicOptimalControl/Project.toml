@@ -17,6 +17,9 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 SymbolicRegression = "8254be44-1295-4e6a-a16d-46603ac705cb"
 SymbolicUtils = "d1185830-fcd6-423d-90d6-eec64667417b"
 
+[sources]
+Boltz = {path = "../.."}
+
 [compat]
 Boltz = "1"
 CairoMakie = "0.12, 0.13, 0.14, 0.15"
@@ -24,12 +27,12 @@ ComponentArrays = "0.15.11"
 DynamicExpressions = "1.10, 2"
 Latexify = "0.16.2"
 Lux = "1.21.2"
-MLJ = "0.20.3, 0.21"
-Optimization = "4"
+MLJ = "0.20.3, 0.21, 0.22"
+Optimization = "4, 5"
 OptimizationOptimJL = "0.4"
 OptimizationOptimisers = "0.3.2"
 OrdinaryDiffEqVerner = "1"
 SciMLSensitivity = "7.57"
 Statistics = "1.10"
 SymbolicRegression = "1"
-SymbolicUtils = "3"
+SymbolicUtils = "3, 4"

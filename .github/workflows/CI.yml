@@ -29,13 +29,16 @@ jobs:
         os:
           - ubuntu-latest
         group:
-          - "all"
+          - "layers"
+          - "vision"
+          - "piml"
+          - "core"
     uses: LuxDL/Lux.jl/.github/workflows/CommonCI.yml@main
     with:
       julia_version: ${{ matrix.version }}
       os: ${{ matrix.os }}
       project: "."
-      test_args: "BACKEND_GROUP=CPU BOLTZ_TEST_GROUP=${{ matrix.group }}"
+      test_args: "${{ matrix.group }}"
 
   downgrade:
     uses: LuxDL/Lux.jl/.github/workflows/CommonCI.yml@main
@@ -44,4 +47,4 @@ jobs:
       os: ubuntu-latest
       project: "."
       downgrade_testing: true
-      test_args: "BACKEND_GROUP=CPU BOLTZ_TEST_GROUP=all"
+      test_args: ""

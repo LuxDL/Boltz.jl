@@ -1,7 +1,7 @@
 name = "Boltz"
 uuid = "4544d5e4-abc5-4dea-817f-29e4c205d9c8"
 authors = ["Avik Pal <avikpal@mit.edu> and contributors"]
-version = "1.7.1"
+version = "1.8.0"
 
 [deps]
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
@@ -56,7 +56,7 @@ BoltzTrackerExt = "Tracker"
 BoltzZygoteExt = "Zygote"
 
 [compat]
-ADTypes = "1.10"
+ADTypes = "1.15"
 ArgCheck = "2.3"
 Artifacts = "1.10, 1"
 ChainRulesCore = "1.25.1"
@@ -73,7 +73,7 @@ LazyArtifacts = "1.10"
 Lux = "1.21.2"
 LuxCore = "1.2"
 LuxLib = "1.11"
-MLDataDevices = "1.11.2"
+MLDataDevices = "1.17.3"
 Markdown = "1.10"
 Metalhead = "0.9.5"
 NNlib = "0.9.30"
@@ -84,7 +84,7 @@ ReactantCore = "0.1.15"
 Reexport = "1.2.2"
 ReverseDiff = "1.16.1"
 SafeTensors = "1.2"
-Scratch = "1.2"
+Scratch = "1.3"
 Setfield = "1.1.2"
 Static = "1.1.1"
 Statistics = "1.10"
@@ -92,3 +92,6 @@ Tracker = "0.2.38"
 WeightInitializers = "1"
 Zygote = "0.7.7"
 julia = "1.10"
+
+[workspace]
+projects = ["test", "docs"]
