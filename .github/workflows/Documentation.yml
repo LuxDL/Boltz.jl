@@ -38,7 +38,7 @@ jobs:
       - name: Setup Julia
         uses: julia-actions/setup-julia@v2
       - name: Pull Julia cache
-        uses: julia-actions/cache@v2
+        uses: julia-actions/cache@v3
       - name: Install documentation dependencies
         run: julia --project=docs --color=yes -e 'using Pkg; Pkg.develop(Pkg.PackageSpec(path=".")); Pkg.instantiate(); Pkg.precompile(); Pkg.status()'
       - name: Build the tutorials
