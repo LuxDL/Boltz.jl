@@ -32,17 +32,9 @@
 
 # ## Package Imports
 
-using Lux,
-    Boltz,
-    ComponentArrays,
-    OrdinaryDiffEqVerner,
-    Optimization,
-    OptimizationOptimJL,
-    OptimizationOptimisers,
-    SciMLSensitivity,
-    Statistics,
-    Printf,
-    Random
+using Lux, Boltz, ComponentArrays, Statistics, Printf, Random
+using Optimization,
+    OptimizationOptimJL, OptimizationOptimisers, SciMLSensitivity, OrdinaryDiffEqVerner
 using DynamicExpressions, SymbolicRegression, MLJ, SymbolicUtils, Latexify
 using CairoMakie
 
