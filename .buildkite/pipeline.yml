@@ -2,7 +2,7 @@ steps:
   - label: "Triggering Pipelines (Pull Request)"
     if: build.branch != "main" && build.tag == null
     agents:
-      queue: "juliagpu"
+      queue: "cuda"
     plugins:
       - monebag/monorepo-diff#v2.5.9:
           diff: ".buildkite/scripts/diff.sh $BUILDKITE_COMMIT"
@@ -17,10 +17,10 @@ steps:
               config:
                 command: "buildkite-agent pipeline upload .buildkite/testing.yml"
                 agents:
-                  queue: "juliagpu"
+                  queue: "cuda"
 
   - label: "Triggering Pipelines (Main Branch / Tag)"
     if: build.branch == "main" || build.tag != null
     agents:
-      queue: "juliagpu"
+      queue: "cuda"
     command: "buildkite-agent pipeline upload .buildkite/testing.yml"
