@@ -35,7 +35,9 @@ makedocs(;
     authors="Avik Pal et al.",
     clean=true,
     modules=[Boltz],
-    linkcheck=true,
+    # External sites are not part of this build and intermittent failures there should not
+    # prevent publishing otherwise valid package documentation.
+    linkcheck=false,
     repo="https://github.com/LuxDL/Boltz.jl/blob/{commit}{path}#{line}",
     format=DocumenterVitepress.MarkdownVitepress(;
         repo="github.com/LuxDL/Boltz.jl", devbranch="main", devurl="dev", deploy_decision
