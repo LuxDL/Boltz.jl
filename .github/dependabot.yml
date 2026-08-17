@@ -1,5 +1,6 @@
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 version: 2
+enable-beta-ecosystems: true
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -15,3 +16,11 @@ updates:
     groups:
       documentation-node-dependencies:
         patterns: ["*"]
+  - package-ecosystem: "julia"
+    directories:
+      # Location of Julia projects
+      - "/"
+      - "/docs"
+      - "/test"
+    schedule:
+      interval: "weekly"
