@@ -1,6 +1,6 @@
 name = "Boltz"
 uuid = "4544d5e4-abc5-4dea-817f-29e4c205d9c8"
-version = "1.7.1"
+version = "1.7.2"
 authors = ["Avik Pal <avikpal@mit.edu> and contributors"]
 
 [deps]
