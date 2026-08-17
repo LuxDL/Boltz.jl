@@ -13,8 +13,7 @@ steps:
                 - src
                 - ext
         agents:
-          queue: "juliagpu"
-          cuda: "*"
+          queue: "cuda"
         if: build.message !~ /\[skip tests\]/ && build.message !~ /\[skip ci\]/
         timeout_in_minutes: 120
         matrix:
@@ -45,8 +44,7 @@ steps:
   #         JULIA_AMDGPU_HIP_MUST_LOAD: "1"
   #         JULIA_AMDGPU_DISABLE_ARTIFACTS: "1"
   #       agents:
-  #         queue: "juliagpu"
-  #         rocm: "*"
+  #         queue: "rocm"
   #         rocmgpu: "*"
   #       if: build.message !~ /\[skip tests\]/ && build.message !~ /\[skip ci\]/
   #       timeout_in_minutes: 60
